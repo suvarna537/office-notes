@@ -1,0 +1,83 @@
+I think you have visited this page earlier
+where it contains all our documents here.
+which is called mosip docs.
+all the required things are documented here.
+so now we are going to see our deployment architecture here.
+we can visit mosip docs under deployments,there is v3 installation, under v3 installation we have on-prem installation guide.
+For unraf and other countries also we are using v3.
+so now will see the architecture.
+
+All our mosip modules are run as a microservices, which is managed by kubernetes cluster.
+
+In our architecture we have 2 kubernetes clusters, one is observation cluster and another one is mosip cluster.
+
+observation cluster is mainly for managing the clusters, used for administrative tasks. for the devops individual it's easy to use the CLI, but for the maintainer,developer and others it's difficult to maintain the cluster.for that reason in this observation cluster we are using GUI (that is rancher UI),which can be used to manage the cluster.
+
+with that UI,they can see the pods,nodes,configmaps, other resources and create,delete,edit also.
+
+at the end I will show the rancher UI for unraf.
+
+Along with the rancher UI,we have IAM(Identity Access Management) that is keycloak. keycloak also deployed in the mosip cluster.
+
+So In observation cluster we will deploy rancher,keycloak.
+
+rancher is used for managing the mosip cluster, keycloak is used for cluster user access management. (like creating users,roles,groups etc..)
+
+Moving on we have a mosip cluster.. 
+
+In mosip cluster all our mosip components are deployed. 
+
+As we are taking about two clusters, this part is observation cluster and this part is mosip cluster.
+
+A cluster is nothing but a group of vm's. in these group of VM's we can deploy our services. 
+
+the vm's are clubbed together there are many tools like kubeadmin, but here we are using rke.(rancher kubernetes engine)
+
+we are using that tool to create the clusters. we will see left side and will start from here... 
+
+the first contact from the outside world to nginx.. before that we have something called wireguard bastion.. wireguard is nothing but vpn protocol(like open vpn),we have many vpn protocols, wireguard itself a vpn protocal..we can use that to query the clusters.
+
+because we are not going to expose all our services in to outside. we have some certain service to publish and other services to be guarded.
+
+to other services which are not exposes publicly, we need a wireguard.
+
+without wireguard we won't be able to access the cluster. even for regclient system, we are using 3 systems for that we need 3 wireguards should be installed on the machines.
+
+we can see we have 2 nginx, one nginx corresponds to mosip cluster, and other nginx corresponds to the observation cluster.
+
+here we are using nginx as the loadbalancer, it also act as a reverse proxy, and other main thing which happens in the nginx machine is SSL Termination.and what it does is it receive the request as a https, in nginx it does the termination,converts the https to http.  that also a major role of nginx.
+
+nginx is the Layer4 Loadbalancer,so it routes http to a particular node of the VM. so that's the use of an Nginx here.
+
+So see we have a two separate nginx here, (one for the observation cluster and one for the mosip cluster.)
+=====================================================================================================================================
+Any questions or doubts  ??
+
+we have two separate Loadbalancers ?? is it for high availability.?
+
+Yes.
+
+VM's are containerised or hypervised vm's??
+
+we can create hypervised vm's using VM ware.(create from your servers also) any vm's are fine.. that means we are creating the VM's from AWS, so same way if you have on-prem servers we can use that.
+
+we have some requirements, if that requirements met we can use.
+
+you are using rancher because that has ability use docker and cluster management ??
+
+yes. even if you have a different cluster that also we can manage.
+
+==================================================================================================================================
+    10:01
+	
+
+
+
+
+
+ 
+
+
+
+
+
