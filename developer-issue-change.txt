@@ -1,0 +1,18 @@
+                                   Consent page not showing properly
+                                   =================================
+
+https://github.com/iiitb-pilot/registration-client/blob/mec-1.2.0.1-B1/registration/registration-services/src/main/java/io/mosip/registration/dto/RegistrationDTO.java
+
+In this path --> line No : 162 --> need to change to 0 in the place of null.
+
+==================================================================================================================================
+
+                    RID Email Attachment not receiving through mail.
+                    ===============================================
+Config Changes --> path
+
+https://github.com/unraf-id/mosip-config/blob/unraf-1.2.0.1/registration-processor-credential-partners.json
+
+line no 15 --> Change credential type --> euin to vercred
+
+===================================
