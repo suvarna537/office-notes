@@ -1,0 +1,567 @@
+dst-stage servers
+==================
+dst-stage-1 - 10.0.2.154
+dst-stage-2 - 10.0.8.136
+dst-stage-3 - 10.0.11.128
+dst-stage-4 - 10.0.2.191
+dst-stage-5 - 10.0.13.190
+dst-stage-6 - 10.0.1.139
+
+dst-stage-mosip-nginx - 10.0.12.48                           
+~/.ssh/dst-stage.pem   
+
+ssh -i ~/.ssh/dst-stage.pem  ubuntu@10.0.2.154
+ssh -i ~/.ssh/dst-stage.pem  ubuntu@10.0.8.136
+ssh -i ~/.ssh/dst-stage.pem  ubuntu@10.0.11.128
+ssh -i ~/.ssh/dst-stage.pem  ubuntu@10.0.2.191
+ssh -i ~/.ssh/dst-stage.pem  ubuntu@10.0.13.190
+ssh -i ~/.ssh/dst-stage.pem  ubuntu@10.0.1.139
+ssh -i ~/.ssh/dst-stage.pem  ubuntu@10.0.12.48
+
+git clone https://github.com/mosip/k8s-infra -b 
+
+This task is like  MES STAGE is in E2E N/W (server) now need to move to AWS...
+For that we need db & softhsm from mec-stage to dst-stage.. (need to migrate)
+Required
+========
+using new release 1.2.0.2 (and branch also 1.2.0.2)
+1) Take a backup mecstage
+2) softhsm backup from mecstage
+3) other configuration mail configurations (as it is from mec-stage)
+4) OIDC Client also as it is like mec-stage
+5) keycloak also we need to use existing one.
+
+
+
+use gitbrach v1.2.0.2
+
+git clone https://github.com/mosip/k8s-infra -b v1.2.0.2 
+git checkout tags/v1.2.0.2 -b v1.2.0.2
+
+
+git clone https://github.com/mosip/mosip-infra -b v1.2.0.2
+
+pem file ---> dst-stage.pem  (should have chmod 400 permissions)
+
+
+THis wireguard server need to add in wireguard name as dst-mosip
+
+wireguard server :
+=========================================
+
+[Interface]
+Address = 10.13.13.58/32
+PrivateKey = uE0NYrJE7TFhYdFjz2OG9IGB5gp8G8DDiCmI9QVRanQ=
+ListenPort = 51820
+
+[Peer]
+PublicKey = vDiZptnTF6U1yhuUdKBfuClJVt1D8nGiI4Eqs/WN9lg=
+PresharedKey = W0uQ7zd+qYUbDCIMg2ZGe+raqcoPX31AYT4KI0TuYyI=
+Endpoint = 13.201.59.145:51820
+AllowedIPs = 10.0.0.0/16
+
+================================================================
+Step1 : need to setup mosip k8s cluster. after cloning I need to  
+       cd mosip_dst/k8s-infra/mosip/on-prem (in docs instead of mosip rancher was there.
+	   cp hosts.ini.sample hosts.ini
+	   need to update hosts.ini file with mosip nodes for reference.
+	   suvarna@DESKTOP-4KQ6O58:~/mosip_dst/k8s-infra/mosip/on-prem$ cat hosts.ini
+#[wireguard]
+#wireguard-admin ansible_host=<external ip> ansible_user=root ansible_ssh_private_key_file=<pvt .pem file>
+
+# <Cluster name>
+[cluster]
+node1 ansible_host=10.0.2.154 ansible_user=ubuntu  ansible_ssh_private_key_file=~/.ssh/dst-stage.pem
+node2 ansible_host=10.0.8.136 ansible_user=ubuntu ansible_ssh_private_key_file=~/.ssh/dst-stage.pem
+node3 ansible_host=10.0.11.128 ansible_user=ubuntu ansible_ssh_private_key_file=~/.ssh/dst-stage.pem
+node4 ansible_host=10.0.2.191 ansible_user=ubuntu ansible_ssh_private_key_file=~/.ssh/dst-stage.pem
+node5 ansible_host=10.0.13.190 ansible_user=ubuntu ansible_ssh_private_key_file=~/.ssh/dst-stage.pem
+node6 ansible_host=10.0.1.139 ansible_user=ubuntu ansible_ssh_private_key_file=~/.ssh/dst-stage.pem
+
+#[nginx]
+#node-nginx ansible_host=<internal ip> ansible_user=root ansible_ssh_private_key_file=<pvt .pem file>
+
+ansible-playbook -i hosts.ini env-check-setup.yaml ( here I got error like ansible not installed)
+so I installed ansible.
+ python3 -m pip -V
+   61  curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
+   62  python3 get-pip.py --user
+   63  python3 -m pip -V
+   64  python3 -m pip install --user ansible
+   65  ansible --version
+   66  python3 -m pip install --user ansible-core
+   67  ansible --version
+   68  sudo apt install ansible
+   69  sudo apt update
+   70  sudo apt upgrade -y
+   71  sudo apt install ansible -y
+   72  ls
+   73  ansible --verison
+   74  ansible --version
+   75  ansible-playbook --version
+   
+ need to ssh into all nodes but I did this inception itself.
+ 
+ next step wireguard server details (this one not done, skipped )
+ vpc_ip, ports.yaml this also skipped.
+ Next step : ansible-playbook -i hosts.ini ports.yaml
+ ansible-playbook -i hosts.ini swap.yaml
+ ansible-playbook -i hosts.ini docker.yaml
+ rke config
+ [+] Cluster Level SSH Private Key Path [~/.ssh/id_rsa]: ~/.ssh/dst-stage.pem
+[+] Number of Hosts [1]: 6
+[+] SSH Address of host (1) [none]: 10.0.2.154
+[+] SSH Port of host (1) [22]:
+[+] SSH Private Key Path of host (10.0.16.60) [none]: ~/.ssh/dst-stage.pem
+[+] SSH User of host (10.0.16.60) [ubuntu]:
+[+] Is host (10.0.16.60) a Control Plane host (y/n)? [y]: y
+[+] Is host (10.0.16.60) a Worker host (y/n)? [n]: y
+[+] Is host (10.0.16.60) an etcd host (y/n)? [n]: y
+[+] Override Hostname of host (10.0.16.60) [none]: dst-stage1
+[+] Internal IP of host (10.0.2.154) [none]: 10.0.2.154
+[+] Docker socket path on host (10.0.16.60) [/var/run/docker.sock]:
+
+same steps upto 6 th node additional steps all are default values.
+ Network Plugin Type (flannel, calico, weave, canal, aci) [canal]:
+[+] Authentication Strategy [x509]:
+[+] Authorization Mode (rbac, none) [rbac]:
+[+] Kubernetes Docker image [rancher/hyperkube:v1.22.9-rancher1]:
+[+] Cluster domain [cluster.local]:
+[+] Service Cluster IP Range [10.43.0.0/16]:
+[+] Enable PodSecurityPolicy [n]:
+[+] Cluster Network CIDR [10.42.0.0/16]:
+[+] Cluster DNS Service IP [10.43.0.10]:
+[+] Add addon manifest URLs or YAML files [no]:
+
+nano cluster.yml
+ ingress:
+provider: none
+
+cluster_name: mosip-cluster
+
+rke up
+last step should be the below one.
+INFO[0467] Finished building Kubernetes cluster successfully...
+
+ sudo cp kube_config_cluster.yml $HOME/.kube/mosip-cluster_config
+chmod 400 $HOME/.kube/mosip-cluster_config
+
+sudo cp $HOME/.kube/mosip-cluster_config $HOME/.kube/config
+sudo  cp $HOME/.kube/mosip-cluster_config $HOME/.kube/config
+
+kubectl get nodes
+
+======================================================================
+                    Global Config maps
+					==================
+cd /home/suvarna/mosip/k8s-infra/mosip
+
+2) cp  global_configmap.yaml.sample global_configmap.yaml
+
+3) vi global_configmap.yaml
+
+installation-name: dst-stage
+  installation-domain: dst-stage.mosip.net
+  mosip-version: develop
+  mosip-minio-host: minio.dst-stage.mosip.net
+mosip-api-internal-host: api-internal.dst-stage.mosip.net
+mosip-compliance-host: compliance.dst-stage.mosip.net
+mosip-esignet-host: esignet.dst-stage.mosip.net
+mosip-kafka-host: kafka.dst-stage.mosip.net
+mosip-kibana-host: kibana.dst-stage.mosip.net
+mosip-prereg-host: prereg.dst-stage.mosip.net
+mosip-activemq-host: activemq.dst-stage.mosip.net
+mosip-api-host: api.dst-stage.mosip.net
+mosip-pmp-host: pmp.dst-stage.mosip.net
+mosip-smtp-host: smtp.dst-stage.mosip.net
+mosip-resident-host: resident.dst-stage.mosip.net
+mosip-admin-host: admin.dst-stage.mosip.net
+mosip-iam-external-host: iam.dst-stage.mosip.net
+mosip-postgres-host: postgres.dst-stage.mosip.net
+mosip-regclient-host: regclient.dst-stage.mosip.net
+  is_glowroot_env: absent
+  
+  
+  For DST-Ticket
+  ==============
+ dst-stage.mosip.net
+
+ minio.dst-stage.mosip.net
+ api-internal.dst-stage.mosip.net
+ compliance.dst-stage.mosip.net
+ esignet.dst-stage.mosip.net
+ kafka.dst-stage.mosip.net
+ kibana.dst-stage.mosip.net
+ prereg.dst-stage.mosip.net
+ activemq.dst-stage.mosip.net
+ api.dst-stage.mosip.net
+ pmp.dst-stage.mosip.net
+ smtp.dst-stage.mosip.net
+ resident.dst-stage.mosip.net
+ admin.dst-stage.mosip.net
+ iam.dst-stage.mosip.net
+ postgres.dst-stage.mosip.net
+ regclient.dst-stage.mosip.net
+ healthservices.dst-stage.mosip.net
+================================================================================================================================
+                                 Istio
+								 ======
+ cd /home/suvarna/mosip/k8s-infra/mosip/on-prem/istio
+
+2) ./install.sh
+3) kubectl get svc -n istio-system
+
+================================================================================================================================
+
+              For NFS Server
+			  ==============
+			  
+ubuntu@ip-10-0-12-48:~/k8s-infra/nfs$ ./install-nfs-server.sh (this need to run ssh into particular node mosip-nginx node)
+This Script will Install NFS server.
+Please Enter Environment Name: dst-stage
+
+[ Install NFS Server ]
+Hit:1 http://ap-south-1.ec2.archive.ubuntu.com/ubuntu focal InRelease
+Hit:2 http://ap-south-1.ec2.archive.ubuntu.com/ubuntu focal-updates InRelease
+Hit:3 http://ap-south-1.ec2.archive.ubuntu.com/ubuntu focal-backports InRelease
+Get:4 http://security.ubuntu.com/ubuntu focal-security InRelease [114 kB]
+Fetched 114 kB in 1s (77.9 kB/s)
+Reading package lists... Done
+Building dependency tree
+Reading state information... Done
+41 packages can be upgraded. Run 'apt list --upgradable' to see them.
+Reading package lists... Done
+Building dependency tree
+Reading state information... Done
+nfs-kernel-server is already the newest version (1:1.3.4-2.5ubuntu3.6).
+0 upgraded, 0 newly installed, 0 to remove and 41 not upgraded.
+
+[ Add User For NFS ]
+useradd: user 'nfsnobody' already exists
+User nfsnobody created
+
+[ Create NFS Storage ]
+NFS storage /srv/nfs/mosip/dst-stage created.
+
+[ Enable & Start NFS server ]
+Synchronizing state of nfs-kernel-server.service with SysV service script with /lib/systemd/systemd-sysv-install.
+Executing: /lib/systemd/systemd-sysv-install enable nfs-kernel-server
+NFS server started and enabled.
+
+[ Update NFS export file ]
+/srv/nfs/mosip/dst-stage *(rw,sync,no_root_squash,no_all_squash,insecure,subtree_check)
+Updated NFS export file.
+
+[ Export the NFS Share Directory ]
+exporting *:/srv/nfs/mosip/dst-stage
+
+ NFS Server Path: /srv/nfs/mosip/dst-stage
+
+=============================================================================================================================================
+
+setting up nginx server for mosip cluster:
+============================================                             
+1) ssh -i ~/.ssh/training.pem  ubuntu@10.0.16.157
+2) sudo apt update -y
+sudo apt-get install software-properties-common -y
+sudo add-apt-repository ppa:deadsnakes/ppa
+sudo apt-get update -y
+sudo apt-get install python3.8 -y
+sudo apt install letsencrypt -y
+sudo apt install certbot python3-certbot-nginx -y
+
+3) sudo certbot certonly --agree-tos --manual --preferred-challenges=dns -d  *.dst-stage.mosip.net
+
+SSL cert path: /etc/letsencrypt/live/dst-stage.mosip.net/fullchain.pem
+
+SSL key path: /etc/letsencrypt/live/dst-stage.mosip.net/privkey.pem
+
+ubuntu@ip-10-0-12-48:/etc$ cd /letsencrypt/
+-bash: cd: /letsencrypt/: No such file or directory
+ubuntu@ip-10-0-12-48:/etc$ cd letsencrypt/
+ubuntu@ip-10-0-12-48:/etc/letsencrypt$ ls
+accounts  archive  cli.ini  csr  keys  live  renewal  renewal-hooks
+ubuntu@ip-10-0-12-48:/etc/letsencrypt$ cd live/
+-bash: cd: live/: Permission denied
+ubuntu@ip-10-0-12-48:/etc/letsencrypt$ sudo cd live/
+sudo: cd: command not found
+ubuntu@ip-10-0-12-48:/etc/letsencrypt$ sudo cd /live/
+sudo: cd: command not found
+ubuntu@ip-10-0-12-48:/etc/letsencrypt$ sudo su -
+root@ip-10-0-12-48:~# sudo cd live/
+sudo: cd: command not found
+root@ip-10-0-12-48:~# cd live/
+-bash: cd: live/: No such file or directory
+root@ip-10-0-12-48:~# exit
+logout
+ubuntu@ip-10-0-12-48:/etc/letsencrypt$ sudo su
+root@ip-10-0-12-48:/etc/letsencrypt# cd live/
+root@ip-10-0-12-48:/etc/letsencrypt/live# ls
+README  dst-stage.mosip.net
+root@ip-10-0-12-48:/etc/letsencrypt/live# cd dst-stage.mosip.net/
+root@ip-10-0-12-48:/etc/letsencrypt/live/dst-stage.mosip.net# ls
+README  cert.pem  chain.pem  fullchain.pem  privkey.pem
+root@ip-10-0-12-48:/etc/letsencrypt/live/dst-stage.mosip.net# pwd
+/etc/letsencrypt/live/dst-stage.mosip.net
+root@ip-10-0-12-48:/etc/letsencrypt/live/dst-stage.mosip.net#
+
+
+
+For rancher access
+
+kubectl apply -f https://rancher.dst-training.mosip.net/v3/import/mccr7r2t2t2wpnc8jgfwhwvskrxxm7hfw5kr72dwd5s7pqj26vrgh5_c-m-4h4nv4r4.yaml
+
+curl https://api.dst-stage.mosip.net/httpbin/get?show_env=true
+O/p:
+
+curl https://api-internal.dst-stage.mosip.net/httpbin/get?show_env=true
+
+
+ For logging module (but have separate)
+ ======================================
+helm repo add banzaicloud-stable https://kubernetes-charts.banzaicloud.com
+helm repo update
+helm install my-release -f values.yaml banzaicloud-stable/logging-operator
+helm install logging banzaicloud-stable/logging-operator-logging
+additionalLoggingSources:
+  aks:
+    enabled: false
+  eks:
+    enabled: false
+
+	
+===========================================================================================================================================
+postgres 
+========
+cmds
+====
+To get the password for "postgres" run:
+
+    export POSTGRES_PASSWORD=$(kubectl get secret --namespace postgres postgres-postgresql -o jsonpath="{.data.postgres-password}" | base64 -d)
+
+To connect to your database run the following command:
+
+    kubectl run postgres-postgresql-client --rm --tty -i --restart='Never' --namespace postgres --image docker.io/bitnami/postgresql:15.4.0-debian-11-r10 --env="PGPASSWORD=$POSTGRES_PASSWORD" \
+      --command -- psql --host postgres-postgresql -U postgres -d postgres -p 5432
+
+    > NOTE: If you access the container using bash, make sure that you execute "/opt/bitnami/scripts/postgresql/entrypoint.sh /bin/bash" in order to avoid the error "psql: local user with ID 1001} does not exist"
+
+To connect to your database from outside the cluster execute the following commands:
+
+    kubectl port-forward --namespace postgres svc/postgres-postgresql 5432:5432 &
+    PGPASSWORD="$POSTGRES_PASSWORD" psql --host 127.0.0.1 -U postgres -d postgres -p 5432
+=====================================================================================================================================================
+	keycloak-init installation:
+Provide 'SMTP host' for keycloak : smtp.gmail.com
+Provide 'SMTP port' for keycloak : 465
+Provide 'From email address' for keycloak SMTP : mosipqa@gmail.com
+Provide Would you like to enable 'starttls' configuration for SMTP ? (false/true) : [ Default: false ] :
+Provide Would you like to enable "AUTHENTICATION" configuration for SMTP ? (true/false) : [ Default: true ] :
+Provide Would you like to enable "SSL" fro SMTP ? (true/false) : [ Default: true ] :
+Provide Provide SMTP login Username : mosipqa@gmail.com
+Provide Provide SMTP login Password : ogchzjcpjduvzuvz
+
+
+========================================================================================================================================
+
+rancher pwd : suvvi123
+
+===============================================================================================================================================
+
+esignet ---> google captcha ---> sitekey --> 6Ld38NEpAAAAAPoEMObYmJpvYzvYnc1kAFUjgGcP
+                            ----> secret key ---> 6Ld38NEpAAAAAGpk_vVZzuJVUJ_Wa9HkqqZ4HNzQ
+							
+							
+							
+https://rancher.dst-training.mosip.net/dashboard  to login rancher (dst-stage) v1.2.0.2
+
+==================================================================================================================================
+
+                                                     for deleting onboarding in esignet
+													 ==================================
+
+suvarna@DESKTOP-4KQ6O58:~/mosip_dst/esignet$ cd partner-onboarder/
+suvarna@DESKTOP-4KQ6O58:~/mosip_dst/esignet/partner-onboarder$ ls
+README.md  copy_cm.sh  copy_cm_func.sh  copy_secrets.sh  delete.sh  install.sh  misp_key.sh  values.yaml
+suvarna@DESKTOP-4KQ6O58:~/mosip_dst/esignet/partner-onboarder$
+suvarna@DESKTOP-4KQ6O58:~/mosip_dst/esignet/partner-onboarder$ ls
+README.md  copy_cm.sh  copy_cm_func.sh  copy_secrets.sh  delete.sh  install.sh  misp_key.sh  values.yaml
+suvarna@DESKTOP-4KQ6O58:~/mosip_dst/esignet/partner-onboarder$ helm list -n onboarder
+Error: Kubernetes cluster unreachable: Get "https://10.0.14.204:6443/version": dial tcp 10.0.14.204:6443: connect: no route to host
+suvarna@DESKTOP-4KQ6O58:~/mosip_dst/esignet/partner-onboarder$
+suvarna@DESKTOP-4KQ6O58:~/mosip_dst/esignet/partner-onboarder$ kubectl config view
+apiVersion: v1
+clusters:
+- cluster:
+    certificate-authority-data: DATA+OMITTED
+    server: https://10.0.14.204:6443
+  name: mosip-cluster unraf
+contexts:
+- context:
+    cluster: mosip-cluster unraf
+    user: kube-admin-mosip-cluster unraf
+  name: mosip-cluster unraf
+current-context: mosip-cluster unraf
+kind: Config
+preferences: {}
+users:
+- name: kube-admin-mosip-cluster unraf
+  user:
+    client-certificate-data: DATA+OMITTED
+    client-key-data: DATA+OMITTED
+suvarna@DESKTOP-4KQ6O58:~/mosip_dst/esignet/partner-onboarder$ cd .kube/
+bash: cd: .kube/: No such file or directory
+suvarna@DESKTOP-4KQ6O58:~/mosip_dst/esignet/partner-onboarder$ cd
+suvarna@DESKTOP-4KQ6O58:~$ cd .kube
+suvarna@DESKTOP-4KQ6O58:~/.kube$ ls
+cache  config  mosip-cluster_config  mosip-clusterunraf_config  rancher-cluster_config  unraf-cluster_config
+suvarna@DESKTOP-4KQ6O58:~/.kube$ cd
+suvarna@DESKTOP-4KQ6O58:~$ ls
+get-pip.py   istio-1.15.0  kubectl.sha256  mosip-config  mosip_unraf     openssl-1.1.1f.tar.gz
+get_helm.sh  kubectl       mosip           mosip_dst     openssl-1.1.1f
+suvarna@DESKTOP-4KQ6O58:~$ cd .kube/
+suvarna@DESKTOP-4KQ6O58:~/.kube$ ls
+cache  config  mosip-cluster_config  mosip-clusterunraf_config  rancher-cluster_config  unraf-cluster_config
+suvarna@DESKTOP-4KQ6O58:~/.kube$ vim dst-stage
+suvarna@DESKTOP-4KQ6O58:~/.kube$ sudo cp dst-stage config
+[sudo] password for suvarna:
+suvarna@DESKTOP-4KQ6O58:~/.kube$
+suvarna@DESKTOP-4KQ6O58:~/.kube$ kubectl config view
+apiVersion: v1
+clusters:
+- cluster:
+    server: https://rancher.dst-training.mosip.net/k8s/clusters/c-m-4h4nv4r4
+  name: dst-stage
+contexts:
+- context:
+    cluster: dst-stage
+    user: dst-stage
+  name: dst-stage
+current-context: dst-stage
+kind: Config
+preferences: {}
+users:
+- name: dst-stage
+  user:
+    token: REDACTED
+suvarna@DESKTOP-4KQ6O58:~/.kube$ cd
+suvarna@DESKTOP-4KQ6O58:~$ ls
+get-pip.py   istio-1.15.0  kubectl.sha256  mosip-config  mosip_unraf     openssl-1.1.1f.tar.gz
+get_helm.sh  kubectl       mosip           mosip_dst     openssl-1.1.1f
+suvarna@DESKTOP-4KQ6O58:~$ ls
+get-pip.py   istio-1.15.0  kubectl.sha256  mosip-config  mosip_unraf     openssl-1.1.1f.tar.gz
+get_helm.sh  kubectl       mosip           mosip_dst     openssl-1.1.1f
+suvarna@DESKTOP-4KQ6O58:~$ cd mosip_dst/
+suvarna@DESKTOP-4KQ6O58:~/mosip_dst$ ls
+esignet  esignet-mock-services  esignet-signup  k8s-infra  mosip-infra  registration-client
+suvarna@DESKTOP-4KQ6O58:~/mosip_dst$ cd esignet
+suvarna@DESKTOP-4KQ6O58:~/mosip_dst/esignet$ ls
+LICENSE               client-management-service-impl  db_upgrade_script  esignet-core             helm               partner-onboarder
+README.md             consent-service-impl            docker-compose     esignet-integration-api  oidc-service-impl  pom.xml
+binding-service-impl  db_scripts                      docs               esignet-service          oidc-ui            vci-service-impl
+suvarna@DESKTOP-4KQ6O58:~/mosip_dst/esignet$ cd partner-onboarder/
+suvarna@DESKTOP-4KQ6O58:~/mosip_dst/esignet/partner-onboarder$
+suvarna@DESKTOP-4KQ6O58:~/mosip_dst/esignet/partner-onboarder$ ls
+README.md  copy_cm.sh  copy_cm_func.sh  copy_secrets.sh  delete.sh  install.sh  misp_key.sh  values.yaml
+suvarna@DESKTOP-4KQ6O58:~/mosip_dst/esignet/partner-onboarder$ nano values.yaml
+suvarna@DESKTOP-4KQ6O58:~/mosip_dst/esignet/partner-onboarder$ helm list -n esignet
+NAME                                    NAMESPACE       REVISION        UPDATED                                 STATUS          CHART                                APP VERSION
+esignet                                 esignet         1               2024-05-07 11:41:51.642088684 +0530 IST deployed        esignet-1.3.0
+esignet-keycloak-init                   esignet         1               2024-05-07 11:41:08.801095335 +0530 IST deployed        keycloak-init-12.0.1                 1.2.0
+esignet-resident-oidc-partner-onboarder esignet         1               2024-05-07 13:43:07.185302808 +0530 IST deployed        partner-onboarder-12.0.1-B4
+mock-identity-system                    esignet         1               2024-05-07 12:08:23.356161353 +0530 IST deployed        mock-identity-system-0.9.2
+mock-relying-party-service              esignet         1               2024-05-07 12:15:05.106928104 +0530 IST deployed        mock-relying-party-service-0.9.2
+mock-relying-party-ui                   esignet         1               2024-05-07 12:21:49.037595034 +0530 IST deployed        mock-relying-party-ui-0.9.2
+oidc-ui                                 esignet         1               2024-05-07 11:44:09.229472401 +0530 IST deployed        oidc-ui-1.3.0
+suvarna@DESKTOP-4KQ6O58:~/mosip_dst/esignet/partner-onboarder$ helm delete  esignet-resident-oidc-partner-onboarder -n esignet
+release "esignet-resident-oidc-partner-onboarder" uninstalled
+suvarna@DESKTOP-4KQ6O58:~/mosip_dst/esignet/partner-onboarder$ ./install.sh
+Do you have public domain & valid SSL? (Y/n)
+Y: if you have public domain & valid ssl certificate
+n: If you don't have a public domain and a valid SSL certificate. Note: It is recommended to use this option only in development environments.
+Y
+Create esignet namespace
+Error from server (AlreadyExists): namespaces "esignet" already exists
+Is values.yaml for onboarder chart set correctly as part of Pre-requisites?(Y/n) Y
+Istio label
+namespace/esignet not labeled
+Hang tight while we grab the latest from your chart repositories...
+...Unable to get an update from the "stable" chart repository (https://charts.helm.sh/stable):
+        Get "https://charts.helm.sh/stable/index.yaml": read tcp 172.23.39.5:53186->185.199.110.153:443: read: connection reset by peer
+...Successfully got an update from the "kafka-ui" chart repository
+...Successfully got an update from the "ingress-nginx" chart repository
+...Successfully got an update from the "wiremind" chart repository
+...Successfully got an update from the "mosip" chart repository
+...Successfully got an update from the "rancher-latest" chart repository
+...Successfully got an update from the "banzaicloud-stable" chart repository
+...Successfully got an update from the "bitnami" chart repository
+Update Complete. ⎈Happy Helming!⎈
+Copy configmaps
+configmap "global" deleted
+configmap/global created
+configmap "keycloak-env-vars" deleted
+configmap/keycloak-env-vars created
+configmap "keycloak-host" deleted
+configmap/keycloak-host created
+Copy secrets
+secret "s3" deleted
+secret/s3 created
+secret "keycloak" deleted
+secret/keycloak created
+secret "keycloak-client-secrets" deleted
+secret/keycloak-client-secrets created
+
+=====================================================================================================================================
+
+https://www.diffchecker.com/text-compare/
+
+======================================================================================================================================
+
+ mailid Creation :
+ ----------------
+ mosip.dststage.noreply@gmail.com
+ pwd : $mosip123$
+ Appkey pwd : tmeykjamyreuramr
+ mobileNo : 8123998467
+ 
+=================================================================================================================================
+                               Admin Update button issue
+							   =========================
+kernel master data and sync data 
+admin ui and service  restarted for update button didn't work.
+===================================================================================================================================
+
+                                   mimoto (0.11.0)
+								   ======= 
+https://github.com/mosip/mimoto.git
+
+git checkout tags/v0.11.0 -b dst-1201
+
+==============================================================================================================================
+                            Images Change on 31/05/2024 (IDA PODS)
+							=============================
+docker.io/mosipid/authentication-service:1.2.0.1
+          imagePullPolicy: Always
+12:55
+docker.io/mosipid/authentication-internal-service:1.2.0.1
+12:56
+docker.io/mosipid/authentication-otp-service:1.2.0.1
+12:59
+ida pods -dst-stage images changed
+12:59
+
+
+as per nivetha suggestion
+ mosipmec/authentication-internal-service:mec-1.2.0.1
+mosipmec/authentication-service:mec-1.2.0.1
+mosipmec/authentication-otp-service:mec-1.2.0.1
+
+=====================================================================================================================================
+
+sudo mv /etc/letsencrypt/live /etc/letsencrypt/live-10-06-2024
+
+sudo certbot certonly --agree-tos --manual --preferred-challenges=dns -d *.dst-stage.mosip.net -d dst-stage.mosip.net
+
+sudo mv /etc/letsencrypt/live/dst-stage.mosip.net-0001 /etc/letsencrypt/live/dst-stage.mosip.net 
+
+sudo systemctl restart nginx
