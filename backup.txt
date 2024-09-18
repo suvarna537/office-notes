@@ -1,0 +1,353 @@
+
+https://snapshooter.com/learn/import-export-postgresql-database  ( url for backup db docs)
+
+https://www.postgresqltutorial.com/postgresql-administration/postgresql-backup-database/ (url for backup db docs)
+
+For the back up of postgres : (MEC-Stage)
+
+pg_dumpall --host postgres.mecstage.mosip.net --username postgres -p 5432 > mecstage.sql
+set the password 
+export PGPASSWORD= copy from rancher postgre-secrets token
+echo $PGPASSWORD
+
+In different browser we can check ---> ll -h | grep mecst
+
+========================================================================================================================================
+
+Softhsm backup
+==============
+cd .kube/
+kubectl edit cm global
+kubectl get pods -n softhsm
+O/p : 5 pods are there.
+
+for each pod need to take a back up
+for that we need to get into that pod..
+kubectl exec -it softhsm-esignet-5955665566-42jbq /bin/bash -n softhsm
+kubectl exec -it softhsm-ida-6dd47cc575-j6gpg /bin/bash -n softhsm
+kubectl exec -it softhsm-kernel-6b88d5fbd9-9bn7m /bin/bash -n softhsm
+
+
+ls
+cd softhsm/
+cd tokens/
+these tokens we need to take a back up . for that comeout of the pod..create a directory ..
+mkdir mecstage-hsm-backup
+cd mecstage-hsm-backup/
+in the same directory we need to create 5 diiferent directories for 5 pods individual backup.
+
+mkdir softhsm-esignet
+cd softhsm-esignet/
+kubecl cp softhsm-esignet-no :/softhsm/tokens . -n softhsm
+o/p : tar: removing leading '/' from member names
+ls
+8ebbf7cc-95b0-a191-3894-c6a670aa489e/  lost+found/
+cd ..
+
+mkdir softhsm-ida
+cd softhsm-ida/
+kubecl cp softhsm-ida-no(pod name) :/softhsm/tokens . -n softhsm
+o/p : tar: removing leading '/' from member names
+ls
+8ebbf7cc-95b0-a191-3894-c6a670aa489e/  lost+found/
+cd ..
+
+
+mkdir softhsm-kernel
+cd softhsm-kernel/
+kubecl cp softhsm-kernel-no(pod name) :/softhsm/tokens . -n softhsm
+o/p : tar: removing leading '/' from member names
+ls
+8ebbf7cc-95b0-a191-3894-c6a670aa489e/  lost+found/
+cd ..
+
+
+mkdir softhsm-mock-identity-system
+cd softhsm-mock-identity-system/
+kubecl cp softhsm-mock-identity-system-no(pod name) :/softhsm/tokens . -n softhsm
+o/p : tar: removing leading '/' from member names
+ls
+8ebbf7cc-95b0-a191-3894-c6a670aa489e/  lost+found/
+cd ..
+
+mkdir softhsm-signup 
+cd softhsm-signup /
+kubecl cp softhsm-signup-no (pod name) :/softhsm/tokens . -n softhsm
+o/p : tar: removing leading '/' from member names
+ls
+8ebbf7cc-95b0-a191-3894-c6a670aa489e/  lost+found/
+cd ..
+
+then we can zip those files ..
+
+
+=============================================================================================================================================
+
+import the bakup file to new environment
+=======================================
+for the we need psql to install
+===============================
+sudo sh -c 'echo "deb https://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
+wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
+sudo apt-get update
+sudo apt-get -y install postgresql
+
+18) suvarna@DESKTOP-4KQ6O58:~$ psql --version
+psql (PostgreSQL) 16.2 (Ubuntu 16.2-1.pgdg22.04+1)
+
+
+=================================================================================================================================================
+For backup of particular db :
+==============================
+pg_dump --dbname=postgresql://postgres:<PSQLPASSWD>@postgres.<SANDBOX_NAME>.mosip.net:5432/<DBNAME> > Backup_filename.sql
+
+ex: pg_dump --dbname=postgresql://postgres:VSOGnXF6mU@postgres.belize-pilot.mosip.net:5432/mosip_master > belize_masterdat.sql
+
+==================================================================================================================================
+import cmd :
+============
+export PGPASSWORD=<update the password>
+psql -U postgres -h postgres-domain-name -p 5432 < mecstage-backup.sql (syntax)
+psql -U postgres -h postgres.dst-stage.mosip.net -p 5432 < mecstage.sql
+
+
+psql  --dbname=postgresql://postgres:VowzKj08Jt@postgres.dst-stage.mosip.net:5432/mosip_esignet < mecstage-esignet.sql
+
+mecstage.sql (backup file) abhi sent me through drive. I downloaded the gif file and extracted and same file need to upload to any path (I uploaded in /home/suvarna/mosip_dst/mosip-infra/deployment/v3/external/postgres)
+
+after uploading need to update the pwd using 
+
+export PGPASSWORD=VowzKj08Jt
+echo $PGPASSWORD
+(this pwd is new old pwd didn't work (rancher postgres-password ) so he gave me that pwd so it works .
+(here I got Some error because of pwd ) psql -U postgres -h postgres.dst-stage.mosip.net -p 5432
+psql: error: connection to server at "postgres.dst-stage.mosip.net" (10.0.12.48), port 5432 failed: FATAL:  password authentication failed for user "postgres"
+
+after this error resolved need to enter below cmd import db.
+
+psql -U postgres -h postgres.dst-stage.mosip.net -p 5432 < mecstage.sql
+
+here also I got error because file didn't upload completely. so I got error. ERROR:  missing data for column "short_context"
+CONTEXT:  COPY batch_job_execution_context, line 778585: "2"
+
+so I removed that mecstage.sql using rm -rf mecstage.sql  
+
+uploaded again run below cmd again it works total 23 db's added in pgadmin.
+
+psql -U postgres -h postgres.dst-stage.mosip.net -p 5432 < mecstage.sql
+
+
+=================================================================================================================================================
+                                        Importing db  2nd time (I alreay deployed mosip modules so without deleting any module these steps need to do)
+                                        ======================
+ only postgres and config server need to delete.
+ 
+ which modules should not restart after importing db??
+
+Masterdata-loader
+partner-onboarder
+======================================================================================================================
+ 
+deleted db file and delete postgres using ./delete.sh and delete namespace (kubectl delete ns postgres)
+again upload mecstage.sql file and after importing need to domain-name
+export PGPASSWORD=VowzKj08Jt (this pwd should be the same as postgres-password( if not we need to edit and save) this should be same in both environment.
+echo $PGPASSWORD 
+After this also I got the error like (db-common-secrets not found)
+for that we need to go postgres ns ---> secrets --> create -->opaque--> Name--> db-common-secrets ---> key--> db-dbuser-password--> value (add as mec-stage)--> save.
+
+psql -U postgres -h postgres.dst-stage.mosip.net -p 5432 < mecstage.sql
+
+it will import db into pgadmin(23) db's.
+
+go to config-server (suvarna@DESKTOP-4KQ6O58:~/mosip_dst/mosip-infra/deployment/v3/mosip/config-server$)
+
+check the git status (it should be on On branch v1.2.0.2)
+
+nano values.yaml (I changed the version dst-stage-1.2.0.1 to mec-stage-1.2.0.1)
+
+gitRepo:
+  uri: https://github.com/iiitb-pilot/mosip-config/
+  version: mec-stage-1.2.0.1
+  ## Folders within the base repo where properties may be found.
+  searchFolders: ""
+  private: true
+  ## User name of user who has access to the private repo. Ignore for public repo
+  username: "TXVyYWxpdGhhcmFuSw=="
+  token: "Z2hwX2lDd1NjdnZxREN6VEVRWkMwUnpXUHpvcnIxd2haRDNiY0g4VA=="
+
+suvarna@DESKTOP-4KQ6O58:~/mosip_dst/mosip-infra/deployment/v3/mosip/config-server$ ./delete.sh
+
+kubectl delete ns config-server
+
+./install.sh (here I got db-common-secrets not found error) need to add.
+
+./delete.sh (again deleted but namespace not deleted)
+
+./install.sh
+
+From here goto https://docs.mosip.io/1.2.0/deploymentnew/v3-installation/mosip-modules-deployment
+
+
+Artifactory
+
+Key Manager
+
+WebSub
+
+Mock SMTP
+
+Kernel
+
+Masterdata-loader
+
+Biosdk server
+
+Packet Manager
+
+Datashare
+
+Pre-registration
+
+ID Repository
+
+Partner Management
+
+Mock ABIS
+
+Mock MV
+
+Registration Processor
+
+Admin
+
+ID Authentication
+
+Print
+
+Partner Onboarder
+
+MOSIP File Server
+
+Registration Client
+
+Resident Services
+
+from above go to each module ---> and check whether copy_cm.sh 
+
+in rancher --> go to particular ns --> storage--> configmaps--> config-server-share --> all changed as per config-server values.yaml file. for that reason I need to copy configmaps in each module and restart.
+
+active_profile_env
+default
+cache_config_url_env
+http://config-server.config-server/config/*/default/mec-stage-1.2.0.1/hazelcast_cache.xml
+consolidator_config_file_url_env
+http://config-server.config-server/config/*/default/mec-stage-1.2.0.1/websub-consolidator.toml
+hub_config_file_url_env
+http://config-server.config-server/config/*/default/mec-stage-1.2.0.1/websub-service.toml
+spring_config_label_env
+mec-stage-1.2.0.1
+spring_config_url_env
+http://config-server.config-server/config
+
+
+After that go to workloads --> go to pods (in particular ns) --> delete that pods (for restart)--> like that each module need to do.
+
+process like --> go to module --> ls --> ./copy_cm.sh ---> go to rancher --> delete pods (for restart)  in specific module.
+
+
+=============================================================================================================================================
+
+suvarna@DESKTOP-4KQ6O58:~/mosip_dst/mosip-infra/deployment/v3/external/hsm/softhsm/mec-stage-hsm-backup/softhsm-esignet$ 
+kubectl exec -it softhsm-esignet-5cf4954567-h6z2w -n softhsm /bin/bash
+kubectl exec -it softhsm-esignet-5cf4954567-9d8jl -n softhsm /bin/bash
+
+I have no name!@softhsm-esignet-5cf4954567-h6z2w:/$ ls
+SoftHSMv2  boot        dev  home  lib64  mnt  proc       ref.softhsm  run   softhsm  start.sh  tmp  var
+bin        client.zip  etc  lib   media  opt  ref.proxy  root         sbin  srv      sys       usr
+I have no name!@softhsm-esignet-5cf4954567-h6z2w:/$ cd softhsm/
+I have no name!@softhsm-esignet-5cf4954567-h6z2w:/softhsm$ ls
+softhsm.conf  tokens
+I have no name!@softhsm-esignet-5cf4954567-h6z2w:/softhsm$ cd tokens/
+I have no name!@softhsm-esignet-5cf4954567-h6z2w:/softhsm/tokens$ ls
+d11de76a-0c8c-221e-9946-98bd931043fb
+I have no name!@softhsm-esignet-5cf4954567-h6z2w:/softhsm/tokens$ rm -rf d11de76a-0c8c-221e-9946-98bd931043fb/
+I have no name!@softhsm-esignet-5cf4954567-h6z2w:/softhsm/tokens$ ls
+I have no name!@softhsm-esignet-5cf4954567-h6z2w:/softhsm/tokens$ pwd
+/softhsm/tokens
+
+suvarna@DESKTOP-4KQ6O58:~/mosip_dst/mosip-infra/deployment/v3/external/hsm/softhsm/mec-stage-hsm-backup/softhsm-esignet$ 
+kubectl cp lost+found/ softhsm-esignet-5cf4954567-h6z2w:/softhsm/tokens -n softhsm
+
+suvarna@DESKTOP-4KQ6O58:~/mosip_dst/mosip-infra/deployment/v3/external/hsm/softhsm/mec-stage-hsm-backup/softhsm-esignet$ ls
+c84aa788-a9c7-db77-920f-adc846bdb45c  lost+found
+
+suvarna@DESKTOP-4KQ6O58:~/mosip_dst/mosip-infra/deployment/v3/external/hsm/softhsm/mec-stage-hsm-backup/softhsm-esignet$ 
+kubectl cp c84aa788-a9c7-db77-920f-adc846bdb45c/ softhsm-esignet-5cf4954567-h6z2w:/softhsm/tokens -n softhsm
+
+
+=======================================================================================================================================
+
+suvarna@DESKTOP-4KQ6O58:~/mosip_dst/mosip-infra/deployment/v3/external/hsm/softhsm/mec-stage-hsm-backup$ ls
+
+softhsm-esignet  softhsm-ida  softhsm-kernel  softhsm-mock-identity-system  softhsm-signup
+
+suvarna@DESKTOP-4KQ6O58:~/mosip_dst/mosip-infra/deployment/v3/external/hsm/softhsm/mec-stage-hsm-backup$ cd softhsm-mock-identity-system/
+
+suvarna@DESKTOP-4KQ6O58:~/mosip_dst/mosip-infra/deployment/v3/external/hsm/softhsm/mec-stage-hsm-backup/softhsm-mock-identity-system$ ls
+8ebbf7cc-95b0-a191-3894-c6a670aa489e  lost+found
+
+suvarna@DESKTOP-4KQ6O58:~/mosip_dst/mosip-infra/deployment/v3/external/hsm/softhsm/mec-stage-hsm-backup/softhsm-mock-identity-system$
+
+kubectl exec -it softhsm-mock-identity-system-78dd8cff77-clz69  -n softhsm /bin/bash 
+
+kubectl exec [POD] [COMMAND] is DEPRECATED and will be removed in a future version. Use kubectl exec [POD] -- [COMMAND] instead.
+groups: cannot find name for group ID 2001
+groups: cannot find name for group ID 3001
+I have no name!@softhsm-mock-identity-system-78dd8cff77-clz69:/$ ls
+SoftHSMv2  boot        dev  home  lib64  mnt  proc       ref.softhsm  run   softhsm  start.sh  tmp  var
+bin        client.zip  etc  lib   media  opt  ref.proxy  root         sbin  srv      sys       usr
+I have no name!@softhsm-mock-identity-system-78dd8cff77-clz69:/$ cd softhsm/
+I have no name!@softhsm-mock-identity-system-78dd8cff77-clz69:/softhsm$ ls
+softhsm.conf  tokens
+I have no name!@softhsm-mock-identity-system-78dd8cff77-clz69:/softhsm$ cd tokens/
+I have no name!@softhsm-mock-identity-system-78dd8cff77-clz69:/softhsm/tokens$ ls
+e3ffe14a-9d11-be38-84d4-b6938c334385
+I have no name!@softhsm-mock-identity-system-78dd8cff77-clz69:/softhsm/tokens$ rm -rf e3ffe14a-9d11-be38-84d4-b6938c334385
+I have no name!@softhsm-mock-identity-system-78dd8cff77-clz69:/softhsm/tokens$ ls
+I have no name!@softhsm-mock-identity-system-78dd8cff77-clz69:/softhsm/tokens$ pwd
+/softhsm/tokens
+I have no name!@softhsm-mock-identity-system-78dd8cff77-clz69:/softhsm/tokens$ exit
+exit
+suvarna@DESKTOP-4KQ6O58:~/mosip_dst/mosip-infra/deployment/v3/external/hsm/softhsm/mec-stage-hsm-backup/softhsm-mock-identity-system$ ls
+8ebbf7cc-95b0-a191-3894-c6a670aa489e  lost+found
+suvarna@DESKTOP-4KQ6O58:~/mosip_dst/mosip-infra/deployment/v3/external/hsm/softhsm/mec-stage-hsm-backup/softhsm-mock-identity-system$
+
+kubectl cp lost+found/ softhsm-mock-identity-system-78dd8cff77-clz69:/softhsm/tokens -n softhsm
+
+suvarna@DESKTOP-4KQ6O58:~/mosip_dst/mosip-infra/deployment/v3/external/hsm/softhsm/mec-stage-hsm-backup/softhsm-mock-identity-system$
+kubectl cp 8ebbf7cc-95b0-a191-3894-c6a670aa489e/ softhsm-mock-identity-system-78dd8cff77-clz69:/softhsm/tokens -n softhsm
+
+suvarna@DESKTOP-4KQ6O58:~/mosip_dst/mosip-infra/deployment/v3/external/hsm/softhsm/mec-stage-hsm-backup/softhsm-mock-identity-system$ 
+kubectl exec -it softhsm-mock-identity-system-78dd8cff77-clz69  -n softhsm /bin/bash
+kubectl exec [POD] [COMMAND] is DEPRECATED and will be removed in a future version. Use kubectl exec [POD] -- [COMMAND] instead.
+groups: cannot find name for group ID 2001
+groups: cannot find name for group ID 3001
+I have no name!@softhsm-mock-identity-system-78dd8cff77-clz69:/$ ls
+SoftHSMv2  boot        dev  home  lib64  mnt  proc       ref.softhsm  run   softhsm  start.sh  tmp  var
+bin        client.zip  etc  lib   media  opt  ref.proxy  root         sbin  srv      sys       usr
+I have no name!@softhsm-mock-identity-system-78dd8cff77-clz69:/$ cd softhsm/
+I have no name!@softhsm-mock-identity-system-78dd8cff77-clz69:/softhsm$ ls
+softhsm.conf  tokens
+I have no name!@softhsm-mock-identity-system-78dd8cff77-clz69:/softhsm$ cd tokens/
+I have no name!@softhsm-mock-identity-system-78dd8cff77-clz69:/softhsm/tokens$ ls
+8ebbf7cc-95b0-a191-3894-c6a670aa489e  lost+found
+I have no name!@softhsm-mock-identity-system-78dd8cff77-clz69:/softhsm/tokens$ exit
+exit
+
+===============================================================================================================================================
+
+kubectl cp lost+found/ softhsm-signup-789dd5f7c5-5xl88:/softhsm/tokens -n softhsm
+
+kubectl cp 3c6b9a16-f38f-8c07-f4c5-5dc655357657/ softhsm-signup-789dd5f7c5-5xl88:/softhsm/tokens -n softhsm
+
+kubectl exec -it softhsm-signup-789dd5f7c5-5xl88  -n softhsm /bin/bash
