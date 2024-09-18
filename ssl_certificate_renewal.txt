@@ -1,0 +1,275 @@
+Commands
+--------
+
+Actual Commands url :
+
+ https://github.com/mosip/k8s-infra/blob/v1.2.0.1/docs/wildcard-ssl-certs-letsencrypt.md#ssl-certificate-renewal
+
+=====================================================================================================================
+sudo mv /etc/letsencrypt/live /etc/letsencrypt/live-10-06-2024
+
+sudo certbot certonly --agree-tos --manual --preferred-challenges=dns -d *.dst-stage.mosip.net -d dst-stage.mosip.net
+
+sudo mv /etc/letsencrypt/live/dst-stage.mosip.net-0001 /etc/letsencrypt/live/dst-stage.mosip.net 
+
+sudo systemctl restart nginx
+===============================================================================================================================
+
+process
+=======
+Step1: SSH into nginx server
+
+ssh -i ~/.ssh/dst-stage.pem  ubuntu@10.0.12.48
+======================================================================
+Step2: Check expiry of ssl 
+
+ubuntu@ip-10-0-12-48:~$ cd /etc/letsencrypt/
+
+sudo su
+
+root@ip-10-0-12-48:/etc/letsencrypt# cd live
+
+cd dst-stage.mosip.net/
+
+ll
+===============================================================================
+Step3: Same path we can run below command
+
+sudo mv /etc/letsencrypt/live /etc/letsencrypt/live-10-06-2024 
+
+Step4: GOto path check the live.
+
+go back --> ubuntu@ip-10-0-12-48:/etc/letsencrypt$ ls
+
+O/P : accounts  archive  cli.ini  csr  keys  live-10-06-2024  renewal  renewal-hooks
+====================================================================================
+
+Step 4: run this command anywhere
+
+sudo certbot certonly --agree-tos --manual --preferred-challenges=dns -d *.dst-stage.mosip.net -d dst-stage.mosip.net
+
+Saving debug log to /var/log/letsencrypt/letsencrypt.log
+Plugins selected: Authenticator manual, Installer None
+Obtaining a new certificate
+Performing the following challenges:
+dns-01 challenge for dst-stage.mosip.net
+dns-01 challenge for dst-stage.mosip.net
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+NOTE: The IP of this machine will be publicly logged as having requested this
+certificate. If you're running certbot in manual mode on a machine that is not
+your server, please ensure you're okay with that.
+
+Are you OK with your IP being logged?
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+(Y)es/(N)o: Y
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Please deploy a DNS TXT record under the name
+_acme-challenge.dst-stage.mosip.net with the following value:
+
+KcRrJuvVZUOnIfQ1tjK3XS0S99uiPgumqxb6DTGWfcE
+
+Before continuing, verify the record is deployed.
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Press Enter to Continue
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Please deploy a DNS TXT record under the name
+_acme-challenge.dst-stage.mosip.net with the following value:
+
+75pBKLCR1_sLe0Wr6_N6ytEEuriuX684aecQN707cbg
+
+Before continuing, verify the record is deployed.
+(This must be set up in addition to the previous challenges; do not remove,
+replace, or undo the previous challenge tasks yet. Note that you might be
+asked to create multiple distinct TXT records with the same name. This is
+permitted by DNS standards.)
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Press Enter to Continue
+Waiting for verification...
+Cleaning up challenges
+
+IMPORTANT NOTES:
+ - Congratulations! Your certificate and chain have been saved at:
+   /etc/letsencrypt/live/dst-stage.mosip.net-0001/fullchain.pem
+   Your key file has been saved at:
+   /etc/letsencrypt/live/dst-stage.mosip.net-0001/privkey.pem
+   Your cert will expire on 2024-08-29. To obtain a new or tweaked
+   version of this certificate in the future, simply run certbot
+   again. To non-interactively renew *all* of your certificates, run
+   "certbot renew"
+ - If you like Certbot, please consider supporting our work by:
+
+   Donating to ISRG / Let's Encrypt:   https://letsencrypt.org/donate
+   Donating to EFF:                    https://eff.org/donate-le
+
+===========================================================================================
+
+Step5: run this anywhere
+
+sudo mv /etc/letsencrypt/live/dst-stage.mosip.net-0001 /etc/letsencrypt/live/dst-stage.mosip.net
+
+Check the location
+
+====================================================================================
+
+Step6: Check the landing page and DNS Checker
+
+====================================================================================
+
+Sample Jeera Ticket for SSL Certificate Renewal
+===============================================
+
+https://mosip.atlassian.net/browse/DSD-5087 (Akash)
+
+https://mosip.atlassian.net/browse/DSD-5399  (I created)
+
+===================================================================================================
+
+
+
+====================================================================================================================================
+SSL Cert renewal for both the clusters: -
+
+==========================================
+
+Mosip-Ngnix ssl cert renewal: -
+	1. backup live direcotory |sudo mv /etc/letsencrypt/live /etc/letsencrypt/live-{expiry_date}|
+	2. sudo certbot certonly --agree-tos --manual --preferred-challenges=dns -d *.unraf-pilot.mosip.net -d unraf-pilot.mosip.net
+	3. Update cert location |sudo mv /etc/letsencrypt/live/unraf-pilot.mosip.net-latest (002) /etc/letsencrypt/live/unraf-pilot.mosip.net|
+	4. restart the nginx service there |sudo systemctl restart nginx|
+	
+Rancher_Nginx ssl cert renewal: -
+
+we can follow the above same proccess or if mosip-cluster is already renewed we can follow below proccess to copy the certs from mosip-ngnix to rancher ngnix.
+				We need to copy the below directories from mosip to rancher nginx
+					1. /etc/letsencrypt/archive/unraf-pilot.mosip.net-002
+					2. /etc/letsencrypt/live
+					
+	on local create sslcert direcroty (mkdir sslcert)
+					
+	 -command to copy the live dir from mosip ngnix to local
+	1. rsync -avz -e "ssh -i ~/.ssh/unraf.pem" --rsync-path="sudo rsync" ubuntu@10.0.10.140:/etc/letsencrypt/live /home/suvarna/sslcert 	
+	
+	-command to copy the archive/unraf-pilot dir from mosip ngnix to local
+	2. rsync -avz -e "ssh -i ~/.ssh/unraf.pem" --rsync-path="sudo rsync" ubuntu@10.0.10.140:/etc/letsencrypt/archive/unraf-pilot.mosip.net-0001 /home/suvarna/sslcert/archive
+
+    Take a backup of live directory in rancher nginx.	
+	
+	-command to paste the live dir in rancher ngnix from local
+	3. rsync -avz -e "ssh -i ~/.ssh/unraf.pem" --rsync-path="sudo rsync" /home/suvarna/sslcert/live ubuntu@10.0.5.243:/etc/letsencrypt
+
+    -command to paste the archive/peru-pilot dir in rancher ngnix from local	
+	4. rsync -avz -e "ssh -i ~/.ssh/unraf.pem" --rsync-path="sudo rsync" /home/suvarna/sslcert/archive/unraf-pilot.mosip.net-0001 ubuntu@10.0.5.243:/etc/letsencrypt/archive
+	
+	5. sudo systemctl restart nginx
+	
+	check the fullchain.pem in mosip-cluster and rancher-cluster.
+	 It should be same.
+	 
+	 Never delete live directory.
+	
+=================================================================================================================================
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+================================================================================================================================
+
+output:
+==========  on local
+
+suvarna@DESKTOP-4KQ6O58:~$ mkdir sslcert
+suvarna@DESKTOP-4KQ6O58:~$ ls
+get-pip.py   istio-1.15.0  kubectl.sha256  mosip-config  mosip_unraf     openssl-1.1.1f.tar.gz  zam-dev
+get_helm.sh  kubectl       mosip           mosip_dst     openssl-1.1.1f  sslcert
+suvarna@DESKTOP-4KQ6O58:~$ pwd
+/home/suvarna
+suvarna@DESKTOP-4KQ6O58:~$ rsync -avz -e "ssh -i ~/.ssh/unraf.pem" --rsync-path="sudo rsync" ubuntu@10-0-10-140:/etc/letsencrypt/live /home/suvarna/sslcert
+ssh: Could not resolve hostname 10-0-10-140: Temporary failure in name resolution
+rsync: connection unexpectedly closed (0 bytes received so far) [Receiver]
+rsync error: unexplained error (code 255) at io.c(231) [Receiver=3.2.7]
+suvarna@DESKTOP-4KQ6O58:~$ rsync -avz -e "ssh -i ~/.ssh/unraf.pem" --rsync-path="sudo rsync" ubuntu@10.0.10.140:/etc/letsencrypt/live /home/suvarna/sslcert
+receiving incremental file list
+live/
+live/README
+live/unraf-pilot.mosip.net/
+live/unraf-pilot.mosip.net/README
+live/unraf-pilot.mosip.net/cert.pem -> ../../archive/unraf-pilot.mosip.net-0001/cert1.pem
+live/unraf-pilot.mosip.net/chain.pem -> ../../archive/unraf-pilot.mosip.net-0001/chain1.pem
+live/unraf-pilot.mosip.net/fullchain.pem -> ../../archive/unraf-pilot.mosip.net-0001/fullchain1.pem
+live/unraf-pilot.mosip.net/privkey.pem -> ../../archive/unraf-pilot.mosip.net-0001/privkey1.pem
+
+sent 90 bytes  received 1,041 bytes  754.00 bytes/sec
+total size is 1,641  speedup is 1.45
+suvarna@DESKTOP-4KQ6O58:~$
+suvarna@DESKTOP-4KQ6O58:~$ ls
+get-pip.py   istio-1.15.0  kubectl.sha256  mosip-config  mosip_unraf     openssl-1.1.1f.tar.gz  zam-dev
+get_helm.sh  kubectl       mosip           mosip_dst     openssl-1.1.1f  sslcert
+suvarna@DESKTOP-4KQ6O58:~$ cd sslcert/
+suvarna@DESKTOP-4KQ6O58:~/sslcert$ ls
+live
+suvarna@DESKTOP-4KQ6O58:~/sslcert$ cd
+suvarna@DESKTOP-4KQ6O58:~$  rsync -avz -e "ssh -i ~/.ssh/unraf.pem" --rsync-path="sudo rsync" ubuntu@10.0.10.140:/etc/letsencrypt/archive/unraf-pilot.mosip.net-0001 /home/suvarna/sslcert/archive
+receiving incremental file list
+created directory /home/suvarna/sslcert/archive
+unraf-pilot.mosip.net-0001/
+unraf-pilot.mosip.net-0001/cert1.pem
+unraf-pilot.mosip.net-0001/chain1.pem
+unraf-pilot.mosip.net-0001/fullchain1.pem
+unraf-pilot.mosip.net-0001/privkey1.pem
+
+sent 104 bytes  received 4,200 bytes  2,869.33 bytes/sec
+total size is 8,958  speedup is 2.08
+suvarna@DESKTOP-4KQ6O58:~$ ls
+get-pip.py   istio-1.15.0  kubectl.sha256  mosip-config  mosip_unraf     openssl-1.1.1f.tar.gz  zam-dev
+get_helm.sh  kubectl       mosip           mosip_dst     openssl-1.1.1f  sslcert
+suvarna@DESKTOP-4KQ6O58:~$ cd sslcert/
+suvarna@DESKTOP-4KQ6O58:~/sslcert$ ls
+archive  live
+suvarna@DESKTOP-4KQ6O58:~/sslcert$ cd archive/
+suvarna@DESKTOP-4KQ6O58:~/sslcert/archive$ ls
+unraf-pilot.mosip.net-0001
+suvarna@DESKTOP-4KQ6O58:~/sslcert/archive$ cd
+suvarna@DESKTOP-4KQ6O58:~$
+suvarna@DESKTOP-4KQ6O58:~$ rsync -avz -e "ssh -i ~/.ssh/unraf.pem" --rsync-path="sudo rsync" /home/suvarna/sslcert/live ubuntu@10.0.5.243:/etc/letsencrypt
+sending incremental file list
+live/
+live/README
+live/unraf-pilot.mosip.net/
+live/unraf-pilot.mosip.net/README
+live/unraf-pilot.mosip.net/cert.pem -> ../../archive/unraf-pilot.mosip.net-0001/cert1.pem
+live/unraf-pilot.mosip.net/chain.pem -> ../../archive/unraf-pilot.mosip.net-0001/chain1.pem
+live/unraf-pilot.mosip.net/fullchain.pem -> ../../archive/unraf-pilot.mosip.net-0001/fullchain1.pem
+live/unraf-pilot.mosip.net/privkey.pem -> ../../archive/unraf-pilot.mosip.net-0001/privkey1.pem
+
+sent 1,070 bytes  received 78 bytes  459.20 bytes/sec
+total size is 1,641  speedup is 1.43
+suvarna@DESKTOP-4KQ6O58:~$ rsync -avz -e "ssh -i ~/.ssh/unraf.pem" --rsync-path="sudo rsync" /home/suvarna/sslcert/archive/unraf-pilot.mosip.net-0001 ubuntu@10.0.5.243:/etc/letsencrypt/archive
+sending incremental file list
+unraf-pilot.mosip.net-0001/
+unraf-pilot.mosip.net-0001/cert1.pem
+unraf-pilot.mosip.net-0001/chain1.pem
+unraf-pilot.mosip.net-0001/fullchain1.pem
+unraf-pilot.mosip.net-0001/privkey1.pem
+
+sent 4,207 bytes  received 96 bytes  1,721.20 bytes/sec
+total size is 8,958  speedup is 2.08
+
+==========================================================================================================================
