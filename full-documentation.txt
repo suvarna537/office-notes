@@ -1,0 +1,1232 @@
+                              PRE-REQUISITIES
+							   ===============
+							   
+kubectl:  first one download the Kubectl binaries.
+    7  curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+    8  curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl.sha256"
+    9  echo "$(cat kubectl.sha256)  kubectl" | sha256sum --check
+   10  sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+   11  kubectl version --client
+   12  ls
+helm:
+   13  curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+   14  chmod 700 get_helm.sh
+   15  ./get_helm.sh
+   16  helm version
+   17  ls
+   18  helm repo add bitnami https://charts.bitnami.com/bitnami
+   19  helm repo ls
+   20  helm repo add mosip https://mosip.github.io/mosip-helm
+   21  helm repo ls
+istioctl:
+   22  curl -L https://istio.io/downloadIstio | ISTIO_VERSION=1.15.0 TARGET_ARCH=x86_64 sh -
+   23  ls
+   24  cd istio-1.15.0/
+   25  ls
+   26  sudo mv istioctl mv/ skip this step
+   27  cd samples/
+   28  ls
+   29  istioctl version
+   30  cd ..
+   31  ls
+   32  cd bin/
+   35  ls
+   36  cd ..
+   37  sudo cp -v bin/istioctl /usr/local/bin/
+   38  istioctl version
+   39  istioctl version --remote=false
+   40  cd
+   41  ls
+   42  cd /usr/local/
+   43  ls
+   44  cd bin/
+rke:
+   49  dpkg --print-architecture
+   50  sudo wget https://github.com/rancher/rke/releases/download/v1.3.10/rke_linux-amd64
+   51  ls
+   52  sudo mv rke_linux-amd64 rke
+   53  sudo chmod +x rke
+   54  rke --version
+   55  ls
+   56  cp rke /usr/local/bin/
+   57  sudo cp rke /usr/local/bin/
+   58  ls
+   59  rke version
+ansible:
+   60  python3 -m pip -V
+   61  curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
+   62  python3 get-pip.py --user
+   63  python3 -m pip -V
+   64  python3 -m pip install --user ansible
+   65  ansible --version
+   66  python3 -m pip install --user ansible-core
+   67  ansible --version
+   68  sudo apt install ansible
+   69  sudo apt update
+   70  sudo apt upgrade -y
+   71  sudo apt install ansible -y
+   72  ls
+   73  ansible --verison
+   74  ansible --version
+   75  ansible-playbook --version
+ 
+=========================================================================================================================
+========================================================================================================================= 
+   
+                                    NEXT PROCESS :
+                                    ==============
+   
+  1) create a directory : mkdir mosip 
+  2) cd mosip/
+  3) clone: git clone https://github.com/mosip/k8s-infra -b v1.2.0.1-B4
+  4) git clone https://github.com/mosip/mosip-infra -b v1.2.0.1-B4
+  5) ls -lart
+  5)export MOSIP_ROOT=/home/suvarna/mosip/mosip-infra
+  export K8_ROOT=$MOSIP_ROOT/k8s-infra
+  export INFRA_ROOT=$MOSIP_ROOT/mosip-infra
+  (Tip: check the environment variables can use ---> env)
+  6) suvarna@DESKTOP-4KQ6O58:~/mosip$ cd k8s-infra/
+     suvarna@DESKTOP-4KQ6O58:~/mosip/k8s-infra  
+  7) $ git checkout tags/v1.2.0.1-B4 -b 1.2.0.1-B4  
+     O/p : Switched to a new branch '1.2.0.1-B4
+
+=================================================================================================================================
+============================================================================================================================== 
+   
+  wireguard Installation :  ( first we need to do ssh into all the nodes before doing all the tasks)
+  =========================
+  1) cd k8s-infra/wireguard/
+  2) cp hosts.ini.sample hosts.ini
+  3) vi hosts.ini
+     add : WIREGUARD SERVER DETAILS AND COMMENT OUT CLUSTER FIELD.
+	 [wireguard]
+      wireguard-admin ansible_host=65.2.74.43 ansible_user=ubuntu ansible_ssh_private_key_file=~/.ssh/training.pem
+      #[cluster]
+      #node1 ansible_host=<internal ip> ansible_user=root ansible_ssh_private_key_file=<pvt .pem file>
+      #node2 ansible_host=<internal ip> ansible_user=root ansible_ssh_private_key_file=<pvt .pem file>
+  4) ansible-playbook -i hosts.ini ports.yaml
+  5) ansible-playbook -i hosts.ini docker.yaml
+  6) go to normal directory --> create mkdir /home/suvarna/.ssh
+  7) cd .ssh ---> upload the training.pem file ---> ls --> sudo chmod 400 ~/.ssh/training.pem
+  8) go to cd k8s-infra/wireguard/ --> ansible-playbook -i hosts.ini docker.yaml
+  9) ssh to wireguard server --> ssh -i ~/.ssh/training.pem  ubuntu@65.2.74.43
+  9) mkdir -p wireguard/config
+  10) sudo docker run -d \
+--name=wireguard \
+--cap-add=NET_ADMIN \
+--cap-add=SYS_MODULE \
+-e PUID=1000 \
+-e PGID=1000 \
+-e TZ=Asia/Calcutta \
+-e PEERS=30 \
+-p 51820:51820/udp \
+-v /home/ubuntu/wireguard/config:/config \
+-v /lib/modules:/lib/modules \
+--sysctl="net.ipv4.conf.all.src_valid_mark=1" \
+--restart unless-stopped \
+ghcr.io/linuxserver/wireguard
+
+11) ssh -i ~/.ssh/training.pem  ubuntu@65.2.74.43 (note : wireguard server IP)
+12) ubuntu@ip-10-0-19-179:~$ ls
+   wireguard
+ ubuntu@ip-10-0-19-179:~$ pwd
+ /home/ubuntu
+13) now path cd /home/ubuntu/wireguard/config
+14) touch assigned.txt
+15) vi assigned.txt ---> add peer1 : suvarna (note : we can add n no of peers here as per script we can add 30 peers.. I added 3 peers one per me, one per abhi, one per akash)
+16) ls
+17) cd peer1
+18) nano peer1.conf
+19) copy that script into notepad++ and delete the DNS IP and update the allowed Ip's to given range in the doc's.
+20) [Interface]
+Address = 10.13.13.2/32
+PrivateKey = sAGIykxBE1hRtRio7o5QuLK46cXEcNZ23dP8pTZaLkg=
+ListenPort = 5182
+
+[Peer]
+PublicKey = 2DqsHiTEuyH79tgJZRB27viQy3kX47DdIQZjQHENHiw=
+PresharedKey = RMviEegtx6Gfqy/y25W4scLAtzYJLPUPZ7uuWoVAkto=
+Endpoint = 65.2.74.43:51820
+AllowedIPs = 10.0.0.0/16
+
+21) need to Open wireguard server 
+   select --> Add Empty Tunnel ---> need to give name (like training-env) and copy above script inside that box and save. (then our wireguard server will be active)
+   
+=====================================================================================================================================================
+=====================================================================================================================================================
+                            OBSERVATION CLUSTER SETUP
+							=========================
+							
+1) if we can login through .pem file we can ignore the ssh keygen.
+2)  cd k8s-infra/rancher/on-prem
+3) cp hosts.ini.sample hosts.ini
+4) vi hosts.ini (need to add the rancher-node1 and rancher-node2)
+5)  [cluster]
+node1 ansible_host=10.0.29.56 ansible_user=ubuntu ansible_ssh_private_key_file=~/.ssh/training.pem
+node2 ansible_host=10.0.24.91 ansible_user=ubuntu ansible_ssh_private_key_file=~/.ssh/training.pem
+6) ansible-playbook -i hosts.ini env-check.yaml
+7) open the ports.yaml  ---> vpc_ip ="10.0.0.0/16"
+8) ansible-playbook -i hosts.ini ports.yaml ( while doing second time with (B4 version) I got the error like UFW issue I used some commands like sudo ufw status, sudo ufw enable, sudo ufw disable, sudo iptables -L -v, sudo systemctl status iptables,abhi changed to 443 before 442)
+9) ansible-playbook -i hosts.ini swap.yaml
+10) ansible-playbook -i hosts.ini docker.yaml
+11) rke config
+12) suvarna@DESKTOP-4KQ6O58:~/mosip/k8s-infra/rancher/on-prem$ rke config
+    O/p:-
+[+] Cluster Level SSH Private Key Path [~/.ssh/id_rsa]: ~/.ssh/training.pem
+[+] Number of Hosts [1]: 2
+[+] SSH Address of host (1) [none]: 10.0.29.56
+[+] SSH Port of host (1) [22]:
+[+] SSH Private Key Path of host (10.0.29.56) [none]: ~/.ssh/training.pem
+[+] SSH User of host (10.0.29.56) [ubuntu]:
+[+] Is host (10.0.29.56) a Control Plane host (y/n)? [y]: y
+[+] Is host (10.0.29.56) a Worker host (y/n)? [n]: y
+[+] Is host (10.0.29.56) an etcd host (y/n)? [n]: y
+[+] Override Hostname of host (10.0.29.56) [none]: rancher-node1
+[+] Internal IP of host (10.0.29.56) [none]: 10.0.29.56
+[+] Docker socket path on host (10.0.29.56) [/var/run/docker.sock]:
+[+] SSH Address of host (2) [none]: 10.0.21.200
+[+] SSH Port of host (2) [22]:
+[+] SSH Private Key Path of host (10.0.21.200) [none]: ~/.ssh/training.pem
+[+] SSH User of host (10.0.21.200) [ubuntu]:
+[+] Is host (10.0.21.200) a Control Plane host (y/n)? [y]: y
+[+] Is host (10.0.21.200) a Worker host (y/n)? [n]: y
+[+] Is host (10.0.21.200) an etcd host (y/n)? [n]: y
+[+] Override Hostname of host (10.0.21.200) [none]: rancher-node2
+[+] Internal IP of host (10.0.21.200) [none]: 10.0.21.200
+[+] Docker socket path on host (10.0.21.200) [/var/run/docker.sock]:
+[+] Network Plugin Type (flannel, calico, weave, canal, aci) [canal]:
+[+] Authentication Strategy [x509]:
+[+] Authorization Mode (rbac, none) [rbac]:
+[+] Kubernetes Docker image [rancher/hyperkube:v1.22.9-rancher1]:
+[+] Cluster domain [cluster.local]:
+[+] Service Cluster IP Range [10.43.0.0/16]:
+[+] Enable PodSecurityPolicy [n]:
+[+] Cluster Network CIDR [10.42.0.0/16]:
+[+] Cluster DNS Service IP [10.43.0.10]:
+[+] Add addon manifest URLs or YAML files [no]:
+
+13) till here I did B3 version , I got the error Docker problem...
+   on that time I used some Commands to uninstall the docker... so I did ssh into rancher servers and did uninstall the docker..)
+   docker problem: (uninstall docker) : sudo apt-cache policy docker*
+                                        sudo apt purge docker.io (twice)
+										sudo apt purge docker.io (twice)
+										sudo apt autoremove
+14) nano cluster.yaml
+15) Remove the default ingress 
+    ingress:
+    provider: none
+	
+16) Add the name of the kubernetes cluster
+    cluster_name: training-cluster
+	
+17) rke up  ( if not successful we need to enter rke remove cmd)
+
+   O/p : Finished building Kubernetes cluster successfully (on the last line)
+   
+18) in local directory create .kube file -----> mkdir .kube ---> ls -lart ----> 
+
+19) cp kube_config_cluster.yml $HOME/.kube/rancher-cluster_config
+
+20) chmod 400 $HOME/.kube/rancher-cluster_config
+
+21) cp $HOME/.kube/rancher-cluster_config $HOME/.kube/config
+
+22) kubectl get nodes
+
+============================================================================================================================================
+=============================================================================================================================================
+
+                                                   INGRESS 
+												   =======
+												   
+1) cd mosip/k8s-infra/rancher-on-prem
+2) helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+3) helm repo update
+4) helm install \                                                                                                             
+  ingress-nginx ingress-nginx/ingress-nginx \
+  --namespace ingress-nginx \
+  --version 4.0.18 \
+  --create-namespace  \
+  -f ingress-nginx.values.yaml
+
+5) if error trigger  ---> check
+6) helm list
+7) helm delete name
+8) helm upgrade -i ingress-nginx ingress-nginx/ingress-nginx \
+  --namespace ingress-nginx \
+  --version 4.0.18 \
+  --create-namespace \
+  -f ingress-nginx.values.yaml
+
+ O/p : Release "ingress-nginx" has been upgraded. Happy Helming!
+NAME: ingress-nginx
+LAST DEPLOYED: Mon Mar  4 15:09:30 2024
+NAMESPACE: ingress-nginx
+STATUS: deployed
+REVISION: 2
+TEST SUITE: None
+NOTES:
+The ingress-nginx controller has been installed.
+Get the application URL by running these commands:
+  export HTTP_NODE_PORT=30080
+  export HTTPS_NODE_PORT=30443
+  export NODE_IP=$(kubectl --namespace ingress-nginx get nodes -o jsonpath="{.items[0].status.addresses[1].address}")
+
+  echo "Visit http://$NODE_IP:$HTTP_NODE_PORT to access your application via HTTP."
+  echo "Visit https://$NODE_IP:$HTTPS_NODE_PORT to access your application via HTTPS."
+
+An example Ingress that makes use of the controller:
+  apiVersion: networking.k8s.io/v1
+  kind: Ingress
+  metadata:
+    name: example
+    namespace: foo
+  spec:
+    ingressClassName: nginx
+    rules:
+      - host: www.example.com
+        http:
+          paths:
+            - pathType: Prefix
+              backend:
+                service:
+                  name: exampleService
+                  port:
+                    number: 80
+              path: /
+    # This section is only required if TLS is to be enabled for the Ingress
+    tls:
+      - hosts:
+        - www.example.com
+        secretName: example-tls
+
+If TLS is enabled for the Ingress, a Secret containing the certificate and key must also be provided:
+
+  apiVersion: v1
+  kind: Secret
+  metadata:
+    name: example-tls
+    namespace: foo
+  data:
+    tls.crt: <base64 encoded cert>
+    tls.key: <base64 encoded key>
+  type: kubernetes.io/tls
+
+===========================================================================================================================================
+=============================================================================================================================================
+
+                                              STORAGE CLASSES 
+                                             =================	
+    1)  cd /home/suvarna/mosip/k8s-infra/nfs
+	2). cp hosts.ini.sample hosts.ini
+	3). nano hosts.ini 
+        ansible-playbook -i ./hosts.ini nfs-ports.yaml	( update the details)
+	4). ssh -i ~/.ssh/training.pem  ubuntu@10.0.30.151
+	5). git clone https://github.com/mosip/k8s-infra.git
+	6). cd k8s-infra
+	7). git checkout tags/v1.2.0.1-B4 -b 1.2.0.1-B4														 (
+	8). cd mosip/nfs
+	     Execute script on server (do ssh to that server and execute the script)
+	9). ./install-nfs-server.sh : ---> :/srv/nfs/mosip/training (after executing the script you get path)
+	10).  exit 																		(to client)
+	11). cd /mosip/k8s-infra/nfs ==> ./install-nfs-client-provisioner.sh
+	12). kubectl -n nfs get deployment.apps/nfs-client-provisioner    				(Check status of NFS Client Provisioner)
+	13). kubectl get storageclass
+	14). ssh to the node and   ----> exe:sudo systemctl status nfs-kernel-server.service
+	15). sudo ufw status
+	16). kubectl patch storageclass nfs-client -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'    			- ( to set a default storageclass)
+        O/P: storageclass.storage.k8s.io/nfs-client patched			
+
+===========================================================================================================================================
+============================================================================================================================================
+
+                                          Nginx Server SETUP
+                                         ====================
+1) SSH in to nginx server...
+2) sudo apt update -y
+3) sudo apt-get install software-properties-common -y
+4) sudo add-apt-repository ppa:deadsnakes/ppa
+5) sudo apt-get update -y
+6) sudo apt-get install python3.8 -y
+7) sudo apt install letsencrypt -y
+8) sudo apt install certbot python3-certbot-nginx -y
+9) sudo certbot certonly --agree-tos --manual --preferred-challenges=dns -d  *.trainingsuv.mosip.net
+   results:Saving debug log to /var/log/letsencrypt/letsencrypt.log
+   Plugins selected: Authenticator manual, Installer None
+   Enter email address (used for urgent renewal and security notices) (Enter 'c' to
+   cancel): suvarna.sujatha@infystrat.com		
+ 
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Would you be willing to share your email address with the Electronic Frontier
+Foundation, a founding partner of the Let's Encrypt project and the non-profit
+organization that develops Certbot? We'd like to send you email about our work
+encrypting the web, EFF news, campaigns, and ways to support digital freedom.
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+(Y)es/(N)o: N
+Obtaining a new certificate
+Performing the following challenges:
+dns-01 challenge for trainingsuv.mosip.net
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+NOTE: The IP of this machine will be publicly logged as having requested this
+certificate. If you're running certbot in manual mode on a machine that is not
+your server, please ensure you're okay with that.
+
+Are you OK with your IP being logged?
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+(Y)es/(N)o: Y
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Please deploy a DNS TXT record under the name
+_acme-challenge.trainingsuv.mosip.net with the following value:
+
+Q-YsN3OIVSyERqqmvwAwZWuHO73UwlwQTJQbpM4tzto             (with this value need to create a ticket in attlasian or jira and ping to rakshitha this ticket id (https://mosip.atlassian.net/browse/DSD-4796)
+
+Before continuing, verify the record is deployed.
+
+Press Enter to Continue
+
+efore continuing, verify the record is deployed.
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Press Enter to Continue
+Waiting for verification...
+Challenge failed for domain trainingsuv.mosip.net
+dns-01 challenge for trainingsuv.mosip.net
+Cleaning up challenges
+Some challenges have failed.
+
+IMPORTANT NOTES:
+ - The following errors were reported by the server:
+
+   Domain: trainingsuv.mosip.net
+   Type:   unauthorized
+   Detail: Incorrect TXT record
+   "Q-YsN3OIVSyERqqmvwAwZWuHO73UwlwQTJQbpM4tzto" found at
+   _acme-challenge.trainingsuv.mosip.net
+
+   To fix these errors, please make sure that your domain name was
+   entered correctly and the DNS A/AAAA record(s) for that domain
+   contain(s) the right IP address.
+   
+
+
+
+ 10) After approval need to check DNS Checker with FQDN's. ( go to google --> open DNS Checker ---> enter the two values and Check)
+
+   host -t TXT _acme-challenge.trainingsuv.mosip.net (in CLI)  
+   
+   after mapping is done your full chain key and privkey will be stored in this location: /etc/letsencrypt/live/trainingsuv.mosip.net/
+    
+ 11) in that  ssh rancher-nginx node only need to clone k8s-infra
+ 12) then go to k8s-infra/
+ 13) path : /home/ubuntu/k8s-infra/rancher/on-prem/nginx
+ 14) sudo ./install.sh
+ O/p :  Please provide NFS SERVER: 10.0.30.151 ( observation cluster nginx ip)
+       Please provide NFS Path: /srv/nfs/mosip/training(while running ./install-nfs-server.sh  this you will get path)
+       SSL Certifaicate path : /etc/letsencrypt/live/trainingsuv.mosip.net/fullchain.pem
+	   SSL Key Path : /etc/letsencrypt/live/trainingsuv.mosip.net/privkey.pem
+	   Cluster node ip's : rancher nodes
+ 15) Post installation 
+     sudo systemctl status nginx
+	 (if we want to uninstall nginx sudo apt purge nginx nginx-common)
+	 
+=================================================================================================================================================
+================================================================================================================================================
+
+                                    Rancher UI 
+									===========
+1)go to cd mosip/k8s-infra/rancher/rancher-ui
+2) ls ---> rancher-values.yaml
+3) vi rancher-values.yaml (need to update the hostname)
+  
+  O/p:- hostname: rancher.trainingsuv.mosip.net
+   ingress:
+  enabled: true
+  includeDefaultExtraAnnotations: true
+  extraAnnotations:
+  kubernetes.io/ingress.class: nginx
+  rancherImage: rancher/rancher
+  replicas: 2
+  tls: external
+  bootstrapPassword: 'admin'
+
+4) helm repo add rancher-latest https://releases.rancher.com/server-charts/latest
+helm repo update
+helm install rancher rancher-latest/rancher \
+--namespace cattle-system \
+--create-namespace \
+-f rancher-values.yaml
+
+o/p : NAME: rancher
+LAST DEPLOYED: Wed Mar  6 14:31:02 2024
+NAMESPACE: cattle-system
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+NOTES:
+Rancher Server has been installed.
+
+NOTE: Rancher may take several minutes to fully initialize. Please standby while Certificates are being issued, Containers are started and the Ingress rule comes up.
+
+Check out our docs at https://rancher.com/docs/
+
+If you provided your own bootstrap password during installation, browse to https://rancher.trainingsuv.mosip.net to get started.
+
+If this is the first time you installed Rancher, get started by running this command and clicking the URL it generates:
+
+```
+echo https://rancher.trainingsuv.mosip.net/dashboard/?setup=$(kubectl get secret --namespace cattle-system bootstrap-secret -o go-template='{{.data.bootstrapPassword|base64decode}}')
+```
+
+To get just the bootstrap password on its own, run:
+
+```
+kubectl get secret --namespace cattle-system bootstrap-secret -o go-template='{{.data.bootstrapPassword|base64decode}}{{ "\n" }}'
+```
+
+=======================================================================================================================================================
+=========================================================================================================================================================
+                                               Keycloak
+											   ========
+											   ========
+1) cd mosip/k8s-infra/rancher/keycloak
+2) ./install.sh  keycloak.trainingsuv.mosip.net
+
+
+================================================================================================================================================
+=================================================================================================================================================
+
+                                            Keycloak - Rancher UI Integration
+                                            =================================
+                                            =================================
+1) Login as admin user in Keycloak  ---> email id : admin pwd :nDDtZnW6gk 											
+
+rancher username:suvarna.sujatha@infystrat.com, new pwd : 0YyV12AG7NgbbbTL
+keycloak username: admin, admin pwd : nDDtZnW6gk
+
+URL link for docs : https://ranchermanager.docs.rancher.com/
+
+2) In the keycloak UI ---> go to clients --> create --> 
+   client ID : --> https://rancher.trainingsuv.mosip.net/v1-saml/keycloak/saml/metadata,
+   Name : Rancher
+   Description : Nothing
+   Enabled : on
+   Always Display in console : OFF
+   Consent Required : off
+   Login Theme : Nothing
+   Client Protocol : saml
+   Include AuthnStatement : off
+   Include OneTimeUse Condition : off
+   Force Artiface Binding : off
+   Sign Documents : ON
+   Optimize redirect Signing key lookup : OFF
+   Sign Assertions : ON
+   Signature Alogorithm : RSA_SHA256
+   SAML Signature Key Name : KEY_ID
+   canonicalization method : EXCLUSIVE
+   Encrypt Assertions : OFF
+   Client Signature Required : OFF
+   Force Post Binding : OFF
+   Front Channel Logout : OFF
+   Force Name ID Format : OFF
+   Name ID Format : username
+   Root URL : Nothing
+   Valid Redirect URLS : https://rancher.trainingsuv.mosip.net/v1-saml/keycloak/saml/acs
+   Base URL and Below All Fields : Nothing
+   Save..
+   
+3) In the new SAML client, create Mappers to expose the users fields
+4) click the created SAML and there select mappers --> Add all "Builtin Protocol Mappers"
+5) Create a new "Group list" mapper to map the member attribute to a user's groups
+6) clients ---> Clients --->  https://rancher.trainingsuv.mosip.net/v1-saml/keycloak/saml/metadata ---> Mappers ----> groups
+   protocol : saml
+   Name : groups
+   Mapper type : Group list
+   Group attribute name : member
+   Friendly Name : Nothing
+   SAML Attribute NameFormat : Basic
+   Single Group Attribute : ON
+   Full group Path : ON
+   Save.
+=============================================================================================================================================  
+     Getting the IDP Metadata 
+	 ========================
+1) need to select Keycloak 14+
+2) From the Configure section, click the Realm Settings tab.
+3) Click the General tab.
+4) From the Endpoints field, click SAML 2.0 Identity Provider Metadata.
+ and Save or download that  descriptor file and save somewhere for later use..
+ 
+===============================================================================================================================================
+                           Configuring Keycloak in Rancher
+						   ==============================
+						   ===============================
+ Goto Rancher---->
+ 
+1) In the top left corner, click ☰ > Users & Authentication.
+
+2) In the left navigation menu, click Auth Provider.
+
+3) Click Keycloak SAML.
+
+4) Complete the Configure Keycloak Account form. For help with filling the form see the configuration reference.
+
+5) After you complete the Configure a Keycloak Account form, click Enable.
+
+6)Display Name Field:	givenName
+User Name Field:	email
+UID Field:	username
+Entity ID Field:	https://rancher.trainingsuv.mosip.net/v1-saml/keycloak/saml/metadata
+Rancher API Host:	https://rancher.trainingsuv.mosip.net
+Groups Field:	member
+
+secret key location : ssh into nginx server
+/etc/letsencrypt/live/trainingsuv.mosip.net
+copy private key, SSL Certificate, 
+On CLI : ubuntu@ip-10-0-30-151:/etc$ cd letsencrypt/
+ubuntu@ip-10-0-30-151:/etc/letsencrypt$ ls
+accounts  archive  cli.ini  csr  keys  live  renewal  renewal-hooks
+ubuntu@ip-10-0-30-151:/etc/letsencrypt$ cd live/
+-bash: cd: live/: Permission denied
+ubuntu@ip-10-0-30-151:/etc/letsencrypt$ sudo su
+root@ip-10-0-30-151:/etc/letsencrypt# cd live/
+root@ip-10-0-30-151:/etc/letsencrypt/live# ls
+README  trainingsuv.mosip.net
+root@ip-10-0-30-151:/etc/letsencrypt/live# cd trainingsuv.mosip.net/
+root@ip-10-0-30-151:/etc/letsencrypt/live/trainingsuv.mosip.net# ls
+README  cert.pem  chain.pem  fullchain.pem  privkey.pem
+root@ip-10-0-30-151:/etc/letsencrypt/live/trainingsuv.mosip.net#
+
+Privatekey.pem ---> Private Key
+FullChain.pem ----> SSL Certificate
+
+===============================================================================================================================================
+===============================================================================================================================================
+
+                                               RBAC for Rancher using Keycloak
+											   ===============================
+											   ===============================
+											
+Steps to create a new role:
+--------------------------
+1) Login to rancher UI ---> select ≡ icon.
+2) Select Users & Authentication ---> Roles( Role TEmplates) ---> Cluster.
+3) Click on Create Cluster Role to create a new role for clusters.
+4) Provide a unique role name Name.
+5) Set Cluster Creator Default to No and Set Locked to No.
+6) Select the Grant Resources option ---> click on Add Resource.
+   Select a set of operations from the verbs section to allow a role to perform the operations on the resource.
+   Select Resource and API Groups.
+   
+7) If you want to inherit existing roles, Select Inherit From option ---> click on Add Resource to add a new resource ---> Select Role.
+
+Create viewAllDeletePod role
+============================
+viewAllDeletePod role: view all resources and delete only pod.
+1) Login to rancher UI ---> select ≡ icon.
+2) Select Users & Authentication ---> Roles ---> Cluster.
+3) Click on Create Cluster Role to create a new role for clusters.
+4) Provide a unique role name viewAllDeletePod.
+5) Set Cluster Creator Default to No and Set Locked to No.
+6) Select the Grant Resources option ---> click on Add Resource.
+   Select below mentioned verbs, resources, and API Groups.
+
+   Verbs	 Resource	Non-Resource URLs	API Groups
+     get, list, watch	*		
+    delete	pods		
+      get, list, watch	*		networking.istio.io
+      get, list, watch	*		security.istio.io
+ 
+7) Inherit below mentioned roles, Select Inherit From option ---> click on Add Resource to add a new resource ---> Select Role.
+
+View Ingress
+View Monitoring
+View Volumes
+View Nodes
+View Services
+View Config Maps
+View Secrets
+View Service Accounts
+View Cluster Catalogs.
+
+================================================================================================================================================
+================================================================================================================================================
+
+                                MOSIP k8S CLUSTER SETUP
+								=======================
+								=======================
+
+Prerequisities no need to do because we did at inception..
+
+1) cd mosip/k8s-infra/mosip
+2) cp global_configmap.yaml.sample  global_configmap.yaml
+3) Update the domain names in global_configmap.yaml.sample and run...
+4) vi global_configmap.yaml
+ installation-name: trainingsuv
+  installation-domain: trainingsuv.mosip.net
+  mosip-version: develop
+  mosip-api-host: api.trainingsuv.mosip.net
+  mosip-api-internal-host: api-internal.trainingsuv.mosip.net
+  mosip-prereg-host: prereg.trainingsuv.mosip.net
+  mosip-activemq-host: activemq.trainingsuv.mosip.net
+  mosip-kibana-host: kibana.trainingsuv.mosip.net
+  mosip-admin-host: admin.trainingsuv.mosip.net
+  mosip-regclient-host: regclient.trainingsuv.mosip.net
+  mosip-minio-host: minio.trainingsuv.mosip.net
+  mosip-kafka-host: kafka.trainingsuv.mosip.net
+  mosip-iam-external-host: iam.trainingsuv.mosip.net
+  mosip-postgres-host: postgres.trainingsuv.mosip.net
+  mosip-pmp-host: pmp.trainingsuv.mosip.net
+  mosip-resident-host: resident.trainingsuv.mosip.net
+  mosip-compliance-host: compliance.trainingsuv.mosip.net
+  mosip-esignet-host: esignet.trainingsuv.mosip.net
+  mosip-smtp-host: smtp.trainingsuv.mosip.net
+
+4) kubectl apply -f global_configmap.yaml
+===============================================================================================================================================
+===============================================================================================================================================
+                                               ISTIO INGRESS SETUP
+											   ===================
+											   ===================
+											   
+1) cd /home/suvarna/mosip/k8s-infra/mosip/on-prem/istio
+2) .install.sh
+3) kubectl get svc -n istio-system( O/p : 
+                AGE
+istio-ingressgateway            NodePort    10.43.116.238   <none>        15021:30521/TCP,80:30080/TCP                                                 8d
+istio-ingressgateway-internal   NodePort    10.43.82.120    <none>        15021:31521/TCP,80:31080/TCP,61616:31616/TCP,5432:31432/TCP,9000:30900/TCP   8d
+istiod                          ClusterIP   10.43.165.123   <none>        15010/TCP,15012/TCP,443/TCP,15014/TCP                                        8d
+
+4) kubectl get ns
+
+==============================================================================================================================================
+===============================================================================================================================================
+
+                                               Storage Classes
+											   ===============
+											   ===============
+											   
+Note : In mosip cluster only need to run ./install-nfs-client-provisioner.sh
+
+1) Please provide NFS SERVER: observation cluster nginx ip
+2) Please provide NFS Path: /srv/nfs/mosip/training (it will get when we run ./install-nfs-server.sh .. so need to note it down)
+3) ./install-nfs-client-provisioner.sh
+   O/P : Create nfs namespace
+namespace/nfs created
+Add helm stable repo
+"stable" already exists with the same configuration, skipping
+Hang tight while we grab the latest from your chart repositories...
+...Successfully got an update from the "ingress-nginx" chart repository
+...Successfully got an update from the "mosip" chart repository
+...Successfully got an update from the "rancher-latest" chart repository
+...Successfully got an update from the "bitnami" chart repository
+...Successfully got an update from the "stable" chart repository
+Update Complete. ⎈Happy Helming!⎈
+Please provide NFS SERVER: 10.0.30.151
+Please provide NFS Path: /srv/nfs/mosip/training
+Installing NFS client provisioner
+WARNING: This chart is deprecated
+NAME: nfs-client-provisioner
+LAST DEPLOYED: Mon Mar 11 16:53:51 2024
+NAMESPACE: nfs
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+suvarna@DESKTOP-4KQ6O58:~/mosip/k8s-infra/nfs$ kubectl -n nfs get deployment.apps/nfs-client-provisioner
+NAME                     READY   UP-TO-DATE   AVAILABLE   AGE
+nfs-client-provisioner   1/1     1            1           3m19s
+suvarna@DESKTOP-4KQ6O58:~/mosip/k8s-infra/nfs$ kubectl get storageclass
+NAME         PROVISIONER                            RECLAIMPOLICY   VOLUMEBINDINGMODE   ALLOWVOLUMEEXPANSION   AGE
+nfs-client   cluster.local/nfs-client-provisioner   Delete          Immediate           true                   36m
+
+==============================================================================================================================================
+==============================================================================================================================================
+                                          Import MOSIP Cluster into Rancher UI
+						                  ====================================
+										  
+1) Login as login with keycloak
+
+2) select Import Existing for cluster addition.	
+
+3) Select Generic as cluster type to add.
+
+4) cluster name : mosip-suv-cluster ---> create (will get below Command , copy and paste in CLI)
+kubectl apply -f https://rancher.trainingsuv.mosip.net/v3/import/8pznwjkqpx4d77qcx4l559d82wszls7v6d8vmbd74dczl4jb9bsjfq_c-m-d5bhg67p.yaml
+
+5) kubectl apply -f https://rancher.trainingsuv.mosip.net/v3/import/8pznwjkqpx4d77qcx4l559d82wszls7v6d8vmbd74dczl4jb9bsjfq_c-m-d5bhg67p.yaml
+O/p: Warning: resource clusterroles/proxy-clusterrole-kubeapiserver is missing the kubectl.kubernetes.io/last-applied-configuration annotation which is required by kubectl apply. kubectl apply should only be used on resources created declaratively by either kubectl create --save-config or kubectl apply. The missing annotation will be patched automatically.
+clusterrole.rbac.authorization.k8s.io/proxy-clusterrole-kubeapiserver configured
+Warning: resource clusterrolebindings/proxy-role-binding-kubernetes-master is missing the kubectl.kubernetes.io/last-applied-configuration annotation which is required by kubectl apply. kubectl apply should only be used on resources created declaratively by either kubectl create --save-config or kubectl apply. The missing annotation will be patched automatically.
+clusterrolebinding.rbac.authorization.k8s.io/proxy-role-binding-kubernetes-master configured
+namespace/cattle-system created
+serviceaccount/cattle created
+clusterrolebinding.rbac.authorization.k8s.io/cattle-admin-binding created
+secret/cattle-credentials-565bae4 created
+clusterrole.rbac.authorization.k8s.io/cattle-admin created
+Warning: spec.template.spec.affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[0].matchExpressions[0].key: beta.kubernetes.io/os is deprecated since v1.14; use "kubernetes.io/os" instead
+deployment.apps/cattle-cluster-agent created
+service/cattle-cluster-agent created
+
+================================================================================================================================================
+=================================================================================================================================================
+                                                         setting up nginx server for mosip cluster:
+                                                         ===========================================
+														 
+1) ssh -i ~/.ssh/training.pem  ubuntu@10.0.16.157
+2) sudo apt update -y
+sudo apt-get install software-properties-common -y
+sudo add-apt-repository ppa:deadsnakes/ppa
+sudo apt-get update -y
+sudo apt-get install python3.8 -y
+sudo apt install letsencrypt -y
+sudo apt install certbot python3-certbot-nginx -y
+
+3) sudo certbot certonly --agree-tos --manual --preferred-challenges=dns -d  *.trainingsuv.mosip.net
+
+4) ubuntu@ip-10-0-16-157:~$ sudo certbot certonly --agree-tos --manual --preferred-challenges=dns -d  *.trainingsuv.mosip.net
+Saving debug log to /var/log/letsencrypt/letsencrypt.log
+Plugins selected: Authenticator manual, Installer None
+Enter email address (used for urgent renewal and security notices) (Enter 'c' to
+cancel): suvarna.sujatha@infystrat.com
+
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Would you be willing to share your email address with the Electronic Frontier
+Foundation, a founding partner of the Let's Encrypt project and the non-profit
+organization that develops Certbot? We'd like to send you email about our work
+encrypting the web, EFF news, campaigns, and ways to support digital freedom.
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+(Y)es/(N)o: N
+Obtaining a new certificate
+Performing the following challenges:
+dns-01 challenge for trainingsuv.mosip.net
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+NOTE: The IP of this machine will be publicly logged as having requested this
+certificate. If you're running certbot in manual mode on a machine that is not
+your server, please ensure you're okay with that.
+
+Are you OK with your IP being logged?
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+(Y)es/(N)o: Y
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Please deploy a DNS TXT record under the name
+_acme-challenge.trainingsuv.mosip.net with the following value:
+
+UUi2UmVJr7Pj7z2xMUaRG6a7l8wIRV3M3uqA956snTk
+
+Before continuing, verify the record is deployed.
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Press Enter to Continue
+
+Congratulations! Your certificate and chain have been saved at:
+   /etc/letsencrypt/live/trainingsuv.mosip.net/fullchain.pem
+   Your key file has been saved at:
+   /etc/letsencrypt/live/trainingsuv.mosip.net/privkey.pem
+   Your cert will expire on 2024-06-10. To obtain a new or tweaked
+   version of this certificate in the future, simply run certbot
+   again. To non-interactively renew *all* of your certificates, run
+   "certbot renew"
+ - If you like Certbot, please consider supporting our work by:
+
+   Donating to ISRG / Let's Encrypt:   https://letsencrypt.org/donate
+   Donating to EFF:                    https://eff.org/donate-le
+   
+5) ssh -i ~/.ssh/training.pem  ubuntu@10.0.16.157
+ git clone https://github.com/mosip/k8s-infra -b v1.2.0.1-B4
+ git checkout tags/v1.2.0.1-B4 -b 1.2.0.1-B4
+ 
+6) ls ---> k8s-infra
+
+7) sudo ./install.sh
+MOSIP nginx server internal ip : 10.0.16.157
+
+MOSIP nginx server public ip: 10.0.16.157
+
+Publically accessible domains: api.trainingsuv.mosip.net,prereg.trainingsuv.mosip.net,resident.trainingsuv.mosip.net,esignet.trainingsuv.mosip.net
+
+SSL cert path: /etc/letsencrypt/live/trainingsuv.mosip.net/fullchain.pem
+
+SSL key path: /etc/letsencrypt/live/trainingsuv.mosip.net/privkey.pem
+
+Cluster node ip's : 10.0.16.60,10.0.17.159,10.0.27.51,10.0.27.135,10.0.17.105,10.0.16.42
+
+[sudo] password for suvarna:
+=====>
+The following internal ip will have to be DNS-mapped to all internal domains from you global_configmap.yaml. Ex: api-internal.sandbox.xyz.net, iam.sandbox.xyz.net, etc.
+Give the internal interface ip of this node here. Run `ip a` to get all the interface addresses (without any whitespaces) : 10.0.16.157
+=====>
+This nginx's public ip will have to be DNS-mapped to all public domains from you global_configmap.yaml. Ex: api.sandbox.xyz.net, prereg.sandbox.xyz.net, etc.
+The above mentioned nginx's public ip might be different from this nginx machine's public interface ip, if you have provisioned public ip seperately that might be forwarding traffic to this interface ip.
+Give the public interface ip of this node here. Run `ip a` to get all the interfaces, In case not exposing api's to public give private ip only. : 10.0.16.157
+=====>
+Give list of (comma seperated) publicly exposing domain names (without any whitespaces). Ex: api.sandbox.xyx.net, prereg.sandbox.xyz.net, resident.sandbox.xyz.net, idp.sandbox.xyz.net etc : trainingsuv.mosip.net,minio.trainingsuv.mosip.net,api-internal.trainingsuv.mosip.net,compliance.trainingsuv.mosip.net,esignet.trainingsuv.mosip.net,kafka.trainingsuv.mosip.net,kibana.trainingsuv.mosip.net,prereg.trainingsuv.mosip.net,activemq.trainingsuv.mosip.net,api.trainingsuv.mosip.net,pmp.trainingsuv.mosip.net,smtp.trainingsuv.mosip.net,resident.trainingsuv.mosip.net,admin.trainingsuv.mosip.net,iam.trainingsuv.mosip.net, ^H^[[3~^H^[[D^[[3~^C
+suvarna@DESKTOP-4KQ6O58:~/mosip/k8s-infra/mosip/on-prem/nginx$
+suvarna@DESKTOP-4KQ6O58:~/mosip/k8s-infra/mosip/on-prem/nginx$ sudo ./install.sh
+=====>
+The following internal ip will have to be DNS-mapped to all internal domains from you global_configmap.yaml. Ex: api-internal.sandbox.xyz.net, iam.sandbox.xyz.net, etc.
+Give the internal interface ip of this node here. Run `ip a` to get all the interface addresses (without any whitespaces) : 10.0.16/^H^[[3~^[[3~^C
+suvarna@DESKTOP-4KQ6O58:~/mosip/k8s-infra/mosip/on-prem/nginx$ sudo ./install.sh
+=====>
+The following internal ip will have to be DNS-mapped to all internal domains from you global_configmap.yaml. Ex: api-internal.sandbox.xyz.net, iam.sandbox.xyz.net, etc.
+Give the internal interface ip of this node here. Run `ip a` to get all the interface addresses (without any whitespaces) : 10.0.16.157
+=====>
+This nginx's public ip will have to be DNS-mapped to all public domains from you global_configmap.yaml. Ex: api.sandbox.xyz.net, prereg.sandbox.xyz.net, etc.
+The above mentioned nginx's public ip might be different from this nginx machine's public interface ip, if you have provisioned public ip seperately that might be forwarding traffic to this interface ip.
+Give the public interface ip of this node here. Run `ip a` to get all the interfaces, In case not exposing api's to public give private ip only. : 10.0.16.157
+=====>
+Give list of (comma seperated) publicly exposing domain names (without any whitespaces). Ex: api.sandbox.xyx.net, prereg.sandbox.xyz.net, resident.sandbox.xyz.net, idp.sandbox.xyz.net etc : api.sandbox.xyx.net, prereg.sandbox.xyz.net, resident.sandbox.xyz.net, idp.sandbox.xyz.net etc : trainingsuv.mosip.net,minio.trainingsuv.mosip.net,api-internal.trainingsuv.mosip.net,compliance.trainingsuv.mosip.net,esignet.trainingsuv.mosip.net,kafka.trainingsuv.mosip.net,kibana.trainingsuv.mosip.net,prereg.trainingsuv.mosip.net,activemq.trainingsuv.mosip.net,api.trainingsuv.mosip.net,pmp.trainingsuv.mosip.net,smtp.trainingsuv.mosip.net,resident.trainingsuv.mosip.net,admin.trainingsuv.mosip.net,iam.trainingsuv.mosip.net,postgres.trainingsuv.mosip,regclient.trainingsuv.mosip.net
+=====>
+Give path for SSL Certificate (fullchain.pem) for sandbox.xyz.net (without any whitespaces) : Ex: /etc//letsencrypt/live/sandbox.xyz.net/fullchain.pem/etc/letsencrypt/live/trainingsuv.mosip.net/fullchain.pem
+=====>
+Give path for SSL Certificate Key (privkey.pem) for sandbox.xyz.net (without any whitespaces): Ex: /etc/letsencrypt/live/sandbox.xyz.net/privkey.pem : /etc/letsencrypt/live/trainingsuv.mosip.net/privkey.pem
+=====>
+Give list of (comma seperated) ips of all nodes in the mosip cluster (without any whitespaces) : 10.0.16.60,10.0.17.159,10.0.27.51,10.0.27.135,10.0.17.105,10.0.16.42
+=====>
+Give nodeport of http port of the mosip cluster public ingressgateway (without any whitespaces) (default is 30080) :
+=====>
+Give nodeport of http port of the mosip cluster internal ingressgateway (without any whitespaces) (default is 31080) :
+=====>
+Give nodeport of postgres port of the mosip cluster internal ingressgateway (without any whitespaces) (default is 31432) :
+=====>
+Give nodeport of minio port of the mosip cluster internal ingressgateway (without any whitespaces) (default is 30900) :
+=====>
+Give nodeport of activemq port of the mosip cluster internal ingressgateway (without any whitespaces) (default is 31616) :
+Reading package lists... Done
+Building dependency tree... Done
+Reading state information... Done
+The following additional packages will be installed:
+  fontconfig-config fonts-dejavu-core libdeflate0 libfontconfig1 libfreetype6 libgd3 libjbig0 libjpeg-turbo8 libjpeg8
+  libnginx-mod-http-geoip2 libnginx-mod-http-image-filter libnginx-mod-http-xslt-filter libnginx-mod-mail libnginx-mod-stream
+  libnginx-mod-stream-geoip2 libtiff5 libwebp7 libxpm4 libxslt1.1 nginx-common nginx-core
+Suggested packages:
+  libgd-tools fcgiwrap nginx-doc ssl-cert
+The following NEW packages will be installed:
+  fontconfig-config fonts-dejavu-core libdeflate0 libfontconfig1 libfreetype6 libgd3 libjbig0 libjpeg-turbo8 libjpeg8
+  libnginx-mod-http-geoip2 libnginx-mod-http-image-filter libnginx-mod-http-xslt-filter libnginx-mod-mail libnginx-mod-stream
+  libnginx-mod-stream-geoip2 libtiff5 libwebp7 libxpm4 libxslt1.1 nginx nginx-common nginx-core
+0 upgraded, 22 newly installed, 0 to remove and 31 not upgraded.
+Need to get 3246 kB of archives.
+After this operation, 9752 kB of additional disk space will be used.
+Get:1 http://archive.ubuntu.com/ubuntu jammy/main amd64 fonts-dejavu-core all 2.37-2build1 [1041 kB]
+Get:2 http://archive.ubuntu.com/ubuntu jammy/main amd64 fontconfig-config all 2.13.1-4.2ubuntu5 [29.1 kB]
+Get:3 http://archive.ubuntu.com/ubuntu jammy/main amd64 libdeflate0 amd64 1.10-2 [70.9 kB]
+Get:4 http://archive.ubuntu.com/ubuntu jammy-updates/main amd64 libfreetype6 amd64 2.11.1+dfsg-1ubuntu0.2 [389 kB]
+Get:5 http://archive.ubuntu.com/ubuntu jammy/main amd64 libfontconfig1 amd64 2.13.1-4.2ubuntu5 [131 kB]
+Get:6 http://archive.ubuntu.com/ubuntu jammy/main amd64 libjpeg-turbo8 amd64 2.1.2-0ubuntu1 [134 kB]
+Get:7 http://archive.ubuntu.com/ubuntu jammy/main amd64 libjpeg8 amd64 8c-2ubuntu10 [2264 B]
+Get:8 http://archive.ubuntu.com/ubuntu jammy-updates/main amd64 libjbig0 amd64 2.1-3.1ubuntu0.22.04.1 [29.2 kB]
+Get:9 http://archive.ubuntu.com/ubuntu jammy-updates/main amd64 libwebp7 amd64 1.2.2-2ubuntu0.22.04.2 [206 kB]
+Get:10 http://archive.ubuntu.com/ubuntu jammy-updates/main amd64 libtiff5 amd64 4.3.0-6ubuntu0.8 [185 kB]
+Get:11 http://archive.ubuntu.com/ubuntu jammy-updates/main amd64 libxpm4 amd64 1:3.5.12-1ubuntu0.22.04.2 [36.7 kB]
+Get:12 http://archive.ubuntu.com/ubuntu jammy/main amd64 libgd3 amd64 2.3.0-2ubuntu2 [129 kB]
+Get:13 http://archive.ubuntu.com/ubuntu jammy-updates/main amd64 nginx-common all 1.18.0-6ubuntu14.4 [40.0 kB]
+Get:14 http://archive.ubuntu.com/ubuntu jammy-updates/main amd64 libnginx-mod-http-geoip2 amd64 1.18.0-6ubuntu14.4 [11.9 kB]
+Get:15 http://archive.ubuntu.com/ubuntu jammy-updates/main amd64 libnginx-mod-http-image-filter amd64 1.18.0-6ubuntu14.4 [15.4 kB]
+Get:16 http://archive.ubuntu.com/ubuntu jammy-updates/main amd64 libxslt1.1 amd64 1.1.34-4ubuntu0.22.04.1 [164 kB]
+Get:17 http://archive.ubuntu.com/ubuntu jammy-updates/main amd64 libnginx-mod-http-xslt-filter amd64 1.18.0-6ubuntu14.4 [13.7 kB]
+Get:18 http://archive.ubuntu.com/ubuntu jammy-updates/main amd64 libnginx-mod-mail amd64 1.18.0-6ubuntu14.4 [45.7 kB]
+Get:19 http://archive.ubuntu.com/ubuntu jammy-updates/main amd64 libnginx-mod-stream amd64 1.18.0-6ubuntu14.4 [72.9 kB]
+Get:20 http://archive.ubuntu.com/ubuntu jammy-updates/main amd64 libnginx-mod-stream-geoip2 amd64 1.18.0-6ubuntu14.4 [10.1 kB]
+Get:21 http://archive.ubuntu.com/ubuntu jammy-updates/main amd64 nginx-core amd64 1.18.0-6ubuntu14.4 [484 kB]
+Get:22 http://archive.ubuntu.com/ubuntu jammy-updates/main amd64 nginx amd64 1.18.0-6ubuntu14.4 [3872 B]
+Fetched 3246 kB in 4s (731 kB/s)
+Preconfiguring packages ...
+Selecting previously unselected package fonts-dejavu-core.
+(Reading database ... 64166 files and directories currently installed.)
+Preparing to unpack .../00-fonts-dejavu-core_2.37-2build1_all.deb ...
+Unpacking fonts-dejavu-core (2.37-2build1) ...
+Selecting previously unselected package fontconfig-config.
+Preparing to unpack .../01-fontconfig-config_2.13.1-4.2ubuntu5_all.deb ...
+Unpacking fontconfig-config (2.13.1-4.2ubuntu5) ...
+Selecting previously unselected package libdeflate0:amd64.
+Preparing to unpack .../02-libdeflate0_1.10-2_amd64.deb ...
+Unpacking libdeflate0:amd64 (1.10-2) ...
+Selecting previously unselected package libfreetype6:amd64.
+Preparing to unpack .../03-libfreetype6_2.11.1+dfsg-1ubuntu0.2_amd64.deb ...
+Unpacking libfreetype6:amd64 (2.11.1+dfsg-1ubuntu0.2) ...
+Selecting previously unselected package libfontconfig1:amd64.
+Preparing to unpack .../04-libfontconfig1_2.13.1-4.2ubuntu5_amd64.deb ...
+Unpacking libfontconfig1:amd64 (2.13.1-4.2ubuntu5) ...
+Selecting previously unselected package libjpeg-turbo8:amd64.
+Preparing to unpack .../05-libjpeg-turbo8_2.1.2-0ubuntu1_amd64.deb ...
+Unpacking libjpeg-turbo8:amd64 (2.1.2-0ubuntu1) ...
+Selecting previously unselected package libjpeg8:amd64.
+Preparing to unpack .../06-libjpeg8_8c-2ubuntu10_amd64.deb ...
+Unpacking libjpeg8:amd64 (8c-2ubuntu10) ...
+Selecting previously unselected package libjbig0:amd64.
+Preparing to unpack .../07-libjbig0_2.1-3.1ubuntu0.22.04.1_amd64.deb ...
+Unpacking libjbig0:amd64 (2.1-3.1ubuntu0.22.04.1) ...
+Selecting previously unselected package libwebp7:amd64.
+Preparing to unpack .../08-libwebp7_1.2.2-2ubuntu0.22.04.2_amd64.deb ...
+Unpacking libwebp7:amd64 (1.2.2-2ubuntu0.22.04.2) ...
+Selecting previously unselected package libtiff5:amd64.
+Preparing to unpack .../09-libtiff5_4.3.0-6ubuntu0.8_amd64.deb ...
+Unpacking libtiff5:amd64 (4.3.0-6ubuntu0.8) ...
+Selecting previously unselected package libxpm4:amd64.
+Preparing to unpack .../10-libxpm4_1%3a3.5.12-1ubuntu0.22.04.2_amd64.deb ...
+Unpacking libxpm4:amd64 (1:3.5.12-1ubuntu0.22.04.2) ...
+Selecting previously unselected package libgd3:amd64.
+Preparing to unpack .../11-libgd3_2.3.0-2ubuntu2_amd64.deb ...
+Unpacking libgd3:amd64 (2.3.0-2ubuntu2) ...
+Selecting previously unselected package nginx-common.
+Preparing to unpack .../12-nginx-common_1.18.0-6ubuntu14.4_all.deb ...
+Unpacking nginx-common (1.18.0-6ubuntu14.4) ...
+Selecting previously unselected package libnginx-mod-http-geoip2.
+Preparing to unpack .../13-libnginx-mod-http-geoip2_1.18.0-6ubuntu14.4_amd64.deb ...
+Unpacking libnginx-mod-http-geoip2 (1.18.0-6ubuntu14.4) ...
+Selecting previously unselected package libnginx-mod-http-image-filter.
+Preparing to unpack .../14-libnginx-mod-http-image-filter_1.18.0-6ubuntu14.4_amd64.deb ...
+Unpacking libnginx-mod-http-image-filter (1.18.0-6ubuntu14.4) ...
+Selecting previously unselected package libxslt1.1:amd64.
+Preparing to unpack .../15-libxslt1.1_1.1.34-4ubuntu0.22.04.1_amd64.deb ...
+Unpacking libxslt1.1:amd64 (1.1.34-4ubuntu0.22.04.1) ...
+Selecting previously unselected package libnginx-mod-http-xslt-filter.
+Preparing to unpack .../16-libnginx-mod-http-xslt-filter_1.18.0-6ubuntu14.4_amd64.deb ...
+Unpacking libnginx-mod-http-xslt-filter (1.18.0-6ubuntu14.4) ...
+Selecting previously unselected package libnginx-mod-mail.
+Preparing to unpack .../17-libnginx-mod-mail_1.18.0-6ubuntu14.4_amd64.deb ...
+Unpacking libnginx-mod-mail (1.18.0-6ubuntu14.4) ...
+Selecting previously unselected package libnginx-mod-stream.
+Preparing to unpack .../18-libnginx-mod-stream_1.18.0-6ubuntu14.4_amd64.deb ...
+Unpacking libnginx-mod-stream (1.18.0-6ubuntu14.4) ...
+Selecting previously unselected package libnginx-mod-stream-geoip2.
+Preparing to unpack .../19-libnginx-mod-stream-geoip2_1.18.0-6ubuntu14.4_amd64.deb ...
+Unpacking libnginx-mod-stream-geoip2 (1.18.0-6ubuntu14.4) ...
+Selecting previously unselected package nginx-core.
+Preparing to unpack .../20-nginx-core_1.18.0-6ubuntu14.4_amd64.deb ...
+Unpacking nginx-core (1.18.0-6ubuntu14.4) ...
+Selecting previously unselected package nginx.
+Preparing to unpack .../21-nginx_1.18.0-6ubuntu14.4_amd64.deb ...
+Unpacking nginx (1.18.0-6ubuntu14.4) ...
+Setting up libxpm4:amd64 (1:3.5.12-1ubuntu0.22.04.2) ...
+Setting up libdeflate0:amd64 (1.10-2) ...
+Setting up nginx-common (1.18.0-6ubuntu14.4) ...
+Created symlink /etc/systemd/system/multi-user.target.wants/nginx.service → /lib/systemd/system/nginx.service.
+Setting up libjbig0:amd64 (2.1-3.1ubuntu0.22.04.1) ...
+Setting up libfreetype6:amd64 (2.11.1+dfsg-1ubuntu0.2) ...
+Setting up fonts-dejavu-core (2.37-2build1) ...
+Setting up libjpeg-turbo8:amd64 (2.1.2-0ubuntu1) ...
+Setting up libwebp7:amd64 (1.2.2-2ubuntu0.22.04.2) ...
+Setting up libxslt1.1:amd64 (1.1.34-4ubuntu0.22.04.1) ...
+Setting up libnginx-mod-http-geoip2 (1.18.0-6ubuntu14.4) ...
+Setting up libjpeg8:amd64 (8c-2ubuntu10) ...
+Setting up libnginx-mod-mail (1.18.0-6ubuntu14.4) ...
+Setting up fontconfig-config (2.13.1-4.2ubuntu5) ...
+Setting up libnginx-mod-stream (1.18.0-6ubuntu14.4) ...
+Setting up libnginx-mod-http-xslt-filter (1.18.0-6ubuntu14.4) ...
+Setting up libtiff5:amd64 (4.3.0-6ubuntu0.8) ...
+Setting up libfontconfig1:amd64 (2.13.1-4.2ubuntu5) ...
+Setting up libnginx-mod-stream-geoip2 (1.18.0-6ubuntu14.4) ...
+Setting up libgd3:amd64 (2.3.0-2ubuntu2) ...
+Setting up libnginx-mod-http-image-filter (1.18.0-6ubuntu14.4) ...
+Setting up nginx-core (1.18.0-6ubuntu14.4) ...
+ * Upgrading binary nginx                                                                                                         [ OK ]
+Setting up nginx (1.18.0-6ubuntu14.4) ...
+Processing triggers for ufw (0.36.1-4ubuntu0.1) ...
+Processing triggers for man-db (2.10.2-1) ...
+Processing triggers for libc-bin (2.35-0ubuntu3.6) ...
+Job for nginx.service failed because the control process exited with error code.
+See "systemctl status nginx.service" and "journalctl -xeu nginx.service" for details.
+
+============================================================================================================================================
+ 
+I got error because his nginx's public ip will have to be DNS-mapped to all public domains from you global_configmap.yaml. Ex: api.sandbox.xyz.net, prereg.sandbox.xyz.net, etc.
+The above mentioned nginx's public ip might be different from this nginx machine's public interface ip, if you have provisioned public ip seperately that might be forwarding traffic to this interface ip.
+Give the public interface ip of this node here. Run `ip a` to get all the interfaces, In case not exposing api's to public give private ip only. : 10.0.16.157
+=====>
+Give list of (comma seperated) publicly exposing domain names (without any whitespaces). Ex: api.sandbox.xyx.net, prereg.sandbox.xyz.net, resident.sandbox.xyz.net, idp.sandbox.xyz.net etc : api.sandbox.xyx.net, prereg.sandbox.xyz.net, resident.sandbox.xyz.net, idp.sandbox.xyz.net etc : 
+
+give only api.trainingsuv.mosip.net,prereg.trainingsuv.mosip.net,resident.trainingsuv.mosip.net,esignet.trainingsuv.mosip.net
+
+then it got installed.
+============================================================================================================================================
+============================================================================================================================================
+
+sudo systemctl status nginx
+
+===========================================================================================================================================
+									  
+                                            DNS MAPPING
+											===========
+											===========
+											
+DNS mapping:
+=============
+home directory:
+==============
+cd mosip/k8s-infra/utils/httpbin
+./install.sh
+O/p : suvarna@DESKTOP-4KQ6O58:~/mosip/k8s-infra/utils/httpbin$ ./install.sh
+namespace/httpbin created
+namespace/httpbin labeled
+service/httpbin created
+serviceaccount/httpbin created
+deployment.apps/httpbin created
+virtualservice.networking.istio.io/httpbin created
+===============================================
+curl https://api.trainingsuv.mosip.net/httpbin/get?show_env=true
+O/p:
+{
+  "args": {
+    "show_env": "true"
+  },
+  "headers": {
+    "Accept": "*/*",
+    "Host": "api.trainingsuv.mosip.net",
+    "User-Agent": "curl/7.81.0",
+    "X-B3-Parentspanid": "3390ac1871d177f5",
+    "X-B3-Sampled": "0",
+    "X-B3-Spanid": "85aa69dbc8953f61",
+    "X-B3-Traceid": "97e86cfd3ba2e7063390ac1871d177f5",
+    "X-Envoy-Attempt-Count": "1",
+    "X-Envoy-External-Address": "10.42.4.0",
+    "X-Envoy-Original-Path": "/httpbin/get?show_env=true",
+    "X-Forwarded-Client-Cert": "By=spiffe://cluster.local/ns/httpbin/sa/httpbin;Hash=39e3f1c614a72b8cc989bd3f0994e2aede62844c31d23b82387643d76551beb7;Subject=\"\";URI=spiffe://cluster.local/ns/istio-system/sa/istio-ingressgateway-service-account",
+    "X-Forwarded-For": "10.0.19.179,10.42.4.0",
+    "X-Forwarded-Proto": "https",
+    "X-Real-Ip": "10.0.19.179",
+    "X-Request-Id": "63fe1123-570a-488f-8a57-1a79db1622a3"
+  },
+  "origin": "10.0.19.179,10.42.4.0",
+  "url": "https://api.trainingsuv.mosip.net/get?show_env=true"
+}
+
+curl https://api-internal.trainingsuv.mosip.net/httpbin/get?show_env=true
+O/P:
+===
+{
+  "args": {
+    "show_env": "true"
+  },
+  "headers": {
+    "Accept": "*/*",
+    "Host": "api-internal.trainingsuv.mosip.net",
+    "User-Agent": "curl/7.81.0",
+    "X-B3-Parentspanid": "caaee456942b1786",
+    "X-B3-Sampled": "0",
+    "X-B3-Spanid": "1c3d2407321d281f",
+    "X-B3-Traceid": "7c8a5a8419afb688caaee456942b1786",
+    "X-Envoy-Attempt-Count": "1",
+    "X-Envoy-External-Address": "10.42.4.0",
+    "X-Envoy-Original-Path": "/httpbin/get?show_env=true",
+    "X-Forwarded-Client-Cert": "By=spiffe://cluster.local/ns/httpbin/sa/httpbin;Hash=ae96630bea39519739e0d8278a6b7a6fc0416a7b3687062c02a9af08b680d85d;Subject=\"\";URI=spiffe://cluster.local/ns/istio-system/sa/istio-ingressgateway-internal-service-account",
+    "X-Forwarded-For": "10.0.19.179,10.42.4.0",
+    "X-Forwarded-Proto": "https",
+    "X-Real-Ip": "10.0.19.179",
+    "X-Request-Id": "9e23fb97-c05c-450b-8275-b863fc656e78"
+  },
+  "origin": "10.0.19.179,10.42.4.0",
+  "url": "https://api-internal.trainingsuv.mosip.net/get?show_env=true"
+}
+
+===============================================================================================================================================
+===============================================================================================================================================
+                                             Mosip External Dependencies
+								             ==============================
+								   
+1) Install postgress: Infraroot means Mosip Infra
+  cd mosip/mosip-infra/deployment/v3/external/postgres
+  ./install.sh
+  I got some errors so I used some commands
+  1) kubectl get ns
+  2) kubectl delete ns postgres
+  3) ./delete.sh
+  4) kubectl get storageclass
+  here nfs we need to make it default because we are getting persistent volume claim issue.
+  5)kubectl patch storageclass nfs-client -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
+  
+ 2) Initialize Postgres DB:
+ cd mosip/mosip-infra/deployment/v3/external/postgres
+ ./init_db.sh
+  enter y
+  
+================================================================================================================================================
+===============================================================================================================================================
+
+3) Keycloak:
+=============
+cd mosip/mosip-infra/deployment/v3/external/iam
+./install.sh
+
+Initialize Keycloak:
+------------------
+cd mosip/mosip-infra/deployment/v3/external/iam
+./keycloak_init.sh
+
+=========================================================================================================================================
+
+
+ 
+ 
+  To get your password run:
+
+    kubectl get secret --namespace activemq activemq-activemq-artemis -o jsonpath="{.data.artemis-password}" | base64 --decode; echo
+	
+ To get local ports:
+
+    minikube service --namespace activemq --url activemq-activemq-artemis
+
+
+changes in script install.sh to run admin-UI
+==============================================
+#!/bin/bash
+# Installs the admin module
+# Make sure you have updated ui_values.yaml
+## Usage: ./install.sh [kubeconfig]
+
+if [ $# -ge 1 ] ; then
+  export KUBECONFIG=$1
+fi
+
+NS=admin
+CHART_VERSION=12.0.1-B3
+ADMIN_UI_CHART_VERSION=12.0.1-B2
+
+#echo Create $NS namespace
+#kubectl create ns $NS
+
+#function installing_admin() {
+ # echo Istio label
+ #kubectl label ns $NS istio-injection=enabled --overwrite
+  #helm repo update
+
+  #echo Copy configmaps
+  #sed -i 's/\r$//' copy_cm.sh
+  #./copy_cm.sh
+
+  API_HOST=$(kubectl get cm global -o jsonpath={.data.mosip-api-internal-host})
+  ADMIN_HOST=$(kubectl get cm global -o jsonpath={.data.mosip-admin-host})
+
+  #echo Installing Admin-Proxy into Masterdata and Keymanager.
+  #kubectl -n $NS apply -f admin-proxy.yaml
+
+  #echo Installing admin hotlist service.
+  #helm -n $NS install admin-hotlist mosip/admin-hotlist --version $CHART_VERSION
+   #echo Installing admin service. Will wait till service gets installed.
+  #helm -n $NS install admin-service mosip/admin-service --set istio.corsPolicy.allowOrigins\[0\].prefix=https://$ADMIN_HOST --wait --ve>
+
+  echo Installing admin-ui
+  helm -n $NS install admin-ui mosip/admin-ui --set admin.apiUrl=https://$API_HOST/v1/ --set istio.hosts\[0\]=$ADMIN_HOST --version $ADM>
+
+  kubectl -n $NS  get deploy -o name |  xargs -n1 -t  kubectl -n $NS rollout status
+
+  echo Installed admin services
+
+  echo "Admin portal URL: https://$ADMIN_HOST/admin-ui/"
+  return 0
+}
+
+# set commands for error handling.
+set -e
+set -o errexit   ## set -e : exit the script if any statement returns a non-true return value
+set -o nounset   ## set -u : exit the script if you try to use an uninitialised variable
+set -o errtrace  # trace ERR through 'time command' and other functions
+set -o pipefail  # trace ERR through pipes
+installing_admin   # calling function
+
+
+===========================================================================================================================================
+==============================================================================================================================================
+

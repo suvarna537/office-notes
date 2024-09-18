@@ -1,0 +1,176 @@
+------------------------------------ Multilanguage Changes ------------------------------------
+https://mosip.atlassian.net/wiki/spaces/DevOps/pages/1035468801/Config+property+files+required+to+be+updated+for+language+specific+deployments
+https://mosip.atlassian.net/wiki/spaces/MBW/pages/736821252/Multilanguage+support+in+notifications
+https://docs.google.com/spreadsheets/d/1ndyR8r4Z2IJxl2FbZG1iKoKRvTo-qe5O03wKGsSyuIg/edit#gid=896436404
+https://github.com/iiitb-pilot/artifactory-ref-impl/commit/5d625f1702688038b982c9afd1596118f05b12c1
+https://github.com/mosip/keycloak/tree/develop/keycloak-artemis/theme/base
+
+------------------------------------ Multilanguage Property file Changes ------------------------------------
+In Keycloack Realm setting -> Themes -> Internationalization Enabled -> Yes
+
+-------- registration-processor-default.properties ---------------------
+mosip.preferred-language.enabled=true
+
+-------- admin-default.properties -------------------------
+mosip.admin.masterdata.lang-code=eng,fra,hin,spa
+
+------- application-default.properties -------------------------
+## Language supported by platform
+mosip.supported-languages=eng,fra,hin,spa
+mosip.right_to_left_orientation=ara
+mosip.left_to_right_orientation=eng,fra,hin,spa
+
+## Transliteration
+mosip.kernel.transliteration.arabic-language-code=ara
+mosip.kernel.transliteration.english-language-code=eng
+mosip.kernel.transliteration.french-language-code=fra
+mosip.kernel.transliteration.hindi-language-code=hin
+mosip.kernel.transliteration.spanish-language-code=spa
+
+
+mosip.mandatory-languages=
+## Leave blank if no optional langauges
+mosip.optional-languages=eng,fra,hin,spa
+mosip.min-languages.count=1
+mosip.max-languages.count=2
+
+# These are default languages used for sending notifications
+mosip.default.template-languages=eng,hin,fra,spa
+
+------- mimoto-default.properties -------------------------
+# Language Supported By Platform - ISO
+mosip.supported-languages=eng,fra,hin,spa
+
+mosip.template-language=eng
+mosip.optional-languages=fra,hin,spa
+mosip.mandatory-languages=eng
+
+------- print-default.properties -------------------------
+## Country specific
+mosip.country.code=IN
+mosip.supported-languages=eng,fra,hin,spa
+mosip.template-language=eng
+mosip.optional-languages=fra,hin,spa
+mosip.mandatory-languages=eng
+
+------ resident-app-default.properties -------------------------
+# Language Supported By Platform - ISO
+mosip.supported-languages=eng,fra
+mosip.template-language=eng
+mosip.optional-languages=fra
+mosip.mandatory-languages=eng
+
+------------------------------------ Multilanguage Table Changes ------------------------------------
+01) language 
+02) ui_spec -> pre-reg and reg-client
+03) dynamic_field: preferredLang,homeless,gender,bloodType,residenceStatus 
+04) loc_hierarchy_list 
+05) location 
+06) doc_category 
+07) doc_type 
+08) applicant_valid_document 
+09) reg_center_type 
+10) zone 
+11) registration_center 
+12) daysofweek_list 
+13) module_detail 
+14) template_file_format 
+15) template_type 
+16) template - copy db to db direct
+
+------------------------------------ Multilanguage Property Changes restart below services ------------------------------------
+01) artifactory
+02) kernel
+03) biosdk
+04) packetmanager
+05) datashare
+
+06) prereg
+07) idrepo
+08) pms
+09) mock-abis
+10) mock-mv
+
+11) regproc
+12) admin
+13) ida
+14) print
+15) resident
+16) regclient
+
+old : image: docker.io/mosipmec/artifactory-server:mec-dev-1.2.0.1-B3
+new : docker pull mosipmec/artifactory-server:mec-dev-1.2.0.1-B4
+
+01) Changed Realm setting
+	- In Keycloak Realm settings -> Themes -> Internationalization Enabled -> Yes
+02) Changed the mosip-config property as mentioned in the document
+03) Modify all tables as mentioned in the document
+04) Update Artifactory labels as per language
+05) Build Artifactory
+06) Restart pods
+
+
+
+login eng	-	data entry-> eng		Notification-> eng		Result:
+				data entry-> spa,eng	Notification-> spa		Result:
+				data entry-> fra,eng	Notification-> fra		Result:
+				data entry-> fra,spa	Notification-> fra		Result:
+				
+login fra	-	data entry-> fra		Notification-> fra		Result:
+				data entry-> spa,fra	Notification-> spa		Result:
+				data entry-> eng,fra	Notification-> eng		Result:
+				data entry-> eng,spa	Notification-> eng		Result:
+				
+login spa	-	data entry-> spa		Notification-> spa		Result:
+				data entry-> fra,spa	Notification-> fra		Result:
+				data entry-> eng,spa	Notification-> eng		Result:
+				data entry-> fra,eng	Notification-> fra		Result:
+				
+## This table we need to changed
+master.applicant_valid_document - st
+master.biometric_attribute
+master.daysofweek_list
+master.doc_category
+master.doc_type
+master.dynamic_field
+master.dynamic_field
+master.language
+master.loc_hierarchy_list
+master.loc_holiday
+master.location
+master.module_detail
+master.process_list
+master.reason_category
+master.reason_list
+master.reg_center_type
+master.registration_center
+master.registration_center_h
+master.status_list
+master.status_type
+master.template
+master.template_file_format
+master.template_type
+master.title
+master.zone
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+============================================
+
+ipconfig/all
+
+ping 8.8.8.8

@@ -1,0 +1,13 @@
+First I need to login (ssh into wireguard rancher )  and add assigned.txt, cd peer12/ nano peer12.conf
+
+go to normal keycloak and add user
+
+https://keycloak.unraf-pilot.mosip.net/auth/admin/master/console/#/realms/master/users
+
+
+then go to rancher and add cluster and project members -->  search username with local add owner -->
+
+then check keycloak user and add.
+
+
+#for giving wg access and rancher access and adding keycloak user.
