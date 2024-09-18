@@ -1,0 +1,460 @@
+TO check the node usage in linux using kubectl command
+======================================================
+suvarna@DESKTOP-4KQ6O58:~$ kubectl top node node5
+NAME    CPU(cores)   CPU%   MEMORY(bytes)   MEMORY%
+node5   1070m        13%    14526Mi         45%
+
+===============================================================================================================================
+
+suvarna@DESKTOP-4KQ6O58:~$ kubectl top pods idgenerator-bc6b5dff7-vncp6 -n kernel
+NAME                          CPU(cores)   MEMORY(bytes)
+idgenerator-bc6b5dff7-vncp6   10m          1269Mi
+
+===================================================================================================================================
+
+search for connections in postgresql
+====================================
+postgres cpu usage query:
+
+https://jfrog.com/community/data-science/troubleshooting-high-cpu-utilization-in-postgresql-databases-a-how-to-guide/
+
+this quereyed in zam-dev db (performance_testing)
+
+=====================================================================================================================================
+
+git commands
+============
+
+https://www.atlassian.com/git/tutorials/undoing-changes/git-rm
+
+https://www.atlassian.com/git/tutorials/using-branches
+
+==================================================================================================================================
+
+ssh -i ~/.ssh/dst-mosip.pem ubuntu@10.0.6.61
+
+ssh -i ~/.ssh/dst-mosip.pem ubuntu@10.0.14.155
+
+reporting
+========
+ git clone https://github.com/iiitb-pilot/reporting/release-1.2.0.1
+
+ git clone https://github.com/mosip/reporting.git
+
+https://github.com/iiitb-pilot/reporting/tree/release-1.2.0.1
+
+=======================================================================================
+
+    SITE KEY ---> 6Le_ggUqAAAAALbFFkkwe1MXDO4OeLggSpMV943Q
+
+  Secret key ----> 6Le_ggUqAAAAAIUijDtR8bTZCcBA305SeJ7WVsS9
+  
+=========================================================================================================================
+
+ esignet delete in ZAM-dev
+								   ===========================
+								   
+suvarna@DESKTOP-4KQ6O58:~/zam-dev$  git clone https://github.com/iiitb-pilot/esignet.git
+Cloning into 'esignet'...
+remote: Enumerating objects: 13968, done.
+remote: Counting objects: 100% (1737/1737), done.
+remote: Compressing objects: 100% (605/605), done.
+remote: Total 13968 (delta 1197), reused 1330 (delta 1052), pack-reused 12231
+Receiving objects: 100% (13968/13968), 19.78 MiB | 3.46 MiB/s, done.
+Resolving deltas: 100% (6868/6868), done.
+suvarna@DESKTOP-4KQ6O58:~/zam-dev$ git checkout tags/v1.3.0 -b 1.3.0
+fatal: not a git repository (or any of the parent directories): .git
+suvarna@DESKTOP-4KQ6O58:~/zam-dev$ ls
+esignet  k8s-infra  mosip-infra  reporting
+suvarna@DESKTOP-4KQ6O58:~/zam-dev$ cd esignet/
+suvarna@DESKTOP-4KQ6O58:~/zam-dev/esignet$ git checkout tags/v1.3.0 -b 1.3.0
+Switched to a new branch '1.3.0'
+suvarna@DESKTOP-4KQ6O58:~/zam-dev/esignet$ git branch
+* 1.3.0
+  zam-1.2.0
+suvarna@DESKTOP-4KQ6O58:~/zam-dev/esignet/helm$ ls
+copy_cm_func.sh  delete-all.sh  esignet  install-all.sh  oidc-ui  redis  restart-all.sh  softhsm-values.yaml
+suvarna@DESKTOP-4KQ6O58:~/zam-dev/esignet/helm$ ./delete-all.sh
+release "softhsm-esignet" uninstalled
+Installing esignet services
+Are you sure you want to delete redis helm chart? Y/n ?Y
+release "redis" uninstalled
+Deleted Redis services.
+Are you sure you want to delete all esignet helm charts?(Y/n) Y
+release "esignet" uninstalled
+Are you sure you want to delete all esignet helm charts?(Y/n) Y
+release "oidc-ui" uninstalled
+All esignet services deleted sucessfully.
+suvarna@DESKTOP-4KQ6O58:~/zam-dev/esignet/helm$ ./install-all.sh
+"mosip" already exists with the same configuration, skipping
+Hang tight while we grab the latest from your chart repositories...
+...Successfully got an update from the "kafka-ui" chart repository
+...Successfully got an update from the "ingress-nginx" chart repository
+...Successfully got an update from the "wiremind" chart repository
+...Successfully got an update from the "mosip" chart repository
+...Successfully got an update from the "rancher-latest" chart repository
+...Successfully got an update from the "bitnami" chart repository
+...Successfully got an update from the "banzaicloud-stable" chart repository
+...Successfully got an update from the "stable" chart repository
+Update Complete. ⎈Happy Helming!⎈
+Installing esignet services
+Create redis namespace
+Error from server (AlreadyExists): namespaces "redis" already exists
+Istio label
+namespace/redis not labeled
+Updating helm repos
+"bitnami" already exists with the same configuration, skipping
+Hang tight while we grab the latest from your chart repositories...
+...Successfully got an update from the "kafka-ui" chart repository
+...Successfully got an update from the "ingress-nginx" chart repository
+...Successfully got an update from the "wiremind" chart repository
+...Successfully got an update from the "mosip" chart repository
+...Successfully got an update from the "rancher-latest" chart repository
+...Successfully got an update from the "bitnami" chart repository
+...Successfully got an update from the "stable" chart repository
+...Successfully got an update from the "banzaicloud-stable" chart repository
+Update Complete. ⎈Happy Helming!⎈
+Installing redis
+NAME: redis
+LAST DEPLOYED: Mon Jul  1 17:59:46 2024
+NAMESPACE: redis
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+NOTES:
+CHART NAME: redis
+CHART VERSION: 17.3.14
+APP VERSION: 7.0.5
+
+** Please be patient while the chart is being deployed **
+
+Redis&reg; can be accessed on the following DNS names from within your cluster:
+
+    redis-master.redis.svc.cluster.local for read/write operations (port 6379)
+    redis-replicas.redis.svc.cluster.local for read-only operations (port 6379)
+
+
+
+To get your password run:
+
+    export REDIS_PASSWORD=$(kubectl get secret --namespace redis redis -o jsonpath="{.data.redis-password}" | base64 -d)
+
+To connect to your Redis&reg; server:
+
+1. Run a Redis&reg; pod that you can use as a client:
+
+   kubectl run --namespace redis redis-client --restart='Never'  --env REDIS_PASSWORD=$REDIS_PASSWORD  --image docker.io/bitnami/redis:7.0.5-debian-11-r25 --command -- sleep infinity
+
+   Use the following command to attach to the pod:
+
+   kubectl exec --tty -i redis-client \
+   --namespace redis -- bash
+
+2. Connect using the Redis&reg; CLI:
+   REDISCLI_AUTH="$REDIS_PASSWORD" redis-cli -h redis-master
+   REDISCLI_AUTH="$REDIS_PASSWORD" redis-cli -h redis-replicas
+
+To connect to your database from outside the cluster execute the following commands:
+
+    kubectl port-forward --namespace redis svc/redis-master 6379:6379 &
+    REDISCLI_AUTH="$REDIS_PASSWORD" redis-cli -h 127.0.0.1 -p 6379
+secret "redis" deleted
+secret/redis created
+Warning: key redis-password transferred to REDIS_PASSWORD
+Installed redis service
+Create softhsm namespace
+Error from server (AlreadyExists): namespaces "softhsm" already exists
+Create esignet namespace
+Error from server (AlreadyExists): namespaces "esignet" already exists
+Istio label
+namespace/softhsm not labeled
+"mosip" already exists with the same configuration, skipping
+Hang tight while we grab the latest from your chart repositories...
+...Successfully got an update from the "kafka-ui" chart repository
+...Successfully got an update from the "ingress-nginx" chart repository
+...Successfully got an update from the "mosip" chart repository
+...Successfully got an update from the "wiremind" chart repository
+...Successfully got an update from the "rancher-latest" chart repository
+...Successfully got an update from the "banzaicloud-stable" chart repository
+...Successfully got an update from the "bitnami" chart repository
+...Successfully got an update from the "stable" chart repository
+Update Complete. ⎈Happy Helming!⎈
+Installing Softhsm for esignet
+NAME: softhsm-esignet
+LAST DEPLOYED: Mon Jul  1 18:01:30 2024
+NAMESPACE: softhsm
+STATUS: deployed
+REVISION: 1
+NOTES:
+1. Get the application URL by running these commands:
+  export POD_NAME=$(kubectl get pods --namespace softhsm -l "app.kubernetes.io/name=softhsm,app.kubernetes.io/instance=softhsm-esignet" -o jsonpath="{.items[0].metadata.name}")
+  export CONTAINER_PORT=$(kubectl get pod --namespace softhsm $POD_NAME -o jsonpath="{.spec.containers[0].ports[0].containerPort}")
+  echo "Visit http://127.0.0.1:8080 to use your application"
+  kubectl --namespace softhsm port-forward $POD_NAME 8080:$CONTAINER_PORT
+Installed Softhsm for esignet
+Copy configmaps
+configmap "global" deleted
+configmap/global created
+Copy secrets
+secret "softhsm-esignet" deleted
+secret/softhsm-esignet created
+Warning: key mosip-esignet-host transferred to MOSIP_ESIGNET_HOST
+Warning: key security-pin transferred to SECURITY_PIN
+deployment.apps/config-server restarted
+kubectl -n config-server rollout status deployment.apps/config-server
+Waiting for deployment "config-server" rollout to finish: 1 old replicas are pending termination...
+Waiting for deployment "config-server" rollout to finish: 1 old replicas are pending termination...
+deployment "config-server" successfully rolled out
+
+"mosip" already exists with the same configuration, skipping
+Hang tight while we grab the latest from your chart repositories...
+...Successfully got an update from the "kafka-ui" chart repository
+...Successfully got an update from the "ingress-nginx" chart repository
+...Successfully got an update from the "wiremind" chart repository
+...Successfully got an update from the "mosip" chart repository
+...Successfully got an update from the "rancher-latest" chart repository
+...Successfully got an update from the "bitnami" chart repository
+...Successfully got an update from the "stable" chart repository
+...Successfully got an update from the "banzaicloud-stable" chart repository
+Update Complete. ⎈Happy Helming!⎈
+checking if PMS & mpartner_default_auth client is created already
+Copying keycloak configmaps and secret
+configmap "keycloak-host" deleted
+configmap/keycloak-host created
+configmap "keycloak-env-vars" deleted
+configmap/keycloak-env-vars created
+secret "keycloak" deleted
+secret/keycloak created
+creating and adding roles to keycloak pms & mpartner_default_auth clients for ESIGNET
+secret "keycloak-client-secrets" deleted
+release "esignet-keycloak-init" uninstalled
+NAME: esignet-keycloak-init
+LAST DEPLOYED: Mon Jul  1 18:07:14 2024
+NAMESPACE: esignet
+STATUS: deployed
+REVISION: 1
+secret/keycloak-client-secrets configured
+secret/keycloak-client-secrets configured
+Check the existence of the secret & host placeholder & pass the secret & ESIGNET host to config-server deployment if the placeholder does not exist.
+Please enter the recaptcha admin site key for domain esignet.zam-dev.mosip.net
+Please enter the recaptcha admin secret key for domain esignet.zam-dev.mosip.net
+6Le_ggUqAAAAAIUijDtR8bTZCcBA305SeJ7WVsS9
+Setting up captcha secrets
+secret/esignet-captcha configured
+Setting up dummy values for esignet misp license key
+secret/esignet-misp-onboarder-key configured
+secret "esignet-misp-onboarder-key" deleted
+secret/esignet-misp-onboarder-key created
+Copy configmaps
+configmap "global" deleted
+configmap/global created
+configmap "artifactory-share" deleted
+configmap/artifactory-share created
+configmap "config-server-share" deleted
+configmap/config-server-share created
+configmap "softhsm-esignet-share" deleted
+configmap/softhsm-esignet-share created
+copy secrets
+secret "esignet-captcha" deleted
+secret/esignet-captcha created
+Warning: key esignet-captcha-site-key transferred to ESIGNET_CAPTCHA_SITE_KEY
+Warning: key esignet-captcha-secret-key transferred to ESIGNET_CAPTCHA_SECRET_KEY
+Warning: key mosip-esignet-misp-key transferred to MOSIP_ESIGNET_MISP_KEY
+kubectl -n config-server rollout status deployment.apps/config-server
+deployment "config-server" successfully rolled out
+Do you have public domain & valid SSL? (Y/n)
+Y: if you have public domain & valid ssl certificate
+n: If you don't have a public domain and a valid SSL certificate. Note: It is recommended to use this option only in development environments.
+Y
+Installing esignet
+NAME: esignet
+LAST DEPLOYED: Mon Jul  1 18:09:21 2024
+NAMESPACE: esignet
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+NOTES:
+
+kubectl -n esignet rollout status deployment.apps/esignet
+Waiting for deployment "esignet" rollout to finish: 0 of 1 updated replicas are available...
+deployment "esignet" successfully rolled out
+kubectl -n esignet rollout status deployment.apps/mock-identity-system
+deployment "mock-identity-system" successfully rolled out
+kubectl -n esignet rollout status deployment.apps/mock-relying-party-service
+deployment "mock-relying-party-service" successfully rolled out
+kubectl -n esignet rollout status deployment.apps/mock-relying-party-ui
+Waiting for deployment "mock-relying-party-ui" rollout to finish: 0 of 1 updated replicas are available...
+deployment "mock-relying-party-ui" successfully rolled out
+Installed esignet service
+Create esignet namespace
+Error from server (AlreadyExists): namespaces "esignet" already exists
+Istio label
+namespace/esignet not labeled
+"mosip" already exists with the same configuration, skipping
+Hang tight while we grab the latest from your chart repositories...
+...Successfully got an update from the "kafka-ui" chart repository
+...Successfully got an update from the "ingress-nginx" chart repository
+...Successfully got an update from the "wiremind" chart repository
+...Successfully got an update from the "mosip" chart repository
+...Successfully got an update from the "rancher-latest" chart repository
+...Successfully got an update from the "stable" chart repository
+...Successfully got an update from the "banzaicloud-stable" chart repository
+...Successfully got an update from the "bitnami" chart repository
+Update Complete. ⎈Happy Helming!⎈
+Copy configmaps
+configmap "global" deleted
+configmap/global created
+configmap "artifactory-share" deleted
+configmap/artifactory-share created
+configmap "config-server-share" deleted
+configmap/config-server-share created
+configmap "softhsm-esignet-share" deleted
+configmap/softhsm-esignet-share created
+Installing OIDC UI
+NAME: oidc-ui
+LAST DEPLOYED: Mon Jul  1 18:18:04 2024
+NAMESPACE: esignet
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+NOTES:
+
+kubectl -n esignet rollout status deployment.apps/esignet
+deployment "esignet" successfully rolled out
+kubectl -n esignet rollout status deployment.apps/mock-identity-system
+deployment "mock-identity-system" successfully rolled out
+kubectl -n esignet rollout status deployment.apps/mock-relying-party-service
+deployment "mock-relying-party-service" successfully rolled out
+kubectl -n esignet rollout status deployment.apps/mock-relying-party-ui
+deployment "mock-relying-party-ui" successfully rolled out
+kubectl -n esignet rollout status deployment.apps/oidc-ui
+deployment "oidc-ui" successfully rolled out
+Installed oidc-ui
+All esignet services deployed sucessfully.
+========================================================================================================================
+
+Partner-onboarder
+=================
+
+suvarna@DESKTOP-4KQ6O58:~/zam-dev/esignet$ cd partner-onboarder/
+suvarna@DESKTOP-4KQ6O58:~/zam-dev/esignet/partner-onboarder$ ls
+README.md  copy_cm.sh  copy_cm_func.sh  copy_secrets.sh  delete.sh  install.sh  misp_key.sh  values.yaml
+suvarna@DESKTOP-4KQ6O58:~/zam-dev/esignet/partner-onboarder$ nano values.yaml
+suvarna@DESKTOP-4KQ6O58:~/zam-dev/esignet/partner-onboarder$ cat values.yaml
+onboarding:
+  modules:
+    - name: ida
+      enabled: false
+    - name: print
+      enabled: false
+    - name: abis
+      enabled: false
+    - name: resident
+      enabled: false
+    - name: mobileid
+      enabled: false
+    - name: digitalcard
+      enabled: false
+    - name: esignet
+      enabled: true
+    - name: resident-oidc
+      enabled: false
+    - name: demo-oidc
+      enabled: false
+    - name: mimoto-keybinding
+      enabled: false
+
+
+suvarna@DESKTOP-4KQ6O58:~/zam-dev/esignet/partner-onboarder$ ./delete.sh
+Are you sure you want to delete all partner-onboarder ?(Y/n) Y
+Deleting esignet-resident-oidc-partner-onboarder helm
+release "esignet-resident-oidc-partner-onboarder" uninstalled
+suvarna@DESKTOP-4KQ6O58:~/zam-dev/esignet/partner-onboarder$ ./install.sh
+Do you have public domain & valid SSL? (Y/n)
+Y: if you have public domain & valid ssl certificate
+n: If you don't have a public domain and a valid SSL certificate. Note: It is recommended to use this option only in development environments.
+Y
+Create esignet namespace
+Error from server (AlreadyExists): namespaces "esignet" already exists
+Is values.yaml for onboarder chart set correctly as part of Pre-requisites?(Y/n) Y
+Istio label
+namespace/esignet labeled
+Hang tight while we grab the latest from your chart repositories...
+...Successfully got an update from the "kafka-ui" chart repository
+...Successfully got an update from the "ingress-nginx" chart repository
+...Successfully got an update from the "mosip" chart repository
+...Successfully got an update from the "wiremind" chart repository
+...Successfully got an update from the "rancher-latest" chart repository
+...Successfully got an update from the "banzaicloud-stable" chart repository
+...Successfully got an update from the "bitnami" chart repository
+...Successfully got an update from the "stable" chart repository
+Update Complete. ⎈Happy Helming!⎈
+Copy configmaps
+configmap "global" deleted
+configmap/global created
+configmap "keycloak-env-vars" deleted
+configmap/keycloak-env-vars created
+configmap "keycloak-host" deleted
+configmap/keycloak-host created
+Copy secrets
+secret "s3" deleted
+secret/s3 created
+secret "keycloak" deleted
+secret/keycloak created
+secret "keycloak-client-secrets" deleted
+secret/keycloak-client-secrets created
+Provide onboarder bucket name : onboarder
+Provide onboarder s3 bucket region :
+Provide S3 URL : http://minio.minio:9000
+Onboarding default partners
+NAME: esignet-resident-oidc-partner-onboarder
+LAST DEPLOYED: Mon Jul  1 18:29:03 2024
+NAMESPACE: esignet
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+NOTES:
+
+secret "esignet-misp-onboarder-key" deleted
+secret/esignet-misp-onboarder-key created
+secret "resident-oidc-onboarder-key" deleted
+secret/resident-oidc-onboarder-key created
+secret "resident-oidc-onboarder-key" deleted
+secret/resident-oidc-onboarder-key created
+Warning: key mosip-esignet-misp-key transferred to MOSIP_ESIGNET_MISP_KEY
+Warning: key resident-oidc-clientid transferred to RESIDENT_OIDC_CLIENTID
+deployment.apps/config-server restarted
+kubectl -n config-server rollout status deployment.apps/config-server
+Waiting for deployment "config-server" rollout to finish: 1 old replicas are pending termination...
+Waiting for deployment "config-server" rollout to finish: 1 old replicas are pending termination...
+deployment "config-server" successfully rolled out
+deployment.apps/esignet restarted
+deployment.apps/resident restarted
+E-signet MISP License Key and Resident OIDC Client ID updated successfully.
+Reports are moved to S3 under onboarder bucket
+
+==========================================================================================================================
+
+Check the minio reports :
+
+esignet.html ---> download that and check
+
+go to pg admin --> check pms table for esignet  --> authpolicy,oidc-client,policy_group,partner_policy_request,misp_license,partner_policy,partner 
+
+click on that row and download with same table name and then delete and save.
+
+go to esignet and check the (esignet-resident-oidc-partner-onboarder-esignet--1-nhktt) pod logs (no errors) means success.
+
+================================================================================================================================ 
+
+
+Task :  Deploying JWT TOKEN in Relying party UI
+================================================
+
+Nivetha Shared Token :
+
+ew0KICAgICJwIjogIkRPUHFOS01CV21JYXhFcWwzVXFRWTVHY1Q4Y0hKbHE2MU5RU0cxU0lwajU0ZFVJbV9ZSkY4azdVTmgtb3NkbXhsZ2d6emdON2dqZ2gybUJhWElDLVk0YXN3VmQycE1PN3gwRWQ2Nmx4Q0hEZmVMRFRITW43ZWdyZFFsVUJweVc2TXBObTVjOFFtTUxwZUZiOVJfZUw4YkxGa0ZLd1hQNjdtLW9UbUFoQ0V6YkYiLA0KICAgICJrdHkiOiAiUlNBIiwNCiAgICAicSI6ICJDd25JRzB6aHhOOUE4ekdEVGhyTXBaTExRX3B1ZVVnQ3Jyb3M2OVpvVGpubTlsNEhzR21BZFczWVdqRDdnRTUwNldCbF8zZEJMamlwVnZDWDBWaTh4X0dzQVVMUmVNZGVrTDFUUVVZdEd6MDdGb3Q2WWdWbUtRNngzVEFGRXRxZ2VwaktrNENMX3pxakNQWmZsUWJ2blJtSU5VZTU4NkFFd3VpOU5sX2F3SkF6IiwNCiAgICAiZCI6ICJGLU5xT01IU05FMTg4SWVjRk9mb1hoOWkxaW5kVVdwaGlpUDRzUjQzQWxOT21kVFd6dWdXMHpJb3hHUTNLR0hVX014T2czY09WSUt0cE9GdVRFUVA0aXdzV0dRWDFuSENsNVdXVGV4d1o3NnREU191RmZYZTZkUDJNaHplZzRrcDg3X01tSWRmUmh4bnJEcC1MZmtESGRkdVZQT0ZzZHp6c0JZQk84N2hYaEEtc0YtbTVhajlrT3N0bmJ6YVZON1B3OGFlTVJVTHFzRG5BWmhybldxdUowcXRhS1QtenAyTFVZaXRUZEtobkJ3RjNyM1VpOEpKQ18xMFhfQmdLdmRvcnpqUXBjTFhSUHlzbHpFelpwaE44dlVGdXEwUm1HS25ZcU01bUhJOXAzTGoza29SZWV5TDhrVlhHWHQtMEk2RmN4Q3B5azlZdk5VZXdCRlZ0aTVPWEprIiwNCiAgICAiZSI6ICJBUUFCIiwNCiAgICAidXNlIjogInNpZyIsDQogICAgImtpZCI6ICJmYnJFOU5YOC10T2NKcVNZQi1fVXlZYzdRUUFUMmdkYzVwcXRkWUV4V0FFIiwNCiAgICAicWkiOiAiQVhyajh6NGhhRDNDVjNpVkNZWUJkdWV0R1pmdjhKUzRDRHp6SzZydXp0U3ktdjNvakVQTF9wZmFXbm5OZWFNMHpYN0VwcnZEd2MtSjdUYTI3aTJOMUhreEFWbEFnUVgteTVKTmszTkNYNlFocGNlblVFeDVtRUk0NXNmUThyY2I5enpGLWVCSUdCVWVQOTBISlo0MW1QRTRUaTFQdTRvSFVoQlJRaUVwTFgzayIsDQogICAgImRwIjogIkIyVTdtYmRycjA5WnpBU0g1TTVDeU4xaHNPT2ZWb0gzYnVPOF83RWdOVURpRzJRNHVubGphQUdSX3Z0cTdaN1lKQnZRblFHaWVyTjV1TEJQSjRNMXVDUXNPVURVOFBMYmFSWVM5SUhpTjlXS1lOUVNTeElYRlkzbUk0aGh5bVA2ejhtQjM1ZE5EbGZGV3lXTmF4eTdUWkFqaVFubjVYTEFjRk43cWw0U2lyT0IiLA0KICAgICJhbGciOiAiUlMyNTYiLA0KICAgICJkcSI6ICJDYkY5V1B3YkI1aEdvVXBKMUwwVUdoTGZEY05PWUpNc1ItU1dya1NMTktjRWZEWDI2cVM3ZW1RTUtxZjVOS094WjRDUUVkZllGWThNcHB5QnRnWUhRazZvampMdllQRXp5a2Q0WlVvTE1uQ0RBemxaTDlzdDY4QkwwY0hwc3JUcldMMzBwN09yUFdkdzVOMzI4aGcxTV9ESF9JSVFlakY3X080RnUwcFJfLWloIiwNCiAgICAibiI6ICJqa2ttN2J5a2x0b2d3bTA2QTl5cUs4Z1hCZk1CV3lDZVVReDNoWUFWbXBEZ3g1ek9tWHhtSzFoTGlSWEtSTUI5eXUtc202UmZTZnlfRGFMR21FTjUyZnZxeTBfVkVCRlZsTzZwLVFtUjlFeUV0VkNDRG5oLVlFQUhsaW1wVWFKZE9mTmx6RTBsa0N5ZXNRTzFkeURhcldUUk9GNzlCLWNBWDRaTkRjeXpvM0FMcUlLZldqdzIzbHFXMFNud1hObnIwU1NqbDlkb0JqMlctSzB5XzNDaGdHdEJpMWhXTXBzbXgzSkJJTHdCNjJxay1uTmxoQVEwbjVJZzhpRXo5QXFmU0JTaUZ2UlBnX3Rwc2s5RVZsVDZzTms0WUFrQlpEN1pPV2JVeDhZU1ZpeGNSNU9KUllPLUFPSHlwdUhpVXNMa2htb0poR0tkWjBJQVFBRzY5ODVpdVQ4Ig0KfQ
+
+==================================================================================================================================
+
+above token --> go to esignet ns ===> storage --> secrets --> mock-relying-party-service-secrets ----> client-private-key (edit config ) copy existing key and save somewhere 
