@@ -11,3 +11,54 @@ then check keycloak user and add.
 
 
 #for giving wg access and rancher access and adding keycloak user.
+need to ssh into observation cluster wireguard server..
+
+Step1: (unraf)
+
+ssh -i ~/.ssh/unraf.pem   ubuntu@3.111.23.119
+
+Step2:
+-----
+cd wireguard/
+cd config/
+nano assigned.txt
+add peer names as per requirement.
+:wq
+
+Step3:
+======
+cd peer7/
+nano peer7.conf
+copy txt and exit (do changes as per unraf_requirements notes)
+exit
+
+Step4: 
+
+Share that wireguard details for particular person.
+
+Step5:
+
+go to observation cluster rancher (https://keycloak.unraf-pilot.mosip.net/) 
+
+add users
+
+username: 
+
+Email:
+
+Firstname:
+
+Lastname:
+
+save and add credentials 
+
+Share those details to particular person --> ex: suvarna pwd: mosip123
+
+
+Step5:
+
+go to rancher --> cluster and project members --> Add --> suvarna(keycloak)--> owner --> Add
+
+                   Add --> suvarna(local)---> owner--> add.
+				  
+initially try to give only local..
