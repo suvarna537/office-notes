@@ -1,0 +1,39 @@
+{
+	"dataSharePolicies": {
+		"typeOfShare": "Data Share",
+		"validForInMinutes": "30",
+		"transactionsAllowed": "2",
+		"encryptionType": "Partner Based",
+		"shareDomain": "api-internal.dst-stage.mosip.net",
+		"source": "Print"
+	},
+	"shareableAttributes": []
+}
+
+------------------------------------------------
+
+datashare,pms,ida,print..
+
+
+Actually Config-server I changed to dst-stage 1201 from mec-stage 1201.
+but db imported from mec-stage, so in datashare showing logs ( as below)
+
+==================================================================================================================
+{"@timestamp":"2024-06-11T07:14:50.793Z","@version":"1","message":"Not all bytes were read from the S3ObjectInputStream, aborting HTTP connection. This is likely an error and may result in sub-optimal behavior. Request only the bytes you need via a ranged GET or drain the input stream after use.","logger_name":"com.amazonaws.services.s3.internal.S3AbortableInputStream","thread_name":"http-nio-8097-exec-9","level":"WARN","level_value":30000,"appName":"application,data-share","traceId":"35ce1fdcb86eb8f8","spanExportable":"false","req.requestURI":"/v1/datashare/get/mpolicy-default-abis/mpartner-default-abis/mpartner-default-abismpolicy-default-abis20240611071442NPxdMak5","X-Span-Export":"false","X-B3-ParentSpanId":"79efe9d5b5b34106","req.method":"GET","parentId":"79efe9d5b5b34106","req.userAgent":"Java/11.0.16","spanId":"8d5a96b9c599c527","X-B3-SpanId":"8d5a96b9c599c527","X-B3-TraceId":"35ce1fdcb86eb8f8","req.remoteHost":"127.0.0.6","req.requestURL":"http://datashare.datashare/v1/datashare/get/mpolicy-default-abis/mpartner-default-abis/mpartner-default-abismpolicy-default-abis20240611071442NPxdMak5"}
+{"@timestamp":"2024-06-11T07:14:50.812Z","@version":"1","message":"No content length specified for stream data.  Stream contents will be buffered in memory and could result in out of memory errors.","logger_name":"com.amazonaws.services.s3.AmazonS3Client","thread_name":"http-nio-8097-exec-9","level":"WARN","level_value":30000,"appName":"application,data-share","traceId":"35ce1fdcb86eb8f8","spanExportable":"false","req.requestURI":"/v1/datashare/get/mpolicy-default-abis/mpartner-default-abis/mpartner-default-abismpolicy-default-abis20240611071442NPxdMak5","X-Span-Export":"false","X-B3-ParentSpanId":"79efe9d5b5b34106","req.method":"GET","parentId":"79efe9d5b5b34106","req.userAgent":"Java/11.0.16","spanId":"8d5a96b9c599c527","X-B3-SpanId":"8d5a96b9c599c527","X-B3-TraceId":"35ce1fdcb86eb8f8","req.remoteHost":"127.0.0.6","req.requestURL":"http://datashare.datashare/v1/datashare/get/mpolicy-default-abis/mpartner-default-abis/mpartner-default-abismpolicy-default-abis20240611071442NPxdMak5"}
+
+==========================================================================================================
+
+but In PMS db --> auth_policy --> mpolicy-default-resident --> check --> copy that policy_file_id (value in notepad) change to json Format (click on plugins -->JSON Viewer --> json Format )
+
+then go to db PMS db --> auth_policy --> mpolicy-default-resident --> policy_schema (https://schemas.mosip.io/v1/auth-policy ) remove --> and save. and is _active (make it false uncheck that  and save.) (remove active
+
+Go to iam keycloak --> select suvarna user and add role mappings --> AUTH_PARTNER,DATA_READ, METADATA_READ,PARTNER_ADMIN,PMS_ADMIN,PMS_USER, POLICYMANAGER.
+
+then login pMS table with user-->suvarna, pwd:suvvi123, click on --> policy --> data share policy --> filter --> Name -->(mpolicy-default-resident) --> edit --> add policies data (copied policy ) --> and save and filter again and name(mpolicy-default-resident) --> bread crumbs (click active)
+
+go to pms db --> check auth_policy --> last --> mpolicy-default-resident --> check 
+
+go to ida db --> check whether it's reflecting or not.
+
+===================================================================================================================================
