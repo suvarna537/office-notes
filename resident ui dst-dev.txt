@@ -1,0 +1,48 @@
+Below Steps need to be perform to deploy resident portal:
+https://mosip.atlassian.net/browse/DSD-5163
+
+Step1: Db Script need to be applied.
+https://github.com/mosip/partner-management-services/blob/release-1.2.1.x/db_upgrade_scripts/mosip_pms/sql/1.2.0.1_to_1.2.1.0_upgrade.sql
+
+https://github.com/mosip/resident-services/blob/release-1.2.1.x/db_upgrade_scripts/mosip_resident/sql/1.2.0.1_to_1.2.1.0_upgrade.sql
+
+
+backup of images
+================
+kubectl get pods --all-namespaces -o jsonpath="{..image}" |tr -s '[[:space:]]' '\n' |sort |uniq -c | grep mosip
+
+
+=======================================================================================================================
+resident portal deployment:
+==========================
+doc: https://mosip.atlassian.net/wiki/spaces/RP/pages/1097007140/Deployment+details+for+Resident+Portal
+
+Step7: digital card Service Deployment
+=======================================
+cd resident-portal/
+
+git clone https://github.com/mosip/digital-card-service.git
+
+git checkout v1.2.0.1
+
+git status 
+
+git config view
+
+cd resident-portal/digital-card-service$ ls
+
+cd db_scripts/
+
+cd mosip_digitalcard/
+
+vi deploy.properties
+
+---> DB_SERVERIP=api-internal.dst-stage.mosip.net
+
+chmod +x deploy.sh
+
+
+
+
+
+
