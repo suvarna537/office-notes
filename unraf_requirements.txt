@@ -196,7 +196,57 @@ Endpoint = 3.111.23.119:51820
 AllowedIPs = 10.0.0.0/16
 
 ===========================================================================================
+peer15: avanish
 
+[Interface]
+Address = 10.13.13.16/32
+PrivateKey = MM/jtkOfWGSbToqaNz0OKiZnjt8KHgJVhn5LmdW4q2E=
+ListenPort = 51820
+
+[Peer]
+PublicKey = BZ/l+AQjNUlA38ahwJ+XF3Od2hXQEb/AEmzRCh2lZg4=
+PresharedKey = WeXg4O1U3K0rnG73ozZhMJHCHI6Y/hS0vAj9EbMjWvw=
+Endpoint = 3.111.23.119:51820
+AllowedIPs = 10.0.0.0/16
+==========================================================================================
+peer16: nivetha1
+
+[Interface]
+Address = 10.13.13.17/32
+PrivateKey = +NzKWzXdVS3qEsrHzs17/pJzSO8GOUuAETvuAePW0m0=
+ListenPort = 51820
+
+[Peer]
+PublicKey = BZ/l+AQjNUlA38ahwJ+XF3Od2hXQEb/AEmzRCh2lZg4=
+PresharedKey = Az990Lo8ZRsIAPJzI5VjKjnz/x++0yU18+rMrJiLq+Y=
+Endpoint = 3.111.23.119:51820
+AllowedIPs = 10.0.0.0/16
+=================================================================================================
+peer17: sarvesh
+
+[Interface]
+Address = 10.13.13.18/32
+PrivateKey = GDBm+v3IhPilyIfEeitYmmlnr0qYePXmSjhdMwI1mWM=
+ListenPort = 51820
+
+[Peer]
+PublicKey = BZ/l+AQjNUlA38ahwJ+XF3Od2hXQEb/AEmzRCh2lZg4=
+PresharedKey = jxWHrunGyIDgG4DWIJArH+kVaEB8XZy3kRcIwHwIMsI=
+Endpoint = 3.111.23.119:51820
+AllowedIPs = 10.0.0.0/16
+
+=======================================================================================================
+
+
+
+
+
+
+
+
+
+
+===================================================================================================
 can we know what capacity they have ?
          Server type  (Manufacturer and brand) 
           Number of processors 
@@ -207,3 +257,4 @@ can we know what capacity they have ?
 Once I get an answer, then I can let you know if this is sufficient or not.
 
 ========================================================================================================================
+

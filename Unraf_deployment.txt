@@ -1,0 +1,951 @@
+     
+	                                     unraf-servers  (deploying 1.2.0.2)
+										 =============   ==================
+			  
+			  observation (k8) cluster nodes
+              ================================
+wireguard :  3.111.23.119
+rancher-nginx: 10.0.5.243
+rancher-node1: 10.0.10.10
+rancher-node2: 10.0.14.122
+user: ubuntu
+==============================================================================================================================================
+                 mosip cluster nodes 
+				 ===================
+mosip nodes
+node1: 10.0.12.35
+node2: 10.0.2.116
+node3:  10.0.1.133
+node4: 10.0.5.8
+node5: 10.0.6.204
+node6:  10.0.14.204
+mosip-nginx: 10.0.10.140
+
+=============================================================================================================================================
+sudo service ssh status
+if not ---> sudo apt install openssh-server -y 
+
+ssh -i ~/.ssh/unraf.pem  ubuntu@10.0.5.243
+ssh -i ~/.ssh/unraf.pem   ubuntu@10.0.10.10
+ssh -i ~/.ssh/unraf.pem   ubuntu@10.0.14.122
+ssh -i ~/.ssh/unraf.pem   ubuntu@3.111.23.119
+
+
+====================================================================================================================================================
+Mosip nodes SSh
+===============
+ssh -i ~/.ssh/unraf.pem   ubuntu@10.0.12.35
+ssh -i ~/.ssh/unraf.pem   ubuntu@10.0.2.116
+ssh -i ~/.ssh/unraf.pem   ubuntu@10.0.1.133
+ssh -i ~/.ssh/unraf.pem   ubuntu@10.0.5.8
+ssh -i ~/.ssh/unraf.pem   ubuntu@10.0.6.204
+ssh -i ~/.ssh/unraf.pem   ubuntu@10.0.14.204
+ssh -i ~/.ssh/unraf.pem   ubuntu@10.0.10.140
+
+ssh -i ~/.ssh/unraf.pem   ubuntu@13.232.186.52
+============================================================================================================================================
+ Notes: after wireguard setup only we can able to ssh into other nodes. before wg server setup we can ssh into wg server only.
+
+use gitbrach v1.2.0.2
+
+pem file ---> unraf.pem  (should have chmod 400 permissions)
+
+git clone https://github.com/mosip/k8s-infra.git -b v1.2.0.2  
+git clone https://github.com/mosip/mosip-infra -b v1.2.0.2 
+export MOSIP_ROOT=/home/suvarna/mosip_unraf/mosip-infra
+export K8_ROOT=$MOSIP_ROOT/k8s-infra
+export INFRA_ROOT=$MOSIP_ROOT/mosip-infra
+
+git checkout tags/v1.2.0.2 -b v1.2.0.2
+
+====================================================================================================================================
+
+~/.ssh/unraf.pem
+
+suvarna@DESKTOP-4KQ6O58:~/mosip_unraf/k8s-infra/wireguard$ ansible-playbook -i hosts.ini ports.yaml
+
+PLAY [wireguard] **************************************************************************************************************************
+
+TASK [Gathering Facts] ********************************************************************************************************************
+ok: [wireguard-admin]
+
+TASK [community.general.ufw] **************************************************************************************************************
+changed: [wireguard-admin]
+
+TASK [Allow udp port 51820] ***************************************************************************************************************
+changed: [wireguard-admin]
+
+TASK [community.general.ufw] **************************************************************************************************************
+changed: [wireguard-admin]
+
+PLAY RECAP ********************************************************************************************************************************
+wireguard-admin            : ok=4    changed=3    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0
+=====================================================================================================================================
+ubuntu@ip-10-0-15-252:~$ mkdir -p wireguard/config
+ubuntu@ip-10-0-15-252:~$ ls
+wireguard
+ubuntu@ip-10-0-15-252:~$ sudo docker run -d \
+--name=wireguard \
+--cap-add=NET_ADMIN \
+--cap-add=SYS_MODULE \
+-e PUID=1000 \
+-e PGID=1000 \
+-e TZ=Asia/Calcutta \
+-e PEERS=30 \
+-p 51820:51820/udp \
+-v /home/ubuntu/wireguard/config:/config \
+-v /lib/modules:/lib/modules \
+--sysctl="net.ipv4.conf.all.src_valid_mark=1" \
+--restart unless-stopped \
+ghcr.io/linuxserver/wireguard
+Unable to find image 'ghcr.io/linuxserver/wireguard:latest' locally
+latest: Pulling from linuxserver/wireguard
+6c0d85d774e7: Pull complete
+1c50a76b3d41: Pull complete
+d48dba489a7d: Pull complete
+069593985fd7: Pull complete
+5dc7ed07e470: Pull complete
+ef2d6b0bbdd0: Pull complete
+b6285008c74a: Pull complete
+Digest: sha256:a0e39a201018b0e990e82445ab7b2098cd25b1b7601ddcb8c50f2bb517da39d5
+Status: Downloaded newer image for ghcr.io/linuxserver/wireguard:latest
+2a60f1d2aa5331ca7ad142330c8b65e3a40353317b85b6aaf7834d4e7c92ad8b
+===================================================================================================================================
+[Interface]
+Address = 10.13.13.2
+PrivateKey = GIeqoqP56krYFWbj21T1TPwEXRfTj/gUaBkzopy22UI=
+ListenPort = 51820
+
+
+[Peer]
+PublicKey = BZ/l+AQjNUlA38ahwJ+XF3Od2hXQEb/AEmzRCh2lZg4=
+PresharedKey = v7PB9wvDLGUKMJMuJHPkGzyyE9uBhDzQBv7jB+KvT0M=
+Endpoint = 3.111.23.119:51820
+AllowedIPs = 10.0.0.0/16
+===================================================================================================================================
+
+node1 ansible_host=10.0.10.10 ansible_user=ubuntu ansible_ssh_private_key_file=~/.ssh/unraf.pem
+node2 ansible_host=10.0.14.122 ansible_user=ubuntu ansible_ssh_private_key_file=~/.ssh/unraf.pem
+
+
+suvarna@DESKTOP-4KQ6O58:~/mosip_unraf/k8s-infra/rancher/on-prem$ ansible-playbook -i hosts.ini ports.yaml
+
+PLAY [cluster] ****************************************************************************************************************************
+
+TASK [Gathering Facts] ********************************************************************************************************************
+ok: [node1]
+ok: [node2]
+
+TASK [community.general.ufw] **************************************************************************************************************
+changed: [node1]
+changed: [node2]
+
+TASK [community.general.ufw] **************************************************************************************************************
+changed: [node2]
+changed: [node1]
+
+TASK [community.general.ufw] **************************************************************************************************************
+changed: [node1]
+changed: [node2]
+
+TASK [community.general.ufw] **************************************************************************************************************
+changed: [node2]
+changed: [node1]
+
+TASK [community.general.ufw] **************************************************************************************************************
+changed: [node2]
+changed: [node1]
+
+TASK [Allow port range 10256 for Rancher] *************************************************************************************************
+changed: [node2]
+changed: [node1]
+
+TASK [Allow port range 2379-2380 for Rancher] *********************************************************************************************
+changed: [node2]
+changed: [node1]
+
+TASK [Allow port range 10250-10252 for Rancher] *******************************************************************************************
+changed: [node2]
+changed: [node1]
+
+TASK [Allow udp port range 4789 for Rancher] **********************************************************************************************
+changed: [node2]
+changed: [node1]
+
+TASK [Allow tcp port range 30000-32767 for K8s nodeports] *********************************************************************************
+changed: [node2]
+changed: [node1]
+
+TASK [Allow udp port range 30000-32767 for K8s nodeports] *********************************************************************************
+changed: [node1]
+changed: [node2]
+
+TASK [Allow udp port 8472] ****************************************************************************************************************
+changed: [node1]
+changed: [node2]
+
+TASK [Allow tcp 10250:10252] **************************************************************************************************************
+ok: [node2]
+ok: [node1]
+
+TASK [Allow tcp 6443] *********************************************************************************************************************
+changed: [node1]
+changed: [node2]
+
+TASK [Allow tcp 9796] *********************************************************************************************************************
+changed: [node1]
+changed: [node2]
+
+TASK [Allow tcp 10254] ********************************************************************************************************************
+changed: [node1]
+changed: [node2]
+
+TASK [community.general.ufw] **************************************************************************************************************
+changed: [node1]
+changed: [node2]
+
+PLAY RECAP ********************************************************************************************************************************
+node1                      : ok=18   changed=16   unreachable=0    failed=0    skipped=0    rescued=0    ignored=0
+node2                      : ok=18   changed=16   unreachable=0    failed=0    skipped=0    rescued=0    ignored=0
+
+==========================================================================================================================================
+suvarna@DESKTOP-4KQ6O58:~/mosip_unraf/k8s-infra/rancher/on-prem$ rke config
+[+] Cluster Level SSH Private Key Path [~/.ssh/id_rsa]: ~/.ssh/unraf.pem
+[+] Number of Hosts [1]: 2
+[+] SSH Address of host (1) [none]: 10.0.10.10
+[+] SSH Port of host (1) [22]:
+[+] SSH Private Key Path of host (10.0.10.10) [none]: ~/.ssh/unraf.pem
+[+] SSH User of host (10.0.10.10) [ubuntu]:
+[+] Is host (10.0.10.10) a Control Plane host (y/n)? [y]: y
+[+] Is host (10.0.10.10) a Worker host (y/n)? [n]: y
+[+] Is host (10.0.10.10) an etcd host (y/n)? [n]: y
+[+] Override Hostname of host (10.0.10.10) [none]: rancher-node1
+[+] Internal IP of host (10.0.10.10) [none]: 10.0.10.10
+[+] Docker socket path on host (10.0.10.10) [/var/run/docker.sock]:
+[+] SSH Address of host (2) [none]: 10.0.14.122
+[+] SSH Port of host (2) [22]:
+[+] SSH Private Key Path of host (10.0.14.122) [none]: ~/.ssh/unraf.pem
+[+] SSH User of host (10.0.14.122) [ubuntu]:
+[+] Is host (10.0.14.122) a Control Plane host (y/n)? [y]: y
+[+] Is host (10.0.14.122) a Worker host (y/n)? [n]: y
+[+] Is host (10.0.14.122) an etcd host (y/n)? [n]: y
+[+] Override Hostname of host (10.0.14.122) [none]: rancher-node2
+[+] Internal IP of host (10.0.14.122) [none]: 10.0.14.122
+[+] Docker socket path on host (10.0.14.122) [/var/run/docker.sock]:
+[+] Network Plugin Type (flannel, calico, weave, canal, aci) [canal]:
+[+] Authentication Strategy [x509]:
+[+] Authorization Mode (rbac, none) [rbac]:
+[+] Kubernetes Docker image [rancher/hyperkube:v1.22.9-rancher1]:
+[+] Cluster domain [cluster.local]:
+[+] Service Cluster IP Range [10.43.0.0/16]:
+[+] Enable PodSecurityPolicy [n]:
+[+] Cluster Network CIDR [10.42.0.0/16]:
+[+] Cluster DNS Service IP [10.43.0.10]:
+[+] Add addon manifest URLs or YAML files [no]:
+===================================================================================================================================
+in local directory create .kube file -----> mkdir .kube ---> ls -lart ----> 
+
+19) cp kube_config_cluster.yml $HOME/.kube/unraf-cluster_config
+
+20) chmod 400 $HOME/.kube/unraf-cluster_config
+
+21) cp $HOME/.kube/unraf-cluster_config $HOME/.kube/config
+
+22) kubectl get nodes
+
+===================================================================================================================================
+Storage class
+=============
+./install-nfs-server.sh : --->  NFS Server Path: /srv/nfs/mosip/unraf-pilot
+ (after executing the script you get path)
+ 
+=====================================================================================================================================
+ Nginx Server SETUP
+                                         ====================
+1) SSH in to nginx server...
+2) sudo apt update -y
+3) sudo apt-get install software-properties-common -y
+4) sudo add-apt-repository ppa:deadsnakes/ppa
+5) sudo apt-get update -y
+6) sudo apt-get install python3.8 -y
+7) sudo apt install letsencrypt -y
+8) sudo apt install certbot python3-certbot-nginx -y
+9) sudo certbot certonly --agree-tos --manual --preferred-challenges=dns -d  *.unraf-pilot.mosip.net 
+   results:Saving debug log to /var/log/letsencrypt/letsencrypt.log
+   Plugins selected: Authenticator manual, Installer None
+
+ DST :
+ 
+ Description
+
+Please deploy a DNS TXT record under the name:
+
+_acme-challenge.unraf-pilot.mosip.net.
+
+with the following value:
+
+6lDNFUvlUIEw63kkX-dU-ouFHiBHFhiTTPsO5GBFG84
+
+rancher-nginx : 10.0.5.243
+
+keycloak.unraf-pilot.mosip.net
+
+rancher.unraf-pilot.mosip.net
+
+https://mosip.atlassian.net/browse/DSD-5246
+
+Successfully received certificate.
+Certificate is saved at: /etc/letsencrypt/live/unraf-pilot.mosip.net/fullchain.pem
+Key is saved at:         /etc/letsencrypt/live/unraf-pilot.mosip.net/privkey.pem
+
+
+ubuntu@ip-10-0-5-243:~$ sudo certbot certonly --agree-tos --manual --preferred-challenges=dns -d  *.unraf-pilot.mosip.net
+Saving debug log to /var/log/letsencrypt/letsencrypt.log
+Requesting a certificate for *.unraf-pilot.mosip.net
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Please deploy a DNS TXT record under the name:
+
+_acme-challenge.unraf-pilot.mosip.net.
+
+with the following value:
+
+6lDNFUvlUIEw63kkX-dU-ouFHiBHFhiTTPsO5GBFG84
+
+Before continuing, verify the TXT record has been deployed. Depending on the DNS
+provider, this may take some time, from a few seconds to multiple minutes. You can
+check if it has finished deploying with aid of online tools, such as the Google
+Admin Toolbox: https://toolbox.googleapps.com/apps/dig/#TXT/_acme-challenge.unraf-pilot.mosip.net.
+Look for one or more bolded line(s) below the line ';ANSWER'. It should show the
+value(s) you've just added.
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Press Enter to Continue
+
+Successfully received certificate.
+Certificate is saved at: /etc/letsencrypt/live/unraf-pilot.mosip.net/fullchain.pem
+Key is saved at:         /etc/letsencrypt/live/unraf-pilot.mosip.net/privkey.pem
+This certificate expires on 2024-08-08.
+These files will be updated when the certificate renews.
+
+NEXT STEPS:
+- This certificate will not be renewed automatically. Autorenewal of --manual certificates requires the use of an authentication hook script (--manual-auth-hook) but one was not provided. To renew this certificate, repeat this same certbot command before the certificate's expiry date.
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+If you like Certbot, please consider supporting our work by:
+ * Donating to ISRG / Let's Encrypt:   https://letsencrypt.org/donate
+ * Donating to EFF:                    https://eff.org/donate-le
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ubuntu@ip-10-0-5-243:~$
+
+========================================================================================================================================
+  after mapping is done your full chain key and privkey will be stored in this location: /etc/letsencrypt/live/unraf-pilot.mosip.net
+    
+ 11) in that  ssh rancher-nginx node only need to clone k8s-infra (ssh -i ~/.ssh/unraf.pem  ubuntu@10.0.5.243)
+ 12) then go to k8s-infra/
+ 13) path : /home/ubuntu/k8s-infra/rancher/on-prem/nginx
+ ubuntu@ip-10-0-5-243:~/k8s-infra/rancher/on-prem/nginx$ sudo ./install.sh
+=====>
+ The following internal ip will have to be DNS-mapped to rancher.xyz.net and iam.xyz.net.
+Give the internal interface ip of this node here. Run `ip a` to get all the interface addresses (without any whitespaces) : 10.0.5.243
+=====>
+Give path for SSL Certificate for rancher.xyz.net (without any whitespaces) : /etc/letsencrypt/live/unraf-pilot.mosip.net/fullchain.pem
+=====>
+Give path for SSL Certificate Key for rancher.xyz.net (without any whitespaces) : /etc/letsencrypt/live/unraf-pilot.mosip.net/privkey.pem
+=====>
+Give list of ips of all nodes in the rancher cluster (without any whitespaces, comma seperated) : 10.0.10.10,10.0.14.122
+=====>
+Give nodeport of the ingresscontroller of rancher cluster (without any whitespaces) (default is 30080) :
+Reading package lists... Done
+Building dependency tree... Done
+Reading state information... Done
+nginx is already the newest version (1.18.0-6ubuntu14.4).
+nginx set to manually installed.
+0 upgraded, 0 newly installed, 0 to remove and 11 not upgraded.
+Nginx Installation succesful
+
+ 15) Post installation 
+     sudo systemctl status nginx
+	 (if we want to uninstall nginx sudo apt purge nginx nginx-common)
+	 
+===================================================================================================================================
+                                     rancher-pwd (new Setup)
+									 ===========
+kubectl get secret --namespace cattle-system bootstrap-secret -o go-template='{{.data.bootstrapPassword|base64decode}}{{ "\n" }}'
+
+admin
+
+For rancher : pwd random (JpkqZUQQjlpv75T3) 
+
+===================================================================================================================================
+                                   Keycloak
+								   ========
+								 
+suvarna@DESKTOP-4KQ6O58:~/mosip_unraf/k8s-infra/rancher/keycloak$ ./install.sh keycloak.unraf-pilot.mosip.net
+Creating namespace
+namespace/keycloak created
+"bitnami" already exists with the same configuration, skipping
+Hang tight while we grab the latest from your chart repositories...
+...Successfully got an update from the "kafka-ui" chart repository
+...Successfully got an update from the "ingress-nginx" chart repository
+...Successfully got an update from the "wiremind" chart repository
+...Successfully got an update from the "mosip" chart repository
+...Successfully got an update from the "rancher-latest" chart repository
+...Successfully got an update from the "stable" chart repository
+...Successfully got an update from the "banzaicloud-stable" chart repository
+...Successfully got an update from the "bitnami" chart repository
+Update Complete. ⎈Happy Helming!⎈
+Installing
+NAME: keycloak
+LAST DEPLOYED: Tue May 14 10:56:27 2024
+NAMESPACE: keycloak
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+NOTES:
+CHART NAME: keycloak
+CHART VERSION: 7.1.18
+APP VERSION: 16.1.1
+
+** Please be patient while the chart is being deployed **
+
+Keycloak can be accessed through the following DNS name from within your cluster:
+
+    keycloak.keycloak.svc.cluster.local (port 80)
+
+To access Keycloak from outside the cluster execute the following commands:
+
+1. Get the Keycloak URL and associate its hostname to your cluster external IP:
+
+   export CLUSTER_IP=$(minikube ip) # On Minikube. Use: `kubectl cluster-info` on others K8s clusters
+   echo "Keycloak URL: http://keycloak.unraf-pilot.mosip.net/auth"
+   echo "$CLUSTER_IP  keycloak.unraf-pilot.mosip.net" | sudo tee -a /etc/hosts
+
+2. Access Keycloak using the obtained URL.
+3. Access the Administration Console using the following credentials:
+
+  echo Username: admin
+  echo Password: $(kubectl get secret --namespace keycloak keycloak -o jsonpath="{.data.admin-password}" | base64 --decode)
+==================================================================================================================================
+
+keycloak username : admin , pwd : edKHadsucM
+
+
+==============================================================================================================================
+
+Import
+Client ID * 
+ https://rancher.unraf-pilot.mosip.net/v1-saml/keycloak/saml/metadata
+Client Protocol 
+saml
+Client SAML Endpoint 
+https://rancher.unraf-pilot.mosip.net/v1-saml/keycloak/saml/acs
+
+==================================================================================================================================
+keycloak.unraf-pilot.mosip.net
+vi global_configmap.yaml
+ installation-name: unraf-pilot
+  installation-domain: unraf-pilot.mosip.net
+  mosip-version: develop
+  mosip-api-host: api.unraf-pilot.mosip.net
+  mosip-api-internal-host: api-internal.unraf-pilot.mosip.net
+  mosip-prereg-host: prereg.unraf-pilot.mosip.net
+  mosip-activemq-host: activemq.unraf-pilot.mosip.net
+  mosip-kibana-host: kibana.unraf-pilot.mosip.net
+  mosip-admin-host: admin.unraf-pilot.mosip.net
+  mosip-regclient-host: regclient.unraf-pilot.mosip.net
+  mosip-minio-host: minio.unraf-pilot.mosip.net
+  mosip-kafka-host: kafka.unraf-pilot.mosip.net
+  mosip-iam-external-host: iam.unraf-pilot.mosip.net
+  mosip-postgres-host: postgres.unraf-pilot.mosip.net
+  mosip-pmp-host: pmp.unraf-pilot.mosip.net
+  mosip-resident-host: resident.unraf-pilot.mosip.net
+  mosip-compliance-host: compliance.unraf-pilot.mosip.net
+  mosip-esignet-host: esignet.unraf-pilot.mosip.net
+  mosip-smtp-host: smtp.unraf-pilot.mosip.net
+
+
+===========================================================================================================================
+
+cp kube_config_cluster.yml $HOME/.kube/mosip-cluster unraf_config
+chmod 400 $HOME/.kube/mosip-clusterunraf_config
+
+sudo cp $HOME/.kube/mosip-clusterunraf_config $HOME/.kube/config
+
+===============================================================================================================================
+
+sudo certbot certonly --agree-tos --manual --preferred-challenges=dns -d  *.unraf-pilot.mosip.net -d unraf-pilot.mosip.net
+
+
+==========================================================================================================================
+mosip-nginx: 10.0.10.140
+unraf-pilot.mosip.net
+
+ minio.unraf-pilot.mosip.net
+ api-internal.unraf-pilot.mosip.net
+ compliance.unraf-pilot.mosip.net
+ esignet.unraf-pilot.mosip.net
+ kafka.unraf-pilot.mosip.net
+ kibana.unraf-pilot.mosip.net
+ prereg.unraf-pilot.mosip.net
+ activemq.unraf-pilot.mosip.net
+ api.unraf-pilot.mosip.net
+ pmp.unraf-pilot.mosip.net
+ smtp.unraf-pilot.mosip.net
+ resident.unraf-pilot.mosip.net
+ admin.unraf-pilot.mosip.net
+ iam.unraf-pilot.mosip.net
+ postgres.unraf-pilot.mosip.net
+ regclient.unraf-pilot.mosip.net
+ healthservices.unraf-pilot.mosip.net
+ signup.unraf-pilot.mosip.net
+ 
+ 
+ https://mosip.atlassian.net/browse/DSD-5269 (JIRA For DNS MApping)
+ 
+ healthservices.unraf-pilot.mosip.net
+ 
+ -----------------------------------------------------------------------------------------------------------------------------
+ 
+ Successfully received certificate.
+Certificate is saved at: /etc/letsencrypt/live/unraf-pilot.mosip.net/fullchain.pem
+Key is saved at:         /etc/letsencrypt/live/unraf-pilot.mosip.net/privkey.pem
+This certificate expires on 2024-08-12.
+These files will be updated when the certificate renews.
+
+NEXT STEPS:
+- This certificate will not be renewed automatically. Autorenewal of --manual certificates requires the use of an authentication hook scrip  t (--manual-auth-hook) but one was not provided. To renew this certificate, repeat this same certbot command before the certificate's expir  y date.
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+If you like Certbot, please consider supporting our work by:
+ * Donating to ISRG / Let's Encrypt:   https://letsencrypt.org/donate
+ * Donating to EFF:                    https://eff.org/donate-le
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+=====================================================================================================================================
+7) sudo ./install.sh
+node1: 10.0.12.35
+node2: 10.0.2.116
+node3:  10.0.1.133
+node4: 10.0.5.8
+node5: 10.0.6.204
+node6:  10.0.14.204
+
+
+MOSIP nginx server internal ip : 10.0.10.140
+
+MOSIP nginx server public ip: 10.0.10.140
+
+Publically accessible domains: api.unraf-pilot.mosip.net,prereg.unraf-pilot.mosip.net,resident.unraf-pilot.mosip.net, esignet.unraf-pilot.mosip.net
+
+SSL cert path: /etc/letsencrypt/live/unraf-pilot.mosip.net/fullchain.pem
+
+SSL key path:  /etc/letsencrypt/live/unraf-pilot.mosip.net/privkey.pem
+
+Cluster node ip's : 10.0.12.35,10.0.2.116,10.0.1.133,10.0.5.8,10.0.6.204,10.0.14.204
+
+
+curl https://api.unraf-pilot.mosip.net/httpbin/get?show_env=true
+
+curl https://api-internal.unraf-pilot.mosip.net/httpbin/get?show_env=true
+
+================================================================================================================================
+
+Captcha prereg
+================
+Prereg
+SITEKEY : 6LfV79wpAAAAAG4X_dZ42KWpONv8ez3IVOZIx9rR
+
+SecretKEY: 6LfV79wpAAAAANm7xvky2eVkiuTM1cYXQCN9bDJ2
+
+resident
+
+SITEKEY: 6Lfm79wpAAAAAMQtJQfMMhjJ4BeCYWoUS-N9Bgy0
+
+SecretKEY: 6Lfm79wpAAAAAKnStJfQ4zCw12wNVC3JbFAMl70R
+
+
+==============================================================================================================================
+
+esignet Captcha
+
+SITEKEY : 6LcqK90pAAAAAASz-NlHntQyveBWaUd4GfqUS7I8
+
+SECRETKEY: 6LcqK90pAAAAAD-7lvXz17f5iTaIkcAjtCWpL4FM
+
+====================================================================================================================================
+
+https://signup.unraf-pilot.mosip.net/
+
+signup captcha
+
+SITEKEY : 6LcOR90pAAAAAFmJ10Q6a3Dsdln2S3zJ-Z3hE-SX
+
+SECRET KEY : 6LcOR90pAAAAAAvdybMr_-xP1-oAfwY27GvpsNv6
+
+
+
+=======================================================================
+
+SSL Certificate Renewal in observation cluster nginx and mosip cluster nginx
+=========================================================================
+
+First need to do mosip cluster
+==============================
+
+sudo certbot certonly --agree-tos --manual --preferred-challenges=dns -d *.unraf-pilot.mosip.net -d unraf-pilot.mosip.net
+
+JIRA TICKET
+ 
+https://mosip.atlassian.net/browse/DSD-5889
+
+https://mosip.atlassian.net/browse/DSD-6439
+
+
+sudo mv /etc/letsencrypt/live/unraf-pilot.mosip.net-0001 /etc/letsencrypt/live/unraf-pilot.mosip.net
+
+==========================================================================================================================
+
+
+Inji For Unraf team --> https://github.com/unraf-id/inji-wallet/tree/v0.12.0 
+
+==========================================================================================================================
+
+New Task : deploy student portal  instead of health portal need to deploy unraf student portal.
+==================================
+artifactory deployment with  new image:
+go to ~/mosip_unraf/mosip-infra/deployment/v3/mosip/artifactory$
+in install.sh script --> change the artifactory name to artifactory-unraf
+ helm -n $NS install artifactory-unraf mosip/artifactory --version $CHART_VERSION
+
+deploy with new image : mosippilot/artifactory-server:artifactory-ref-impl-student-portal
+
+=================================================
+oidc-ui deployment:
+==================
+:~/mosip_unraf/esignet/helm/oidc-ui$
+changed the oidc-ui-unraf  in install.sh
+error :
+Error: INSTALLATION FAILED: Unable to continue with install: ConfigMap "oidc-ui" in namespace "esignet" exists and cannot be imported into the current release: invalid ownership metadata; annotation validation error: key "meta.helm.sh/release-name" must equal "oidc-ui-unraf": current value is "oidc-ui"
+
+=============================================================================================
+mock-relying-party-ui deployment:
+========================
+here also name I changed in install.sh script 
+helm -n $NS install mock-relying-party-ui-unraf mosip/mock-relying-party-ui \
+
+before running this need to be done dns mapping .
+
+url for this https://mosip.atlassian.net/browse/DSD-6476
+
+==============================================================================================================
+priv key for student portal
+============================
+
+
+
+===========================================================================================================
+
+mock-relying-party-service deployment with new privkey (privatekey here)
+
+change the name it mock-relying-party-service-unraf  and run the install.sh
+
+========================================================================================================
+kubectl get gateway mock-relying-party-ui-gateway -n esignet -o yaml
+
+to edit kubectl edit gateway mock-relying-party-ui-gateway -n esignet -o yaml
+
+apiVersion: networking.istio.io/v1beta1
+kind: Gateway
+metadata:
+  annotations:
+    meta.helm.sh/release-name: mock-relying-party-ui
+    meta.helm.sh/release-namespace: esignet
+  creationTimestamp: "2024-05-15T10:42:56Z"
+  generation: 4
+  labels:
+    app.kubernetes.io/managed-by: Helm
+  name: mock-relying-party-ui-gateway
+  namespace: esignet
+  resourceVersion: "485514"
+  uid: aec20421-295b-47e3-8307-ecc7c22566df
+spec:
+  selector:
+    istio: ingressgateway-internal
+  servers:
+  - hosts:
+    - healthservices.unraf-pilot.mosip.net
+    port:
+      name: http
+      number: 80
+      protocol: HTTP
+========================================================================================
+
+gateway.
+---------
+# Please edit the object below. Lines beginning with a '#' will be ignored,
+# and an empty file will abort the edit. If an error occurs while saving this file will be
+# reopened with the relevant failures.
+#
+apiVersion: networking.istio.io/v1beta1
+kind: Gateway
+metadata:
+  annotations:
+    meta.helm.sh/release-name: mock-relying-party-ui
+    meta.helm.sh/release-namespace: esignet
+  creationTimestamp: "2024-05-15T10:42:56Z"
+  generation: 4
+  labels:
+    app.kubernetes.io/managed-by: Helm
+  name: mock-relying-party-ui-gateway
+  namespace: esignet
+  resourceVersion: "485514"
+  uid: aec20421-295b-47e3-8307-ecc7c22566df
+spec:
+  selector:
+    istio: ingressgateway-internal
+  servers:
+  - hosts:
+    - healthservices.unraf-pilot.mosip.net
+    port:
+      name: http
+      number: 80
+      protocol: HTTP
+~
+~
+~
+~
+~
+~
+~
+~
+~
+"/tmp/kubectl-edit-3502489520.yaml" 28L, 807B  
+================================================================================================================
+commands used in debugging.
+
+kubectl annotate gateway mock-relying-party-ui-gateway -n esignet meta.helm.sh/release-name=mock-relying-party-ui-unraf --overwrite
+
+kubectl annotate gateway mock-relying-party-ui-gateway -n esignet meta.helm.sh/release-namespace=esignet-unraf --over^Cite
+
+ kubectl annotate gateway mock-relying-party-ui-gateway -n esignet meta.helm.sh/release-namespace=esignet-unraf --overwrite
+
+kubectl create ns esignet-unraf
+
+kubectl annotate gateway mock-relying-party-ui-gateway -n esignet meta.helm.sh/release-namespace=esignet --overwrite
+
+kubectl get gateway mock-relying-party-ui-gateway -n esignet -o jsonpath='{.metadata.annotations}'
+
+kubectl get gateway mock-relying-party-ui-gateway -n esignet -o yaml
+
+helm install mock-relying-party-ui-unraf mosip/mock-relying-party-ui -n esignet
+
+kubectl edit gateway mock-relying-party-ui-gateway -n esignet -o yaml
+
+=======================================================================================================================
+
+vi clusterrolebinding.yaml
+
+I changed the    a kind: ServiceAccount
+    name: {{ template "mock-relying-party-ui-unraf.serviceAccountName" . }}
+
+name in that file and tried it deployed but not working.
+
+========================================================================================
+
+to take a backup of file into another file
+===========================================
+kubectl get configmap oidc-ui -n esignet -o yaml > oidc-ui-backup.yaml
+
+============================================================================================
+artifactory changes pushed to existing artifactory.
+image no need to change only need to restart the pod.
+
+suvarna@DESKTOP-4KQ6O58:~/mosip_unraf/esignet/helm/oidc-ui/templates$
+suvarna@DESKTOP-4KQ6O58:~/mosip_unraf/esignet/helm/oidc-ui/templates$ vi clusterrolebinding.yaml
+change the service name to oidc-ui-unraf.
+suvarna@DESKTOP-4KQ6O58:~/mosip_unraf/esignet/helm/oidc-ui$ helm -n esignet-unraf install oidc-ui-unraf mosip/oidc-ui \
+  --set istio.hosts\[0\]=esignet.unraf-pilot.mosip.net \
+  -f values.yaml \
+  --version 1.3.0
+
+o/p: NAME: oidc-ui-unraf
+LAST DEPLOYED: Tue Oct 22 16:21:58 2024
+NAMESPACE: esignet-unraf
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+NOTES:
+
+Installation done but dependency issue. so 
+
+suvarna@DESKTOP-4KQ6O58:~/mosip_unraf/esignet/helm/oidc-ui$ vi copy_cm.sh
+change the namespace to esignet-unraf.
+suvarna@DESKTOP-4KQ6O58:~/mosip_unraf/esignet/helm/oidc-ui$ ./copy_cm.sh
+configmap "global" deleted
+configmap/global created
+configmap/artifactory-share created
+configmap/config-server-share created
+configmap/softhsm-esignet-share created
+
+then pod up and running.
+
+========================================================================================================================
+***************************************************************************************************
+***************************************************************************************************
+**************************************************************************************************
+dns mapping need to be done before doing below steps. check for JIRA 
+
+url for this https://mosip.atlassian.net/browse/DSD-6476 
+
+Notes to deploy student portal in unraf 
+==========================================
+usecase : healthportal and student portal both should work . esignet and artifactory should be same, only need to deploy mock-relying-party-service, mock-relying-party-service-ui,oidc-ui in different ns.
+
+Context :  provided by Avanish (Need to deploy customize images for oidc-ui and relying-party-ui. 'Artifactory image is not same which we use in  'health portal'. Artifactory image also new should deploy with out effecting curent 'health portal'
+esignet-service no customize. Existing image can deploy )
+
+Modifications: those customized images can be kept under the existing artifactory. 
+============== 
+
+Process: kubectl create ns esignet-unraf
+suvarna@DESKTOP-4KQ6O58:~/mosip_unraf/esignet/helm/oidc-ui/templates$ vi clusterrolebinding.yaml
+change : subjects:
+  - kind: ServiceAccount
+    name: {{ template "oidc-ui-unraf.serviceAccountName" . }}
+
+(need to -unraf in template )
+
+suvarna@DESKTOP-4KQ6O58:~/mosip_unraf/esignet/helm/oidc-ui$ vi install.sh
+change namespace ---> NS=esignet-unraf
+
+need to run below command for deployment because through script facing some exceptions. refer above for the exceptions.
+suvarna@DESKTOP-4KQ6O58:~/mosip_unraf/esignet/helm/oidc-ui$ 
+
+helm -n esignet-unraf install oidc-ui-unraf mosip/oidc-ui \
+  --set istio.hosts\[0\]=esignet.unraf-pilot.mosip.net \
+  -f values.yaml \
+  --version 1.3.0
+ 
+o/p: NAME: oidc-ui-unraf
+LAST DEPLOYED: Tue Oct 22 16:21:58 2024
+NAMESPACE: esignet-unraf
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+NOTES:
+
+but throwing error because of config-maps and secrets.
+So I run the copy_cm.sh then issue resolved.
+
+suvarna@DESKTOP-4KQ6O58:~/mosip_unraf/esignet/helm/oidc-ui$ vi copy_cm.sh
+change namespace --> DST_NS=esignet-unraf
+
+suvarna@DESKTOP-4KQ6O58:~/mosip_unraf/esignet/helm/oidc-ui$ ./copy_cm.sh
+configmap "global" deleted
+configmap/global created
+configmap/artifactory-share created
+configmap/config-server-share created
+configmap/softhsm-esignet-share created
+
+deployed --> need to change the image (mosippilot/oidc-ui:student-portal-esignet-unraf) in oidc-ui-unraf deployment.
+============================================================================================================
+ Deployment of mock-relying-party-service:
+ =========================================
+privatekey :
+===========
+ew0KICAgICJwIjogInZJcW9TUW9nVXZIcXdRc0Y0MEtOMlpaVjJKd2h1bkhDeHhZekVtbmtVV09wbjBJMW9IQlNmU3BOZ0dXVzNVdUM1cHJJMVFaUlg5a0Rmc0k4dGxOSURCYkRDb3RMa2N4cm0taU0wcDRlMml5SzZ5WnFxYjNES1pJWVVvSWpQalNUQXp3NjZKaTBfYjlNRm9xbWQ1cVFLREt1Wm1wWENvV01hTnhDb2NyaWNicyIsDQogICAgImt0eSI6ICJSU0EiLA0KICAgICJxIjogInVYYVJROV96eEdTd2NxbFYzV2NGbTFtSlozWGJ3TzRPc3VFdi1yd1Jfa3ZNN3RFVWU1OTdjM090bzV4TmtTLUVwZkxHcXh1TlBNWjE3N3lGNzZBcktuTjROeFB3V2hFblgwUVhXX0dUS2x0WWNZemVBVjhSdU1sYWl6bm1ualdNaU9jSTRCSTZ0SWQ1SEpUNEpWR0dVaGJ6OWQ0dGd3eS1DbDBncS1UQnN3TSIsDQogICAgImQiOiAiS0ppUVc5bUx2NVFQR05kTEZpN3FERjhWVGtMTHRQUS1SSXFuZHNPODZmQnhvMkEwTGtGWVh3Z3FBQnk2QlVQaGs5SG90bVo3eFd3VThDWDA2WElOVGY1MlFtdlFRYVd2cDlCSWZPTHppMXBkZm5GOVVuVDJyMzhMMzY0R0M2dXUtMGw4OHVMc1dSLWVXeERuZ0lMX1JkTjNpMkdoSFhtWXRXM190bXNFMmZfakNDel9jLWo5UW16ZVlzcl9qTTFxSXZDeHQ4eDdKbXQ3Z2JldGlWRndRcFM0Q01FLUNwcGUycDlZb1hNamk4Y1BuMGRBQ3VoTUQ2VU1VUk1YR0xrMHcwRUdmLTVTR0FkRGxlT2M0OHQtalNoc3NJR051TzJDSVI4WTB4bmNpQWJqeFBRaDlvRVBKTUkzRTk0elpDY2UxaHB3bkw2ajJjY05VMWNMNXd3di1RIiwNCiAgICAiZSI6ICJBUUFCIiwNCiAgICAidXNlIjogInNpZyIsDQogICAgInFpIjogImM5eHNWa0ticXM0NjJjNlNBTkZVYkY1ck5xdE9POEx3NE00S3hvT2R1ekVmNGtfV1pPUWViMWNFSTlrWklDdUp1bkhuRDNGMjNkd2hWU1dxTWx5OFg0bzI4VE5rWmo5OC0waXgzUjY3TkYxSmNBbThsblN1VUlRYWpTc2dBU1llWnBFRlhKSDJlQXB3b0FrakxaTFBLNWdVbnJaTmdkQmNpTTFtOHNiVlRNNCIsDQogICAgImRwIjogIms1U3BnM3Frc0toaVREYjNwZHM3czV6a2w0Z25Nb3pIblJTNFoycHg2Rzl0bjVhdzZXUGlmY3oyRzFIcDFGQy1Kd256dUNPWTRNQzY1cWJkNVEydGNLRUVqS1ZhUXNiVFdKZWdXMkNmMzhGTUFDTHpET2pYOGh0RVpKa3ZRd3JlSklNcHpWVnpIc2gxbzVObUdHcm8tajRwbTBzVDFNMlNpYVlYbGhOOFN1OCIsDQogICAgImFsZyI6ICJSUzI1NiIsDQogICAgImRxIjogInNORmItWXhBaWhNOUxuUkhTc2gzemY1MVE5Qlg3UDZKd1AxMGt1WlBlVlNuVTJDLTJJWGFXdDRFeENHMnloNjFwc2xwbzZTbTZUU0ZLRVZpcEd6ZC1xRVFFZUxPbWZBVXkzek5rSGtteDVGREp5OFlVZEpqd1BzbmVlbF85NEl5TkN1Z2lKQ1lxNWtsWEp5aVlHSHpYN3hHWnppbHgzV1VrYWpzQnpZWGZpVSIsDQogICAgIm4iOiAiaUplR2d1Q0h3WXF4dEtTYU5xWVVFcnNGYUFQcWpCcWswdTUzbnNpY2JKUk02U0VKSjFGV1dzeVNYVXgtZzhWUWRTMHhWOC1waElHUm1mN2JleFdEQ1dHTkNVNWsya0NnMW41VnRUd3NxZjJsTl9NZDR2VW9xNnUzOVoyYmpwSnl3RjRiY3BSTHdjNkYxTlFjRjVYTkxHN2toQk9kcmFlMUg5NDJETFN1U2o5TW9aOXVLLTVPb3ZGVFpxek1DcW5DZkUyYm10YUoxLTE0V2pZNVM3SUtjcnFYWm1XQ21nV2lDT3BWZzdkV2Q1Z1AyemlYQU5VYjVqbUhtWmN6R3Mza3FqZ0ZHUWMzMWp0ZFYzb2lhTXdMb3ZuQmZrdGFRMVNmUWRYOWZaNDlzcU9OcVFpRlZNaTFvM19HcXhWLXdCNHhSX0ZCSG5uLWJFc0VQLUt0QUNnV01RIg0KfQ==
+=====================================================================================================================
+oidc client-id :
+==================
+oidc-client id
+{
+    "id": null,
+    "version": null,
+    "responsetime": "2024-10-21T09:37:17.025Z",
+    "metadata": null,
+    "response": {
+        "clientId": "7bWsqC8M-2Ig4_PcSsZ_QlNe0Or1VhJYwBEbIcNO2Oc",
+        "status": "ACTIVE"
+    },
+    "errors": []
+}
+
+=====================================================================================================
+
+suvarna@DESKTOP-4KQ6O58:~/mosip_unraf/esignet-mock-services/helm/mock-relying-party-service/templates$ vi clusterrolebinding.yaml
+change template name to -unraf 
+subjects:
+  - kind: ServiceAccount
+    name: {{ template "mock-relying-party-service-unraf.serviceAccountName" . }}
+	
+suvarna@DESKTOP-4KQ6O58:~/mosip_unraf/esignet-mock-services/helm/mock-relying-party-service$ vi install.sh
+NS=esignet-unraf
+
+suvarna@DESKTOP-4KQ6O58:~/mosip_unraf/esignet-mock-services/helm/mock-relying-party-service$
+
+helm -n esignet-unraf install mock-relying-party-service-unraf mosip/mock-relying-party-service \
+      --set mock_relying_party_service.ESIGNET_SERVICE_URL="esignet.unraf-pilot.mosip.net" \
+      --set mock_relying_party_service.ESIGNET_AUD_URL="https://esignet.unraf-pilot.mosip.net/v1/esignet/oauth/v2/token" \
+      --version 0.9.2
+
+need to add private key if you didn't provide in deployment. 
+
+suvarna@DESKTOP-4KQ6O58:~/mosip_unraf/esignet-mock-services/helm/mock-relying-party-service$ vi copy_cm.sh
+
+change namespace DST_NS=esignet-unraf
+
+suvarna@DESKTOP-4KQ6O58:~/mosip_unraf/esignet-mock-services/helm/mock-relying-party-service$ ./copy_cm.sh
+
+go to esignet-unraf ns --> secrets --> edit jwe-userinfo-service-secrets, mock-relying-party-service-secrets, --> add privatekey and save.
+
+mock-relying-party-ui deployment
+====================================
+
+suvarna@DESKTOP-4KQ6O58:~/mosip_unraf/esignet-mock-services/helm/mock-relying-party-ui$ cd templates/
+
+suvarna@DESKTOP-4KQ6O58:~/mosip_unraf/esignet-mock-services/helm/mock-relying-party-ui/templates$ vi clusterrolebinding.yaml$
+
+change template name to -unraf 
+subjects:
+  a kind: ServiceAccount
+    name: {{ template "mock-relying-party-ui-unraf.serviceAccountName" . }}
+    namespace: {{ .Release.Namespace }}
+
+suvarna@DESKTOP-4KQ6O58:~/mosip_unraf/esignet-mock-services/helm/mock-relying-party-ui$ vi install.sh
+
+change namespace DST_NS=esignet-unraf
+
+suvarna@DESKTOP-4KQ6O58:~/mosip_unraf/esignet-mock-services/helm/mock-relying-party-ui$
+
+helm -n esignet-unraf install mock-relying-party-ui-unraf mosip/mock-relying-party-ui \
+      --set mock_relying_party_ui.mock_relying_party_ui_service_host=unraf.unraf-pilot.mosip.net \
+      --set mock_relying_party_ui.ESIGNET_UI_BASE_URL="https://esignet.unraf-pilot.mosip.net \
+      --set mock_relying_party_ui.MOCK_RELYING_PARTY_SERVER_URL=https://unraf.unraf-pilot.mosip.net/mock-relying-party-service\
+      --set mock_relying_party_ui.REDIRECT_URI=https://unraf.unraf-pilot.mosip.net/userprofile\
+      --set mock_relying_party_ui.REDIRECT_URI_REGISTRATION=https://unraf.unraf-pilot.mosip.net/registration \
+      --set mock_relying_party_ui.SIGN_IN_BUTTON_PLUGIN_URL="https:esignet.unraf-pilot.mosip.net///plugins/sign-in-button-plugin.js \
+      -f values.yaml \
+      --set istio.hosts\[0\]=unraf.unraf-pilot.mosip.net\
+      --version 0.9.2
+
+No copy_cm.sh so not required.
+
+change the image (mosippilot/mock-relying-party-ui:student-portal-custom) 
+
+go to mock-relying-party-ui-unraf deployment --> edit --> add client id and save.
+
+
+After deployment only student portal is working and health portal is not working.
+
+go to istio --> checked gateways --> in esignet ns --> gateway is named as 	mock-relying-party-ui-unraf-gateway (so download that file  and 
+change : meta.helm.sh/release-name: mock-relying-party-ui-unraf to mock-relying-party-ui
+name: mock-relying-party-ui-gateway
+- hosts:
+        - healthservices.unraf-pilot.mosip.net 
+		
+these three values need to change and rename file as mock-relying-party-ui-gateway --> create from yaml --> read from file --> add and save.
+
+now try health portal it's working.
+
+======================================================================================================================
+
