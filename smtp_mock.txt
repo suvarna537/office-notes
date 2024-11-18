@@ -1,0 +1,77 @@
+mock smtp email configuration (we need to create email id )
+=======================================================================================================================================
+as usual google creation--> mosip.dststage.noreply@gmail.com, Pwd:$mosip123$ passkey:tmeykjamyreuramr, mobileNo:8123998467.
+firstname:mosip, lastname:dststage, next: custom youremail :mosip.dststage.noreply@gmail.com, pwd: $mosip123$
+appkeys or app pwd --> give mosip.dststage.noreply@gmail.com or dst-stage and create --> pwd will show (copy and save w/o spaces) that is passkey and save.
+
+for creating passkey: go google Accounts--> security--> type --> App passwords --> give mail id till noreply --> ok --> copy passkey (without spaces_ --> save.
+====================================================================================================================================
+then add that email id in country(unraf) --> mosip-config --> kernel-default.properties --> in ## Email notification
+mosip.kernel.notification.email.from=do-not-reply@mosip.io (need to add instead of do-not-reply@mosip)
+
+spring.mail.host=${smtp.host}
+spring.mail.username=${smtp.username}
+spring.mail.password=${smtp.secret}
+spring.mail.port=${smtp.port} -----> add 
+spring.mail.port=587 --------> add 
+spring.mail.properties.mail.transport.protocol=smtp
+spring.mail.properties.mail.smtp.starttls.required=false ---> remove
+spring.mail.properties.mail.smtp.starttls.enable=false   ----> remove
+spring.mail.properties.mail.smtp.auth=false              -----> remove
+spring.mail.properties.mail.smtp.starttls.required=true  -----> add
+spring.mail.properties.mail.smtp.starttls.enable=true    ------> add
+spring.mail.properties.mail.smtp.auth=true               ------> add
+spring.mail.debug=false
+spring.servlet.multipart.enabled=true
+spring.servlet.multipart.max-file-size=5MB
+
+
+mosip.kernel.notification.email.from=do-not-reply@mosip.io  ----> remove
+mosip.kernel.notification.email.from=mosip.unraf.noreply@gmail.com    ----> add
+
+mosip.unraf.noreply@gmail.com ---> email id
+$mosip123$     ----> pwd
+
+In rancher ( go to config maps (don't select any ns) ---> in filter (search msg --> in config-server ns (1) in msg-gateways (1)
+
+edit (1) --> edit config ---> smtp-host : smtp.gmail.com , smtp-port: 587, smtp-username : mosip.unraf.noreply@gmail.com (newly created one)--> save.
+
+edit (2) --> edit config ---> smtp-host : smtp.gmail.com , smtp-port: 587, smtp-username : mosip.unraf.noreply@gmail.com (newly created one)--> save.
+
+go to secrets --> config-server-> msg-gateway ---> smtp-secret --> pvjuimyikavzeiuy (give pwd w/o single quotes) --> save.
+
+go to secrets --> msg-gateways ---> msg-gateway ---> smtp-secret --> pvjuimyikavzeiuy (give pwd w/o single quotes) --> save.
+
+after these changes restart the first config server and next (restart the service) kernel-notifier also..
+
+
+check pre-reg : https://prereg.dst-stage.mosip.net/pre-registration-ui/#/eng (enter email id : suvarna.sujatha@infystrat.com--> send otp. 
+
+you will get mail to your email (with below content)
+
+Your OTP for Registration
+mosip.dststage.noreply@gmail.com
+2:56 PM
+suvarna.sujatha
+Display now
+External Images are not displayed
+ MOSIP EXPERIENCE CENTER
+
+Dear suvarna.sujatha@infystrat.com,
+
+OTP for username suvarna.sujatha@infystrat.com is 111111 and is valid for 3 minutes (Generated on 24-05-2024 at 14:56:35 hrs).
+
+Website: www.mosip.io
+Phone: +91 80 4140 7777
+Email: info@mosip.io
+Address: 26/C, Electronic City, Hosur Road,Bangalore - 560100.
+
+
+=====================================================================================================================================
+                                    ZAM-DEV
+									========
+email id for zam-dev : mosipzamdev.noreply@gmail.com
+pwd: $mosip123$
+passkey:cbxjjylrojfaecev
+
+=================================================================================================================================

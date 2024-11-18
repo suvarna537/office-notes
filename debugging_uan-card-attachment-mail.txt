@@ -1,0 +1,17 @@
+
+MAIN ISSUE : UIN CARD Attachment mail not receiving
+
+FIRST ISSUE: Not able to access External and Internal URL's
+
+FIX: Rancher --> Namespace--> istio-system --> Istio--> Gateways --> public --> Edit yaml --> hosts: api.dst-stage.mosip.net (url was mentioned as minio.dst-stage.mosip.net) so changed to api.dst-stage.mosip.net .. and removed internal (istio: ingressgateway-internal) and save.
+
+in istio-public --> edit yaml --> added internal ( istio: ingressgateway-internal)
+
+
+Second Issue: Forbidden 403 error in print pod logs ( due to privileges)
+
+FIX : Login to keycloak --> clients --> check the Client id in (mosip-config/print-default.properties --> mosip.iam.adapter.clientid=mpartner-default-print ) select mpartner-default-print --> edit --> select service Account Roles --> ADD 
+ID_AUTHENTICATION,PRINT_PARTNER,RESIDENT .. (for roles referred mec-prod Environment)
+
+==========================================================================================================================================================================================================================================================================
+

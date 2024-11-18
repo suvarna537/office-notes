@@ -1,0 +1,89 @@
+
+https://docs.mosip.io/1.2.0/modules/id-repository/well-known (refer doc for well-known folder)
+
+=======================================================================================================================
+execute in mosip-file-server
+============================
+mosip@mosip-file-server-58b4fff57b-b6wrs:~$ cd /home
+mosip@mosip-file-server-58b4fff57b-b6wrs:/home$ ls
+mosip
+mosip@mosip-file-server-58b4fff57b-b6wrs:/home$ cd mosip/
+mosip@mosip-file-server-58b4fff57b-b6wrs:~$ ls
+cert.pem       get-cert.sh               get-ida-sign-certs.sh  ida_result.txt       ida_sign_temp.txt  mosip-file-server  pubkey.pem  temp.txt
+entrypoint.sh  get-ida-partner-certs.sh  get-ida-vc-certs.sh    ida_sign_result.txt  ida_temp.txt       pem-to-jwks.py     result.txt
+mosip@mosip-file-server-58b4fff57b-b6wrs:~$ cd mosip-file-ser
+bash: cd: mosip-file-ser: No such file or directory
+mosip@mosip-file-server-58b4fff57b-b6wrs:~$ cd mosip-file-server/
+mosip@mosip-file-server-58b4fff57b-b6wrs:~/mosip-file-server$ ls -lart
+total 32
+drwxr-xr-x 1 mosip mosip 4096 Feb  9 11:58 files
+drwxr-xr-x 1 mosip mosip 4096 Feb  9 11:58 .well-known
+drwxr-xr-x 1 mosip mosip 4096 Feb  9 11:58 .
+drwxr-xr-x 1 mosip mosip 4096 Jun 12 13:32 ..
+drwxr-xr-x 1 mosip mosip 4096 Jun 12 13:32 mosip-certs
+mosip@mosip-file-server-58b4fff57b-b6wrs:~/mosip-file-server$ cd .well-known/
+mosip@mosip-file-server-58b4fff57b-b6wrs:~/mosip-file-server/.well-known$ ls
+mosipvc
+mosip@mosip-file-server-58b4fff57b-b6wrs:~/mosip-file-server/.well-known$ cd mosipvc/
+mosip@mosip-file-server-58b4fff57b-b6wrs:~/mosip-file-server/.well-known/mosipvc$ ls
+controller.json  ida-controller.json  ida-public-key.json  mosip-context.json  mosip-ida-context.json  public-key.json
+mosip@mosip-file-server-58b4fff57b-b6wrs:~/mosip-file-server/.well-known/mosipvc$ cat mosip-context.json
+{
+  "@context": [{
+       "@version": 1.1
+    },"https://www.w3.org/ns/odrl.jsonld", {
+    "mosip": "https://api.dst-stage.mosip.net/mosip#",
+    "schema": "http://schema.org/",
+    "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "vcVer": "mosip:vcVer",
+    "UIN": "mosip:UIN",
+    "addressLine1": {
+        "@id": "https://api.dst-stage.mosip.net/mosip#addressLine1",
+        "@context": {"value": "rdf:value", "lang": "@language"}
+    },
+    "addressLine2": {
+        "@id": "https://api.dst-stage.mosip.net/mosip#addressLine2",
+        "@context": {"value": "rdf:value", "lang": "@language"}
+    },
+    "addressLine3": {
+        "@id": "https://api.dst-stage.mosip.net/mosip#addressLine3",
+        "@context": {"value": "rdf:value", "lang": "@language"}
+    },
+    "city": {
+        "@id": "https://api.dst-stage.mosip.net/mosip#city",
+        "@context": {"value": "rdf:value", "lang": "@language"}
+    },
+     "gender": {
+        "@id": "https://api.dst-stage.mosip.net/mosip#gender",
+        "@context": {"value": "rdf:value", "lang": "@language"}
+    },
+     "residenceStatus": {
+        "@id": "https://api.dst-stage.mosip.net/mosip#residenceStatus",
+        "@context": {"value": "rdf:value", "lang": "@language"}
+    },
+    
+    "dateOfBirth": "mosip:dateOfBirth",
+    "email": "mosip:email",
+    "fullName": {
+
+        "@id": "https://api.dst-stage.mosip.net/mosip#fullName",
+
+        "@context": {"value": "rdf:value", "lang": "@language"}
+    },
+  "phone": "mosip:phone",
+    "postalCode": "mosip:postalCode",
+    "province": {
+
+        "@id": "https://api.dst-stage.mosip.net/mosip#province",
+        "@context": {"value": "rdf:value", "lang": "@language"}
+    },
+    "region": {
+        "@id": "https://api.dst-stage.mosip.net/mosip#region",
+
+        "@context": {"value": "rdf:value", "lang": "@language"}
+    },
+    "biometrics": "mosip:biometrics"
+  }]
+}
+
+=========================================================================================================================

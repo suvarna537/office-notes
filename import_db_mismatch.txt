@@ -1,0 +1,72 @@
+cmd for import specific db 
+==========================
+before run this cmd in pg admin should have mosip_esignet db and esignet user.. 
+but in my case from mecstage I took whole db backup and imported to the dst-stage. before running cmd i deleted the mosip_esignet db and esignet user. 
+w/o those things in db below cmd will give (psql: error: connection to server at "postgres.dst-stage.mosip.net" (10.0.12.48), port 5432 failed: FATAL:  database "mosip_esignet" does not exist)
+====================================================================================================================================
+  psql  --dbname=postgresql://postgres:VowzKj08Jt@postgres.dst-stage.mosip.net:5432/mosip_esignet < mecstage-esignet.sql
+  
+Cmd for importing specific db.
+=====================================================================================================================================
+in pgadmin --> right click on databases --> create---> database --> give name and save.
+
+creating user --> click on --> Login/Group Roles --> create--> Login/Group role --> esignetuser--> click on definition --> give db-common-pwd ---> 
+
+select all --> click save.
+
+=========================================================================================================================================
+Step1: add misp keys as per mec-stage
+======================================
+In esignet and config server ---> secrets--> misp-keys are there.
+
+Config-server (need to add value as per mec-stage)
+key: mosip-esignet-misp-key  value: z55yOdZ8h6hNWtrok0M0zKwher7lzGh5zooVx1u39v489TIqmL
+
+esignet (need to add value as per mec-stage)
+Key: mosip-esignet-misp-key  value: z55yOdZ8h6hNWtrok0M0zKwher7lzGh5zooVx1u39v489TIqmL
+
+=================================================================================================================================
+Step2: add CLIENT ID as per mec stage in mock-relying-party-ui deployment --> edit yaml --> add value as per mec stage.
+=======================================================================================================================
+name: CLIENT_ID
+              value: lyTVEw7FiOOAmPeO-kutUrpPzVsA5GY5t7LRb_-05Ac
+			  
+===================================================================================================================================
+step3: add private key as per mec-stage
+=======================================
+click all namespaces --> select secrets --> search --> private
+
+2 tokens are there ---> jwe-userinfo-service-secrets(jwe-userinfo-private-key)  and mock-relying-party-service-secrets(client-private-key)
+ 
+edit those keys and add privatekey in value place.
+
+=====================================================================================================================================
+Step4: restart the config server , once up 
+======================================================================================================================================
+Step5: restart the esignet, mock-relying-party-service,	mock-relying-party-ui,	oidc-ui pods for esignet.
+======================================================================================================================================
+step6: check the values in pgadmin db as per mec-stage
+
+mosip_esignet db ---> select client_detail table --> select script --> run script --> we got some entries.
+
+in that we need to run the script based on client id.
+
+SELECT id, name, rp_id, logo_uri, redirect_uris, claims, acr_values, public_key, grant_types, auth_methods, status, cr_dtimes, upd_dtimes
+	FROM esignet.client_detail where id='lyTVEw7FiOOAmPeO-kutUrpPzVsA5GY5t7LRb_-05Ac';
+
+after run the script values present. 
+
+then go to browser --> check the https://healthservices.dst-stage.mosip.net/ --> sign in with esignet --> click on OTP --> enter UIN got from testing team keerthini(2076479157)
+ 
+check --> Invalid Transaction or Transaction Expired or some error. need to check esignet logs.
+
+facing requesting URI doesn't match --> for that query the SELECT id, name, rp_id, logo_uri, redirect_uris, claims, acr_values, public_key, grant_types, auth_methods, status, cr_dtimes, upd_dtimes
+	FROM esignet.client_detail where id='lyTVEw7FiOOAmPeO-kutUrpPzVsA5GY5t7LRb_-05Ac';
+	
+select requesturi --> double select --> edit from mec-stage to dst-stage.  save .. 
+
+====================================================================================================================================
+
+
+
+

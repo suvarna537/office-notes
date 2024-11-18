@@ -1,0 +1,1346 @@
+
+1) cd mosip/
+
+2) go to https://github.com/iiitb-pilot?q=esign&type=all&language=&sort=  and clone zam-1.2.0
+
+3) git clone https://github.com/iiitb-pilot/esignet.git  or dst-stage1202 (git clone https://github.com/mosip/esignet.git)   
+
+4) git checkout tags/v1.2.0 -b 1.2.0      or git checkout tags/v1.3.0 -b 1.3.0
+
+5) suvarna@DESKTOP-4KQ6O58:~/mosip$ ls
+esignet  k8s-infra  mosip-infra  rancher-cleanup
+
+6) cd esignet/
+
+7) ls
+
+8) git status on which branch
+
+9) for deleting existed esignet cd helm/ (use ./delete-all.sh, delete job in rancher, pod, delete ns (kubectl delete ns esignet) 
+  suvarna@DESKTOP-4KQ6O58:~/mosip/esignet/helm$ ls
+copy_cm_func.sh  delete-all.sh  esignet  install-all.sh  oidc-ui  redis  restart-all.sh  softhsm-values.yaml
+
+10) cd ..
+11) suvarna@DESKTOP-4KQ6O58:~/mosip/esignet$ ls
+
+12) cd db_scripts/
+
+13) cd mosip_esignet/
+
+14) vi deploy.properties
+   add postgress url (in DB_SERVERIP)
+   DB_SERVERIP=postgres.trainingsuv.mosip.net
+  DB_PORT=5432
+  SU_USER=postgres
+  DEFAULT_DB_NAME=postgres
+  MOSIP_DB_NAME=mosip_esignet
+  DML_FLAG=1
+  
+15) chmod 777 deploy.sh
+
+16) suvarna@DESKTOP-4KQ6O58:~/mosip/esignet/db_scripts/mosip_esignet$ ./deploy.sh deploy.properties
+03/21/2024 12:15:45 : deploy.properties
+03/21/2024 12:15:45 : Property file "deploy.properties" found.
+Terminating active connections
+./deploy.sh: line 20: psql: command not found
+
+17) I got error so Iam installing psql in local
+
+sudo sh -c 'echo "deb https://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
+wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
+sudo apt-get update
+sudo apt-get -y install postgresql
+
+18) suvarna@DESKTOP-4KQ6O58:~$ psql --version
+psql (PostgreSQL) 16.2 (Ubuntu 16.2-1.pgdg22.04+1)
+
+19) ./deploy.sh deploy.properties
+
+20) open pgadmin server --> right click --> click on register-server ---> Name: trainingsuv --> hostname/address: postgres.trainingsuv.mosip.net, 
+   password: go to rancher --> click on postgres(ns), storage, secrets, postgres-postgres sql, postgres-password, copy that
+   click on save password. ----> then save..
+   
+21) ./deploy.sh deploy.properties
+   o/p:- suvarna@DESKTOP-4KQ6O58:~/mosip/esignet/db_scripts/mosip_esignet$ ./deploy.sh deploy.properties
+03/21/2024 14:04:26 : deploy.properties
+03/21/2024 14:04:26 : Property file "deploy.properties" found.
+Terminating active connections
+Password for user postgres:
+Terminated connections
+Password for user postgres:
+DROP DATABASE
+Password for user postgres:
+DROP ROLE
+03/21/2024 14:04:54 : Creating database users
+Password for user postgres:
+CREATE ROLE
+Password for user postgres:
+CREATE DATABASE
+COMMENT
+psql (16.2 (Ubuntu 16.2-1.pgdg22.04+1), server 15.4)
+You are now connected to database "mosip_esignet" as user "postgres".
+DROP SCHEMA
+CREATE SCHEMA
+ALTER SCHEMA
+ALTER DATABASE
+Password for user postgres:
+psql (16.2 (Ubuntu 16.2-1.pgdg22.04+1), server 15.4)
+You are now connected to database "mosip_esignet" as user "postgres".
+CREATE TABLE
+COMMENT
+COMMENT
+COMMENT
+COMMENT
+COMMENT
+COMMENT
+COMMENT
+COMMENT
+COMMENT
+COMMENT
+COMMENT
+COMMENT
+COMMENT
+COMMENT
+CREATE TABLE
+COMMENT
+COMMENT
+COMMENT
+COMMENT
+COMMENT
+COMMENT
+COMMENT
+COMMENT
+COMMENT
+COMMENT
+COMMENT
+COMMENT
+COMMENT
+COMMENT
+CREATE TABLE
+COMMENT
+COMMENT
+COMMENT
+COMMENT
+COMMENT
+COMMENT
+COMMENT
+COMMENT
+COMMENT
+COMMENT
+CREATE TABLE
+COMMENT
+COMMENT
+COMMENT
+COMMENT
+COMMENT
+COMMENT
+COMMENT
+COMMENT
+COMMENT
+COMMENT
+COMMENT
+CREATE TABLE
+COMMENT
+COMMENT
+COMMENT
+COMMENT
+COMMENT
+COMMENT
+COMMENT
+COMMENT
+COMMENT
+COMMENT
+COMMENT
+CREATE TABLE
+CREATE INDEX
+COMMENT
+COMMENT
+COMMENT
+COMMENT
+COMMENT
+COMMENT
+COMMENT
+COMMENT
+COMMENT
+COMMENT
+COMMENT
+COMMENT
+CREATE TABLE
+CREATE INDEX
+COMMENT
+COMMENT
+COMMENT
+COMMENT
+COMMENT
+COMMENT
+COMMENT
+COMMENT
+COMMENT
+COMMENT
+COMMENT
+COMMENT
+Password for user postgres:
+psql (16.2 (Ubuntu 16.2-1.pgdg22.04+1), server 15.4)
+You are now connected to database "mosip_esignet" as user "postgres".
+GRANT
+GRANT
+GRANT
+ALTER DEFAULT PRIVILEGES
+03/21/2024 14:05:20 : Deploying DML for mosip_esignet database
+Password for user postgres:
+psql (16.2 (Ubuntu 16.2-1.pgdg22.04+1), server 15.4)
+You are now connected to database "mosip_esignet" as user "postgres".
+TRUNCATE TABLEx`x`
+COPY 4
+
+22) go to pgadmin ---> click Login/Group Roles ---> esignetuser---> right click ---> properties--> Select Definition --> goto rancher --> select NS(postgres)--> storage--> secrets--> db-common-secrets-(Copy pwd HyxBkcEI47)
+    add in pgadmin (password) --> go to privileges (select super user) and save..
+
+WE CAN SKIP THIS INSTALL.SH SCRIPT IF INSTALL-ALL.SH WORKS
+	
+23) go to helm --> cd mosip/esignet/helm/
+
+24) ls
+
+25) before doing ./install.sh ----> need to go browser --> search google captcha--> create --> label(trainingsuvesignet), v2 version select, domain (esignet.trainingsuv.mosip.net)click submit.
+          sitekey : 6LeDO6ApAAAAAFBX9ZtKsTHl9re1TodU9g9CdHva
+          secret key : 6LeDO6ApAAAAAAcEuavRyWwS5aquywlRK0hyIa_1
+
+26) ./install-all.sh   
+  Create softhsm namespace
+Error from server (AlreadyExists): namespaces "softhsm" already exists
+Istio label
+namespace/softhsm not labeled
+"mosip" already exists with the same configuration, skipping
+Hang tight while we grab the latest from your chart repositories...
+...Successfully got an update from the "kafka-ui" chart repository
+...Successfully got an update from the "ingress-nginx" chart repository
+...Successfully got an update from the "wiremind" chart repository
+...Successfully got an update from the "mosip" chart repository
+...Successfully got an update from the "rancher-latest" chart repository
+...Successfully got an update from the "bitnami" chart repository
+...Successfully got an update from the "stable" chart repository
+Update Complete. ⎈Happy Helming!⎈
+Installing Softhsm for esignet
+NAME: softhsm-esignet
+LAST DEPLOYED: Wed Mar 27 11:34:38 2024
+NAMESPACE: softhsm
+STATUS: deployed
+REVISION: 1
+NOTES:
+1. Get the application URL by running these commands:
+  export POD_NAME=$(kubectl get pods --namespace softhsm -l "app.kubernetes.io/name=softhsm,app.kubernetes.io/instance=softhsm-esignet" -o jsonpath="{.items[0].metadata.name}")
+  export CONTAINER_PORT=$(kubectl get pod --namespace softhsm $POD_NAME -o jsonpath="{.spec.containers[0].ports[0].containerPort}")
+  echo "Visit http://127.0.0.1:8080 to use your application"
+  kubectl --namespace softhsm port-forward $POD_NAME 8080:$CONTAINER_PORT
+Installed Softhsm for esignet
+Copy configmaps
+configmap "global" deleted
+configmap/global created
+Copy secrets
+secret "softhsm-esignet" deleted
+secret/softhsm-esignet created
+Warning: key mosip-esignet-host transferred to MOSIP_ESIGNET_HOST
+Warning: key security-pin transferred to SECURITY_PIN
+deployment.apps/config-server restarted
+kubectl -n config-server rollout status deployment.apps/config-server
+Waiting for deployment "config-server" rollout to finish: 1 old replicas are pending termination...
+Waiting for deployment "config-server" rollout to finish: 1 old replicas are pending termination...
+deployment "config-server" successfully rolled out
+Installing esignet services
+Create redis namespace
+Error from server (AlreadyExists): namespaces "redis" already exists
+Istio label
+namespace/redis not labeled
+Updating helm repos
+"bitnami" already exists with the same configuration, skipping
+Hang tight while we grab the latest from your chart repositories...
+...Successfully got an update from the "kafka-ui" chart repository
+...Successfully got an update from the "ingress-nginx" chart repository
+...Successfully got an update from the "mosip" chart repository
+...Successfully got an update from the "wiremind" chart repository
+...Successfully got an update from the "rancher-latest" chart repository
+...Successfully got an update from the "stable" chart repository
+...Successfully got an update from the "bitnami" chart repository
+Update Complete. ⎈Happy Helming!⎈
+Installing redis
+NAME: redis
+LAST DEPLOYED: Wed Mar 27 11:39:02 2024
+NAMESPACE: redis
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+NOTES:
+CHART NAME: redis
+CHART VERSION: 17.3.14
+APP VERSION: 7.0.5
+
+** Please be patient while the chart is being deployed **
+
+Redis&reg; can be accessed on the following DNS names from within your cluster:
+
+    redis-master.redis.svc.cluster.local for read/write operations (port 6379)
+    redis-replicas.redis.svc.cluster.local for read-only operations (port 6379)
+
+
+
+To get your password run:
+
+    export REDIS_PASSWORD=$(kubectl get secret --namespace redis redis -o jsonpath="{.data.redis-password}" | base64 -d)
+
+To connect to your Redis&reg; server:
+
+1. Run a Redis&reg; pod that you can use as a client:
+
+   kubectl run --namespace redis redis-client --restart='Never'  --env REDIS_PASSWORD=$REDIS_PASSWORD  --image docker.io/bitnami/redis:7.0.5-debian-11-r25 --command -- sleep infinity
+
+   Use the following command to attach to the pod:
+
+   kubectl exec --tty -i redis-client \
+   --namespace redis -- bash
+
+2. Connect using the Redis&reg; CLI:
+   REDISCLI_AUTH="$REDIS_PASSWORD" redis-cli -h redis-master
+   REDISCLI_AUTH="$REDIS_PASSWORD" redis-cli -h redis-replicas
+
+To connect to your database from outside the cluster execute the following commands:
+
+    kubectl port-forward --namespace redis svc/redis-master 6379:6379 &
+    REDISCLI_AUTH="$REDIS_PASSWORD" redis-cli -h 127.0.0.1 -p 6379
+secret "redis" deleted
+secret/redis created
+Warning: key redis-password transferred to REDIS_PASSWORD
+Installed redis service
+Create esignet namespace
+namespace/esignet created
+Hang tight while we grab the latest from your chart repositories...
+...Successfully got an update from the "kafka-ui" chart repository
+...Successfully got an update from the "ingress-nginx" chart repository
+...Successfully got an update from the "mosip" chart repository
+...Successfully got an update from the "wiremind" chart repository
+...Successfully got an update from the "rancher-latest" chart repository
+...Successfully got an update from the "bitnami" chart repository
+...Successfully got an update from the "stable" chart repository
+Update Complete. ⎈Happy Helming!⎈
+"mosip" already exists with the same configuration, skipping
+Hang tight while we grab the latest from your chart repositories...
+...Successfully got an update from the "kafka-ui" chart repository
+...Successfully got an update from the "ingress-nginx" chart repository
+...Successfully got an update from the "wiremind" chart repository
+...Successfully got an update from the "mosip" chart repository
+...Successfully got an update from the "rancher-latest" chart repository
+...Successfully got an update from the "bitnami" chart repository
+...Successfully got an update from the "stable" chart repository
+Update Complete. ⎈Happy Helming!⎈
+checking if PMS & mpartner_default_auth client is created already
+Copying keycloak configmaps and secret
+configmap/keycloak-host created
+configmap/keycloak-env-vars created
+secret/keycloak created
+creating and adding roles to keycloak pms & mpartner_default_auth clients for ESIGNET
+Error: uninstall: Release not loaded: esignet-keycloak-init: release: not found
+NAME: esignet-keycloak-init
+LAST DEPLOYED: Wed Mar 27 11:41:19 2024
+NAMESPACE: esignet
+STATUS: deployed
+REVISION: 1
+secret/keycloak-client-secrets configured
+secret/keycloak-client-secrets configured
+Check the existence of the secret & host placeholder & pass the secret & ESIGNET host to config-server deployment if the placeholder does not exist.
+Please enter the recaptcha admin site key for domain esignet.trainingsuv.mosip.net
+6LeDO6ApAAAAAFBX9ZtKsTHl9re1TodU9g9CdHva
+Please enter the recaptcha admin secret key for domain esignet.trainingsuv.mosip.net
+6LeDO6ApAAAAAAcEuavRyWwS5aquywlRK0hyIa_1
+Setting up captcha secrets
+secret/esignet-captcha created
+Setting up dummy values for esignet misp license key
+secret/esignet-misp-onboarder-key created
+secret "esignet-misp-onboarder-key" deleted
+secret/esignet-misp-onboarder-key created
+Copy configmaps
+configmap/global created
+configmap/artifactory-share created
+configmap/config-server-share created
+configmap/softhsm-esignet-share created
+copy secrets
+secret "esignet-captcha" deleted
+secret/esignet-captcha created
+Warning: key esignet-captcha-site-key transferred to ESIGNET_CAPTCHA_SITE_KEY
+Warning: key esignet-captcha-secret-key transferred to ESIGNET_CAPTCHA_SECRET_KEY
+Warning: key mosip-esignet-misp-key transferred to MOSIP_ESIGNET_MISP_KEY
+kubectl -n config-server rollout status deployment.apps/config-server
+deployment "config-server" successfully rolled out
+Do you have public domain & valid SSL? (Y/n)
+Y: if you have public domain & valid ssl certificate
+n: If you don't have a public domain and a valid SSL certificate. Note: It is recommended to use this option only in development environments.
+Y
+Installing esignet
+NAME: esignet
+LAST DEPLOYED: Wed Mar 27 11:42:13 2024
+NAMESPACE: esignet
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+NOTES:
+
+kubectl -n esignet rollout status deployment.apps/esignet
+Waiting for deployment "esignet" rollout to finish: 0 of 1 updated replicas are available...
+Waiting for deployment spec update to be observed...
+Waiting for deployment spec update to be observed...
+Waiting for deployment "esignet" rollout to finish: 0 out of 1 new replicas have been updated...
+Waiting for deployment "esignet" rollout to finish: 1 old replicas are pending termination...
+Waiting for deployment spec update to be observed...
+Waiting for deployment "esignet" rollout to finish: 1 old replicas are pending termination...
+Waiting for deployment "esignet" rollout to finish: 1 old replicas are pending termination...
+Waiting for deployment "esignet" rollout to finish: 0 of 1 updated replicas are available...
+deployment "esignet" successfully rolled out
+Installed esignet service
+Create esignet namespace
+Error from server (AlreadyExists): namespaces "esignet" already exists
+Istio label
+namespace/esignet labeled
+"mosip" already exists with the same configuration, skipping
+Hang tight while we grab the latest from your chart repositories...
+...Successfully got an update from the "ingress-nginx" chart repository
+...Successfully got an update from the "kafka-ui" chart repository
+...Successfully got an update from the "rancher-latest" chart repository
+...Successfully got an update from the "mosip" chart repository
+...Successfully got an update from the "wiremind" chart repository
+...Successfully got an update from the "stable" chart repository
+...Successfully got an update from the "bitnami" chart repository
+Update Complete. ⎈Happy Helming!⎈
+Copy configmaps
+configmap "global" deleted
+configmap/global created
+configmap "artifactory-share" deleted
+configmap/artifactory-share created
+configmap "config-server-share" deleted
+configmap/config-server-share created
+configmap "softhsm-esignet-share" deleted
+configmap/softhsm-esignet-share created
+Installing OIDC UI
+NAME: oidc-ui
+LAST DEPLOYED: Wed Mar 27 11:50:19 2024
+NAMESPACE: esignet
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+NOTES:
+
+kubectl -n esignet rollout status deployment.apps/esignet
+deployment "esignet" successfully rolled out
+kubectl -n esignet rollout status deployment.apps/oidc-ui
+Waiting for deployment "oidc-ui" rollout to finish: 0 of 1 updated replicas are available...
+deployment "oidc-ui" successfully rolled out
+Installed oidc-ui
+All esignet services deployed sucessfully.
+
+
+
+Error : in esignet deployment (rancher) edit yaml (change image from dev(docker.io/mosipdev/esignet:release-1.2.x) to docker.io/mosipid/esignet:1.2.0) then scale down and scale up )
+
+=========================================================================================================================================================================================
+27) suvarna@DESKTOP-4KQ6O58:~/mosip/esignet/helm$
+
+28)suvarna@DESKTOP-4KQ6O58:~/mosip/esignet/helm$ ls
+copy_cm_func.sh  delete-all.sh  esignet  install-all.sh  oidc-ui  redis  restart-all.sh  softhsm-values.yaml
+
+29) suvarna@DESKTOP-4KQ6O58:~/mosip/esignet/helm$ cd esignet/
+
+30) suvarna@DESKTOP-4KQ6O58:~/mosip/esignet/helm/esignet$ ls
+Chart.yaml  copy_cm.sh       copy_secrets.sh  install.sh                 keycloak-init.sh  restart.sh           templates
+README.md   copy_cm_func.sh  delete.sh        keycloak-init-values.yaml  mock-auth-data    softhsm-values.yaml  values.yaml
+
+31) suvarna@DESKTOP-4KQ6O58:~/mosip/esignet/helm/esignet$ ls
+Chart.yaml  copy_cm.sh       copy_secrets.sh  install.sh                 keycloak-init.sh  restart.sh           templates
+README.md   copy_cm_func.sh  delete.sh        keycloak-init-values.yaml  mock-auth-data    softhsm-values.yaml  values.yaml
+
+32) suvarna@DESKTOP-4KQ6O58:~/mosip/esignet/helm/esignet$ ./install.sh
+Create esignet namespace
+namespace/esignet created
+Hang tight while we grab the latest from your chart repositories...
+...Successfully got an update from the "kafka-ui" chart repository
+...Successfully got an update from the "ingress-nginx" chart repository
+...Successfully got an update from the "wiremind" chart repository
+...Successfully got an update from the "mosip" chart repository
+...Successfully got an update from the "rancher-latest" chart repository
+...Successfully got an update from the "bitnami" chart repository
+...Successfully got an update from the "stable" chart repository
+Update Complete. ⎈Happy Helming!⎈
+"mosip" already exists with the same configuration, skipping
+Hang tight while we grab the latest from your chart repositories...
+...Successfully got an update from the "kafka-ui" chart repository
+...Successfully got an update from the "ingress-nginx" chart repository
+...Successfully got an update from the "wiremind" chart repository
+...Successfully got an update from the "mosip" chart repository
+...Successfully got an update from the "rancher-latest" chart repository
+...Successfully got an update from the "bitnami" chart repository
+...Successfully got an update from the "stable" chart repository
+Update Complete. ⎈Happy Helming!⎈
+checking if PMS & mpartner_default_auth client is created already
+Copying keycloak configmaps and secret
+configmap/keycloak-host created
+configmap/keycloak-env-vars created
+secret/keycloak created
+creating and adding roles to keycloak pms & mpartner_default_auth clients for ESIGNET
+Error: uninstall: Release not loaded: esignet-keycloak-init: release: not found
+NAME: esignet-keycloak-init
+LAST DEPLOYED: Thu Mar 21 17:42:10 2024
+NAMESPACE: esignet
+STATUS: deployed
+REVISION: 1
+Warning: resource secrets/keycloak-client-secrets is missing the kubectl.kubernetes.io/last-applied-configuration annotation which is required by kubectl apply. kubectl apply should only be used on resources created declaratively by either kubectl create --save-config or kubectl apply. The missing annotation will be patched automatically.
+secret/keycloak-client-secrets configured
+Warning: resource secrets/keycloak-client-secrets is missing the kubectl.kubernetes.io/last-applied-configuration annotation which is required by kubectl apply. kubectl apply should only be used on resources created declaratively by either kubectl create --save-config or kubectl apply. The missing annotation will be patched automatically.
+secret/keycloak-client-secrets configured
+Check the existence of the secret & host placeholder & pass the secret & ESIGNET host to config-server deployment if the placeholder does not exist.
+Please enter the recaptcha admin site key for domain esignet.trainingsuv.mosip.net
+6LeDO6ApAAAAAFBX9ZtKsTHl9re1TodU9g9CdHva
+Please enter the recaptcha admin secret key for domain esignet.trainingsuv.mosip.net
+6LeDO6ApAAAAAAcEuavRyWwS5aquywlRK0hyIa_1
+Setting up captcha secrets
+secret/esignet-captcha created
+Setting up dummy values for esignet misp license key
+secret/esignet-misp-onboarder-key created
+secret/esignet-misp-onboarder-key created
+Copy configmaps
+configmap/global created
+configmap/artifactory-share created
+configmap/config-server-share created
+configmap/softhsm-esignet-share created
+copy secrets
+secret/esignet-captcha created
+Warning: key esignet-captcha-site-key transferred to ESIGNET_CAPTCHA_SITE_KEY
+deployment.apps/config-server env updated
+Warning: key esignet-captcha-secret-key transferred to ESIGNET_CAPTCHA_SECRET_KEY
+deployment.apps/config-server env updated
+Warning: key mosip-esignet-misp-key transferred to MOSIP_ESIGNET_MISP_KEY
+deployment.apps/config-server env updated
+kubectl -n config-server rollout status deployment.apps/config-server
+Waiting for deployment "config-server" rollout to finish: 1 old replicas are pending termination...
+Waiting for deployment "config-server" rollout to finish: 1 old replicas are pending termination...
+deployment "config-server" successfully rolled out
+Do you have public domain & valid SSL? (Y/n)
+Y: if you have public domain & valid ssl certificate
+n: If you don't have a public domain and a valid SSL certificate. Note: It is recommended to use this option only in development environments.
+y
+Installing esignet
+NAME: esignet
+LAST DEPLOYED: Thu Mar 21 17:47:52 2024
+NAMESPACE: esignet
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+NOTES:
+
+kubectl -n esignet rollout status deployment.apps/esignet
+Waiting for deployment "esignet" rollout to finish: 0 of 1 updated replicas are available...
+error: deployment "esignet" exceeded its progress deadline
+
+================================================================================================================================================
+
+                                        Partner onboarding
+										=================
+										
+suvarna@DESKTOP-4KQ6O58:~/mosip_dst/esignet$ ls
+LICENSE               client-management-service-impl  db_upgrade_script  esignet-core             helm               partner-onboarder
+README.md             consent-service-impl            docker-compose     esignet-integration-api  oidc-service-impl  pom.xml
+binding-service-impl  db_scripts                      docs               esignet-service          oidc-ui            vci-service-impl
+suvarna@DESKTOP-4KQ6O58:~/mosip_dst/esignet$ cd partner-onboarder/
+suvarna@DESKTOP-4KQ6O58:~/mosip_dst/esignet/partner-onboarder$ ls
+README.md  copy_cm.sh  copy_cm_func.sh  copy_secrets.sh  delete.sh  install.sh  misp_key.sh  values.yaml
+
+suvarna@DESKTOP-4KQ6O58:~/mosip_dst/esignet/partner-onboarder$ nano values.yaml
+
+- name: esignet
+      enabled: true
+    - name: resident-oidc
+      enabled: true
+    - name: demo-oidc
+      enabled: true
+above file there should be 3 true (modules)
+
+suvarna@DESKTOP-4KQ6O58:~/mosip_dst/esignet/partner-onboarder$ ./install.sh
+Do you have public domain & valid SSL? (Y/n)
+Y: if you have public domain & valid ssl certificate
+n: If you don't have a public domain and a valid SSL certificate. Note: It is recommended to use this option only in development environments.
+Y
+Create esignet namespace
+Error from server (AlreadyExists): namespaces "esignet" already exists
+Is values.yaml for onboarder chart set correctly as part of Pre-requisites?(Y/n) Y
+Istio label
+namespace/esignet labeled
+Hang tight while we grab the latest from your chart repositories...
+...Successfully got an update from the "ingress-nginx" chart repository
+...Successfully got an update from the "kafka-ui" chart repository
+...Successfully got an update from the "mosip" chart repository
+...Successfully got an update from the "wiremind" chart repository
+...Successfully got an update from the "rancher-latest" chart repository
+...Successfully got an update from the "banzaicloud-stable" chart repository
+...Successfully got an update from the "stable" chart repository
+...Successfully got an update from the "bitnami" chart repository
+Update Complete. ⎈Happy Helming!⎈
+Copy configmaps
+configmap "global" deleted
+configmap/global created
+configmap "keycloak-env-vars" deleted
+configmap/keycloak-env-vars created
+configmap "keycloak-host" deleted
+configmap/keycloak-host created
+Copy secrets
+secret/s3 created
+secret "keycloak" deleted
+secret/keycloak created
+secret "keycloak-client-secrets" deleted
+secret/keycloak-client-secrets created
+Provide onboarder bucket name : onboarder
+Provide onboarder s3 bucket region :
+Provide S3 URL : http://minio.minio:9000
+Onboarding default partners
+NAME: esignet-resident-oidc-partner-onboarder
+LAST DEPLOYED: Tue May  7 12:40:09 2024
+NAMESPACE: esignet
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+NOTES:
+mpartner-default-demo-oidc
+secret "esignet-misp-onboarder-key" deleted
+secret/esignet-misp-onboarder-key created
+secret/resident-oidc-onboarder-key created
+secret "resident-oidc-onboarder-key" deleted
+secret/resident-oidc-onboarder-key created
+Warning: key mosip-esignet-misp-key transferred to MOSIP_ESIGNET_MISP_KEY
+Warning: key resident-oidc-clientid transferred to RESIDENT_OIDC_CLIENTID
+deployment.apps/config-server env updated
+deployment.apps/config-server restarted
+kubectl -n config-server rollout status deployment.apps/config-server
+Waiting for deployment "config-server" rollout to finish: 1 old replicas are pending termination...
+Waiting for deployment "config-server" rollout to finish: 1 old replicas are pending termination...
+deployment "config-server" successfully rolled out
+deployment.apps/esignet restarted
+deployment.apps/resident restarted
+E-signet MISP License Key and Resident OIDC Client ID updated successfully.
+Reports are moved to S3 under onboarder bucket
+
+after creating all need to check minio --> login (username: admin, pwd : LC7Pfkp9p5 from rancher ns minio) and click on onboarder --> browse -->
+reports --> click on .html file --> preview--> check for failed tests --> it should be 0(zero) otherwise it will give some error.
+
+for e-signet : esignet.html, demo-oidc.html, resident-oidc.html
+for ida : ida-ca.html, ida-cred.html, ida-partner.html,ida-root.html 
+
+health services portal --> https://healthservices.dst-stage.mosip.net/ (not able to open for that I changed in esignet ns --> go to istio gateway--> 
+edit --> mock-relying-party-ui-gateway (edit yaml --> add ingressgateway-internal) 
+same as oidc-ui-gateway --> change (add internal)
+
+after that in health portal service (if I click on sign in with eSignet ) it throwing error not clicking itself (Required parameter is missing. Please report to site admin)
+
+New  Solution : 
+===============
+Client Id is not there in mock-relying-party-ui (took from pms table --> oidc_client (run script) --> name (health service OIDC Client ID (ex: cqMp1CXDyFMhi6w7N7Li9G9MPXetptc4gB_QjYWZ--A in dst-stage) name: CLIENT_ID , add value: clientid and save)
+restart all esignet services.
+  
+ida ns ida pods, in e-signet ns esignet pods already restarted, oidc ui i restarted all pods are up and running.
+
+===================================================================
+WARNING
+========
+
+while doing esignet partner-onboarder should not run it will delete the previous data.
+
+check db also for esignet. because that will also be a problem.
+
+===========================================================
+because of above warning or issue in minio related esignet files are throwing errors in test cases.  for that mallesh said to go pgadmin (some data deleted in db (pms,ida,esignet)
+
+
+
+
+
+============================================================================================================================================
+                              esignet mock services
+							  ====================
+							 
+							 
+I did  helm repo update stable because I faced some issues on helm repo stable 
+						 
+1) go to another tab 
+   first go to https://github.com/iiitb-pilot?q=esign&type=all&language=&sort=  or for dst-stage 1202 https://github.com/mosip/esignet-mock-services/tree/v0.9.2
+   select zam-release-0.9x --->  copy this  https://github.com/iiitb-pilot/esignet-mock-services.git  or https://github.com/mosip/esignet-mock-services.git
+   
+2) cd mosip/
+
+3) git clone https://github.com/iiitb-pilot/esignet-mock-services.git  or  for unraf git clone https://github.com/mosip/esignet-mock-services.git)
+ 
+4) ls
+5) cd esignet-mock-services/ (git checkout -b trainingsuv-0.9.x) git branch (git checkout -b unrafpilot-0.9.x)
+ 
+6) ls
+7) cd db_scripts/
+
+8) cd mosip_mockidentitysystem/
+9) vi deploy.properties
+   add DB_SERVERIP=postgres.trainingsuv.mosip.net
+       DB_PORT=5432
+       SU_USER=postgres
+       DEFAULT_DB_NAME=postgres
+       MOSIP_DB_NAME=mosip_mockidentitysystem
+       DML_FLAG=1
+	   
+10) chmod 777 deploy.sh
+11) ./deploy.sh  deploy.properties (password --> rancher (postgres--> secret--> postgres pwd)
+
+12) here password asks multiple times --> need to copy from rancher --> ns postgres--> storage--> secrets --> postgres-postgres sql, postgres-password, copy that.
+13) go to pgadmin --> select mockidsystemuser--> definition ---> ns postgres--> storage--> secrets --> db-common-secrets --> copy (add in pgadmin (definition) --> next (click super user) save.
+
+14)cd ~/mosip/esignet-mock-services$ cd  helm/
+
+15) cd mock-relying-party-service/
+
+16) vi privkey 
+ewogICAgInAiOiAiMHUyNU1mVUtLcG9qaXlTUndYcXJzaDZFS1IyaXlFRGxiajdwblV4WGhuMzNvUWdDRWtWbjQwVlVjNklnTWEtNUpjdnJVWmpkX3NlUVZ0VExzRFh6X0RIUlRpZU1LTzV1QXdjYXVhbVFlSjMyd0dSUlgyM1lNdm1YRUhSU2o5c0FaUEw3aXJiOG9fclJqQ2dSZmg1dWdNUmE0MHJzc3dObzJzYzhtT1NnaVBzIiwKICAgICJrdHkiOiAiUlNBIiwKICAgICJxIjogInZEWVF4Nmt6bnVHelQxRVdaX2R0N0c2MERmWk15SGx5SnZhZEx0RWlpT2RSbEtRZTdGNExzNzVTcl80dmUzWm5YdFhNWTNLazh2cFkxeHFueHByZGZ4YW83Nl9OdFBaMmdrVmpoTi1zdmpmbWhWbndxNC0wT2dvQzhfRFJIRDVsczAwQVh4MTBnWWRFMzJCQUFKNkNpay1wN2lkLWZ4TE1DX2J6TWE0Z3NNTSIsCiAgICAiZCI6ICJMQjBGcEdVeTRCVWZuRkMtYV9QYUFlRTBtaWozMG00NFdpRTBpS2pyZFJfeTMyeFJubDZiZnlUdmV2MzJvSWktOXVfYmdKcHF2UDRXdC1uMmhCRDlUbUdIVFctUXlzWUNvWFJxNkc1OHVRMTJrUjVPUXNWbk1PdXZqMEREcVpZUkRUTGVKY0VCSTlLT19SM1VGVk1TdEVtMXV3LUZWU3pkMm9nMXdWTTVkMGZLRlFvRkptZHlLTkRKMnRQTnFLTXI0bnlMczFReGFDZ09JR2ludndZWFd4N1hZVEVTX3hJY2VGSmN1d2dmLWM1RDU0SVY0NEZGM1k5clhWa05KQ3NiQnBuT3BrMFg4Q2lNbGxOWTdaOU5CTFMwN3FPOWR6OEhGcXVNc3FTUnNGTHlqblk0bzhQV2RSM19BZWZ0d0NnaHBhRVVTQmdST2lobHlJcDI4Mk9XblEiLAogICAgImUiOiAiQVFBQiIsCiAgICAidXNlIjogInNpZyIsCiAgICAicWkiOiAiSnoyMFFtWUxjYTg5WXpLbm9NanJ0RXFESjZIWGwwZ1FkaElmTkVIN2dpQTBlUkxUcGJTWDRUSlFZc0ZpaWRMSy02R0o3ZUR4YUE1R3J2SzJQcXpUdHhHZExlNEtLakg1NVJFTjZ2T3ZtbU1sb2lsc29ydVdlNUFHWExPb2NqR3FSUjlxSU1fTmpSOFVlMjR3UUFadUpQLU9peWVIOGQ2TlhncWtCR2NtazY0IiwKICAgICJkcCI6ICJzNmVmTVpuUWl2QzJqWEVjWkhzamVwYmJZbG5IcUdELUNhUzBQaklqNm4yb1NSUVZENUxtSllHTHFPSFNJZl9WNXdlRTZ2OFZOa2lyX0FsTFpFN1BfV0pCTUJ3bkdVWGJsZUNiTnJfaU9abng3WFNFaW85NHNoSThSTnVPNXRCVnlhWGI4ZzVocVJtZEdZLVhOcUNjNWpoWVlYZ1RtM1d2X1lmdGFSeHlUN2siLAogICAgImFsZyI6ICJSUzI1NiIsCiAgICAiZHEiOiAiWmt0c2ExaUhlZjlxR2Q0VXM0VkQ5WkZsdzREdTByZFBWLVlLSUh3Q3JTNHNwUUZlM1ZGd1FzMWEyOVRuc2M3MC1CSnotRWxEWmR5emxKWWtRa25Cd1dWcmhIcWs3NHBWZHhDSHVweG5veXQyMjF1NjkwUXZ6S3ZNVnhHNFZnV0QtU1FNNDZWNndUdm9MeEI5T05qdVVvWmg4ZEw5YWN1cG80Y2hQd3RKTVVrIiwKICAgICJuIjogIm14TWYtUjVFdEJyYTRDSXp1UjdvMUxoNmJFOUpYRFY3WWxPYmtJVENlQWpKeXRqa2lFYkZkVmZnc05SQ1lzYjNJNEg1X2VsamVsX2U2Qm83d3JfMTRvUUtKYkVTeHFCU3RsOE9SMldCdnBXeW5idjI4NjJVODdfb003N1hpWm9DZlRSWm1CZ25FSFhOTnpuelUtY2VXaHp5V1BpYW9PSWV4emhtWjVQeFFsVnNiX3pQLWNqM0xEVmROU0JfMmdGblgzdzNrZ3ZWMUtHRXA3QmFBQmEzYnUyblVQdnZkNG4tWkhXRGR4S3VKb0JIYWFhazU1UHZnTkFUclZvMFczaDVzeThvLV9oT2JjYmlXMVlSbm9wRmc4SS1WVFM5Qll3U3l1MExSdno3SENQZ19FaWlQdy01SXhJS2xkdGV6SjhlQmstU2dOUDhrOUdzNEdfYlBkVG5NUSIKfQ==
+
+paste above
+
+17) ./install-all.sh
+suvarna@DESKTOP-4KQ6O58:~/mosip_dst/esignet-mock-services/helm$ ./install-all.sh
+Create softhsm namespace
+Error from server (AlreadyExists): namespaces "softhsm" already exists
+Istio label
+namespace/softhsm not labeled
+"mosip" already exists with the same configuration, skipping
+Hang tight while we grab the latest from your chart repositories...
+...Successfully got an update from the "ingress-nginx" chart repository
+...Successfully got an update from the "kafka-ui" chart repository
+...Successfully got an update from the "mosip" chart repository
+...Successfully got an update from the "wiremind" chart repository
+...Successfully got an update from the "rancher-latest" chart repository
+...Successfully got an update from the "bitnami" chart repository
+...Successfully got an update from the "banzaicloud-stable" chart repository
+...Unable to get an update from the "stable" chart repository (https://charts.helm.sh/stable):
+        context deadline exceeded (Client.Timeout or context cancellation while reading body)
+Update Complete. ⎈Happy Helming!⎈
+Installing Softhsm for mock-identity-system
+NAME: softhsm-mock-identity-system
+LAST DEPLOYED: Tue May  7 12:04:55 2024
+NAMESPACE: softhsm
+STATUS: deployed
+REVISION: 1
+NOTES:
+1. Get the application URL by running these commands:
+  export POD_NAME=$(kubectl get pods --namespace softhsm -l "app.kubernetes.io/name=softhsm,app.kubernetes.io/instance=softhsm-mock-identity-system" -o jsonpath="{.items[0].metadata.name}")
+  export CONTAINER_PORT=$(kubectl get pod --namespace softhsm $POD_NAME -o jsonpath="{.spec.containers[0].ports[0].containerPort}")
+  echo "Visit http://127.0.0.1:8080 to use your application"
+  kubectl --namespace softhsm port-forward $POD_NAME 8080:$CONTAINER_PORT
+Installed Softhsm for mock-identity-system
+secret/softhsm-mock-identity-system created
+Warning: key security-pin transferred to SECURITY_PIN
+deployment.apps/config-server env updated
+deployment.apps/config-server restarted
+kubectl -n config-server rollout status deployment.apps/config-server
+Waiting for deployment "config-server" rollout to finish: 1 old replicas are pending termination...
+Waiting for deployment "config-server" rollout to finish: 1 old replicas are pending termination...
+deployment "config-server" successfully rolled out
+Installing esignet mock services
+Create esignet namespace
+Error from server (AlreadyExists): namespaces "esignet" already exists
+Copy configmaps
+configmap "global" deleted
+configmap/global created
+configmap "artifactory-share" deleted
+configmap/artifactory-share created
+configmap "config-server-share" deleted
+configmap/config-server-share created
+configmap/softhsm-mock-identity-system-share created
+Istio label
+namespace/esignet not labeled
+Do you have public domain & valid SSL? (Y/n)
+Y: if you have public domain & valid ssl certificate
+n: If you don't have a public domain and a valid SSL certificate. Note: It is recommended to use this option only in development environments.
+Y
+Installing mock-identity-system
+NAME: mock-identity-system
+LAST DEPLOYED: Tue May  7 12:08:23 2024
+NAMESPACE: esignet
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+NOTES:
+
+kubectl -n esignet rollout status deployment.apps/mock-identity-system
+Waiting for deployment "mock-identity-system" rollout to finish: 0 of 1 updated replicas are available...
+deployment "mock-identity-system" successfully rolled out
+Installed mock-identity-system service
+Create esignet namespace
+Error from server (AlreadyExists): namespaces "esignet" already exists
+Istio label
+namespace/esignet not labeled
+Copy configmaps
+configmap "global" deleted
+configmap/global created
+configmap "config-server-share" deleted
+configmap/config-server-share created
+configmap "artifactory-share" deleted
+configmap/artifactory-share created
+configmap "softhsm-mock-identity-system-share" deleted
+configmap/softhsm-mock-identity-system-share created
+Please provide client private key file : privkey
+Do you have public domain & valid SSL? (Y/n)
+Y: if you have public domain & valid ssl certificate
+n: If you don't have a public domain and a valid SSL certificate. Note: It is recommended to use this option only in development environments.
+Y
+Please provide jwe userinfo private key file : privkey
+Create secret for mock-relying-party-service-secrets and jwe-userinfo-private-key delete if exists
+secret/mock-relying-party-service-secrets created
+secret/jwe-userinfo-service-secrets created
+Please provide Esignet service url : ( default: http://esignet.esignet/v1/esignet )
+Installing Mock Relying Party Service
+NAME: mock-relying-party-service
+LAST DEPLOYED: Tue May  7 12:15:05 2024
+NAMESPACE: esignet
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+kubectl -n esignet rollout status deployment.apps/mock-relying-party-service
+Waiting for deployment "mock-relying-party-service" rollout to finish: 0 of 1 updated replicas are available...
+deployment "mock-relying-party-service" successfully rolled out
+Installed mock-relying-party-service service
+Please provide mock relying party ui domain (eg: healthservices.sandbox.xyz.net ) : healthservices.dst0^H^H^[[3~^[[D^C
+
+
+I typed wrong above so that service Iam installing individually.
+
+suvarna@DESKTOP-4KQ6O58:~/mosip_dst/esignet-mock-services/helm$ cd mock-relying-party-ui/
+suvarna@DESKTOP-4KQ6O58:~/mosip_dst/esignet-mock-services/helm/mock-relying-party-ui$ ls
+Chart.yaml  delete.sh  install.sh  restart.sh  templates  values.yaml
+suvarna@DESKTOP-4KQ6O58:~/mosip_dst/esignet-mock-services/helm/mock-relying-party-ui$ nano values.yaml
+suvarna@DESKTOP-4KQ6O58:~/mosip_dst/esignet-mock-services/helm/mock-relying-party-ui$ ./install.sh
+Please provide mock relying party ui domain (eg: healthservices.sandbox.xyz.net ) : healthservices.dst-stage.mosip.net
+Create esignet namespace
+Error from server (AlreadyExists): namespaces "esignet" already exists
+Istio label
+namespace/esignet not labeled
+Installing Mock Relying Party UI
+NAME: mock-relying-party-ui
+LAST DEPLOYED: Tue May  7 12:21:49 2024
+NAMESPACE: esignet
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+kubectl -n esignet rollout status deployment.apps/mock-relying-party-ui
+Waiting for deployment "mock-relying-party-ui" rollout to finish: 0 of 1 updated replicas are available...
+deployment "mock-relying-party-ui" successfully rolled out
+Installed mock-relying-party-ui service
+
+
+================================================================================================================================================
+                               esignet signup
+							   ===============
+ Google Captcha :    esignet signup sitekey -6LdIVNQpAAAAAGeSBYzLfgTo1Ps39Usu7McGStRR
+                     secret key - 6LdIVNQpAAAAAJZmbhF8ZtV3CE7b2QTYtJ3tiVQr	 
+
+https://github.com/mosip/esignet-signup/tree/v1.0.1			(https://github.com/mosip/esignet-signup.git)		 
+
+https://signup.dst-stage.mosip.net/signup (url for signup)
+
+suvarna@DESKTOP-4KQ6O58:~/mosip_dst$ ls
+esignet  esignet-mock-services  k8s-infra  mosip-infra  registration-client
+suvarna@DESKTOP-4KQ6O58:~/mosip_dst$ git clone https://github.com/mosip/esignet-signup.git
+Cloning into 'esignet-signup'...
+remote: Enumerating objects: 4086, done.
+remote: Counting objects: 100% (1182/1182), done.
+remote: Compressing objects: 100% (476/476), done.
+remote: Total 4086 (delta 806), reused 824 (delta 676), pack-reused 2904
+Receiving objects: 100% (4086/4086), 3.84 MiB | 4.22 MiB/s, done.
+Resolving deltas: 100% (2312/2312), done.
+
+suvarna@DESKTOP-4KQ6O58:~/mosip_dst$ ls
+esignet  esignet-mock-services  esignet-signup  k8s-infra  mosip-infra  registration-client
+suvarna@DESKTOP-4KQ6O58:~/mosip_dst$ cd esignet-signup
+suvarna@DESKTOP-4KQ6O58:~/mosip_dst/esignet-signup$ ls
+Credits.md  README.md  docs  helm  pom.xml  signup-service  signup-ui
+suvarna@DESKTOP-4KQ6O58:~/mosip_dst/esignet-signup$ git checkout tags/v1.0.1 -b dst-stage-1.0.1 or git checkout tags/v1.0.1 -b unraf-pilot-1.0.1
+Switched to a new branch 'dst-stage-1.0.1'
+suvarna@DESKTOP-4KQ6O58:~/mosip_dst/esignet-signup$ ls
+Credits.md  README.md  docs  helm  pom.xml  signup-service  signup-ui
+suvarna@DESKTOP-4KQ6O58:~/mosip_dst/esignet-signup$ cd helm/
+suvarna@DESKTOP-4KQ6O58:~/mosip_dst/esignet-signup/helm$ ls
+copy_cm_func.sh  delete-all.sh  install-all.sh  restart-all.sh  signup-service  signup-ui  softhsm-values.yaml
+suvarna@DESKTOP-4KQ6O58:~/mosip_dst/esignet-signup/helm$ ./install-all.sh
+"mosip" already exists with the same configuration, skipping
+Hang tight while we grab the latest from your chart repositories...
+...Successfully got an update from the "mosip" chart repository
+...Successfully got an update from the "ingress-nginx" chart repository
+...Successfully got an update from the "wiremind" chart repository
+...Successfully got an update from the "kafka-ui" chart repository
+...Successfully got an update from the "rancher-latest" chart repository
+...Successfully got an update from the "stable" chart repository
+...Successfully got an update from the "banzaicloud-stable" chart repository
+...Successfully got an update from the "bitnami" chart repository
+Update Complete. ⎈Happy Helming!⎈
+Installing signup services
+Create softhsm namespace
+Error from server (AlreadyExists): namespaces "softhsm" already exists
+Create signup namespace
+namespace/signup created
+Istio label
+namespace/softhsm not labeled
+"mosip" already exists with the same configuration, skipping
+Hang tight while we grab the latest from your chart repositories...
+...Successfully got an update from the "kafka-ui" chart repository
+...Successfully got an update from the "ingress-nginx" chart repository
+...Successfully got an update from the "mosip" chart repository
+...Successfully got an update from the "wiremind" chart repository
+...Successfully got an update from the "rancher-latest" chart repository
+...Successfully got an update from the "stable" chart repository
+...Successfully got an update from the "bitnami" chart repository
+...Successfully got an update from the "banzaicloud-stable" chart repository
+Update Complete. ⎈Happy Helming!⎈
+Installing Softhsm for signup
+NAME: softhsm-signup
+LAST DEPLOYED: Tue May  7 15:30:34 2024
+NAMESPACE: softhsm
+STATUS: deployed
+REVISION: 1
+NOTES:
+1. Get the application URL by running these commands:
+  export POD_NAME=$(kubectl get pods --namespace softhsm -l "app.kubernetes.io/name=softhsm,app.kubernetes.io/instance=softhsm-signup" -o jsonpath="{.items[0].metadata.name}")
+  export CONTAINER_PORT=$(kubectl get pod --namespace softhsm $POD_NAME -o jsonpath="{.spec.containers[0].ports[0].containerPort}")
+  echo "Visit http://127.0.0.1:8080 to use your application"
+  kubectl --namespace softhsm port-forward $POD_NAME 8080:$CONTAINER_PORT
+Installed Softhsm for signup
+Copy configmaps
+configmap "global" deleted
+configmap/global created
+Copy secrets
+secret/softhsm-signup created
+Warning: key mosip-signup-host transferred to MOSIP_SIGNUP_HOST
+Warning: key security-pin transferred to SECURITY_PIN
+deployment.apps/config-server env updated
+deployment.apps/config-server restarted
+kubectl -n config-server rollout status deployment.apps/config-server
+Waiting for deployment "config-server" rollout to finish: 1 old replicas are pending termination...
+Waiting for deployment "config-server" rollout to finish: 1 old replicas are pending termination...
+deployment "config-server" successfully rolled out
+"mosip" already exists with the same configuration, skipping
+Hang tight while we grab the latest from your chart repositories...
+...Successfully got an update from the "kafka-ui" chart repository
+...Successfully got an update from the "ingress-nginx" chart repository
+...Successfully got an update from the "rancher-latest" chart repository
+...Successfully got an update from the "wiremind" chart repository
+...Successfully got an update from the "mosip" chart repository
+...Successfully got an update from the "stable" chart repository
+...Successfully got an update from the "banzaicloud-stable" chart repository
+...Successfully got an update from the "bitnami" chart repository
+Update Complete. ⎈Happy Helming!⎈
+checking if PMS & mpartner_default_auth client is created already
+Copying keycloak configmaps and secret
+configmap/keycloak-host created
+configmap/keycloak-env-vars created
+secret/keycloak created
+creating and adding roles to keycloak pms & mpartner_default_auth clients for SIGNUP
+Error: uninstall: Release not loaded: signup-keycloak-init: release: not found
+NAME: signup-keycloak-init
+LAST DEPLOYED: Tue May  7 15:34:48 2024
+NAMESPACE: signup
+STATUS: deployed
+REVISION: 1
+secret/keycloak-client-secrets configured
+secret/keycloak-client-secrets configured
+Check the existence of the secret & host placeholder & pass the secret & SIGNUP host to config-server deployment if the placeholder does not exist.
+Please enter the recaptcha admin site key for domain signup.dst-stage.mosip.net
+6LdIVNQpAAAAAGeSBYzLfgTo1Ps39Usu7McGStRR
+Please enter the recaptcha admin secret key for domain signup.dst-stage.mosip.net
+6LdIVNQpAAAAAJZmbhF8ZtV3CE7b2QTYtJ3tiVQr
+Setting up captcha secrets
+secret/signup-captcha created
+Setting up dummy values for signup misp license key
+secret/signup-misp-onboarder-key created
+secret/signup-misp-onboarder-key created
+Copy configmaps
+configmap/global created
+configmap/config-server-share created
+configmap/softhsm-signup-share created
+copy secrets
+secret/signup-captcha created
+SElTRkIxVm5HaEJKNzk0Zg==
+secret/keycloak-client-secrets patched
+Warning: key mosip_signup_client_secret transferred to MOSIP_SIGNUP_CLIENT_SECRET
+deployment.apps/config-server env updated
+Warning: key mosip-signup-host transferred to MOSIP_SIGNUP_HOST
+Warning: key signup-captcha-site-key transferred to SIGNUP_CAPTCHA_SITE_KEY
+deployment.apps/config-server env updated
+Warning: key signup-captcha-secret-key transferred to SIGNUP_CAPTCHA_SECRET_KEY
+deployment.apps/config-server env updated
+Warning: key mosip-signup-misp-key transferred to MOSIP_SIGNUP_MISP_KEY
+deployment.apps/config-server env updated
+kubectl -n config-server rollout status deployment.apps/config-server
+Waiting for deployment "config-server" rollout to finish: 1 old replicas are pending termination...
+Waiting for deployment "config-server" rollout to finish: 1 old replicas are pending termination...
+deployment "config-server" successfully rolled out
+Do you have public domain & valid SSL? (Y/n)
+Y: if you have public domain & valid ssl certificate
+n: If you don't have a public domain and a valid SSL certificate. Note: It is recommended to use this option only in development environments.
+Y
+Installing signup
+NAME: signup
+LAST DEPLOYED: Tue May  7 15:43:37 2024
+NAMESPACE: signup
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+NOTES:
+
+kubectl -n signup rollout status deployment.apps/signup
+Waiting for deployment "signup" rollout to finish: 0 of 1 updated replicas are available...
+deployment "signup" successfully rolled out
+Installed signup
+Create signup namespace
+Error from server (AlreadyExists): namespaces "signup" already exists
+Istio label
+namespace/signup labeled
+"mosip" already exists with the same configuration, skipping
+Hang tight while we grab the latest from your chart repositories...
+...Successfully got an update from the "kafka-ui" chart repository
+...Successfully got an update from the "mosip" chart repository
+...Successfully got an update from the "ingress-nginx" chart repository
+...Successfully got an update from the "wiremind" chart repository
+...Successfully got an update from the "rancher-latest" chart repository
+...Successfully got an update from the "bitnami" chart repository
+...Successfully got an update from the "banzaicloud-stable" chart repository
+...Successfully got an update from the "stable" chart repository
+Update Complete. ⎈Happy Helming!⎈
+Copy configmaps
+configmap "global" deleted
+configmap/global created
+configmap "config-server-share" deleted
+configmap/config-server-share created
+configmap/softhsm-esignet-share created
+Installing SIGNUP UI
+NAME: signup-ui
+LAST DEPLOYED: Tue May  7 15:46:15 2024
+NAMESPACE: signup
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+NOTES:
+
+kubectl -n signup rollout status deployment.apps/signup
+deployment "signup" successfully rolled out
+kubectl -n signup rollout status deployment.apps/signup-ui
+Waiting for deployment "signup-ui" rollout to finish: 0 of 1 updated replicas are available...
+deployment "signup-ui" successfully rolled out
+Installed signup-ui
+All signup services deployed sucessfully.
+==============================================================================================================================
+                                Deleting Signup
+								===============
+								
+suvarna@DESKTOP-4KQ6O58:~/mosip_unraf/esignet-signup/helm$ ./delete-all.sh
+release "softhsm-signup" uninstalled
+Installing signup services
+Are you sure you want to delete all signup helm charts?(Y/n) Y
+release "signup" uninstalled
+Are you sure you want to delete all signup-ui helm charts?(Y/n) Y
+Error: uninstall: Release not loaded: signup-service: release: not found
+suvarna@DESKTOP-4KQ6O58:~/mosip_unraf/esignet-signup/helm$ helm list -n signup
+NAME                    NAMESPACE       REVISION        UPDATED                                 STATUS          CHART                   APP VERSION
+signup-keycloak-init    signup          1               2024-05-15 16:34:16.583755381 +0530 IST deployed        keycloak-init-12.0.1    1.2.0
+signup-ui               signup          1               2024-05-15 16:43:08.769617191 +0530 IST deployed        signup-ui-1.0.1              
+suvarna@DESKTOP-4KQ6O58:~/mosip_unraf/esignet-signup/helm$ helm delete signup-keycloak-init -n signup
+release "signup-keycloak-init" uninstalled
+suvarna@DESKTOP-4KQ6O58:~/mosip_unraf/esignet-signup/helm$ helm list -n signup
+NAME            NAMESPACE       REVISION        UPDATED                                 STATUS          CHART           APP VERSION
+signup-ui       signup          1               2024-05-15 16:43:08.769617191 +0530 IST deployed        signup-ui-1.0.1
+suvarna@DESKTOP-4KQ6O58:~/mosip_unraf/esignet-signup/helm$ helm delete signup-ui  -n signup
+release "signup-ui" uninstalled
+suvarna@DESKTOP-4KQ6O58:~/mosip_unraf/esignet-signup/helm$ helm list -n signup
+NAME    NAMESPACE       REVISION        UPDATED STATUS  CHART   APP VERSION
+suvarna@DESKTOP-4KQ6O58:~/mosip_unraf/esignet-signup/helm$
+suvarna@DESKTOP-4KQ6O58:~/mosip_unraf/esignet-signup/helm$ kubectl delete ns signup
+namespace "signup" deleted
+
+======================================================================================================================================
+important points:
+
+namespace : signup ( 3 pods ( 1 (signup), 2(signup-keycloak-init), 3(signup-ui)
+
+to access the signup page : https://signup.dst-stage.mosip.net/
+
+minio tests are failing but all are working...
+
+=============================================================================================================================================
+
+
+For healthservices ---> url (go to landing page and config maps --> click global ---> edit --> add --> mosip-healthservices-host : healthservices.unraf-pilot.mosip.net
+
+and save.
+
+landing page need to deploy again... ./delete.sh and kubectl delete ns landing-page --> ./install.sh
+
+after sometime only it will work (if everything fine)
+
+-----------------------------------------------------------------------------------------------------------------------------------
+
+                                                  mimioto
+ suvarna@DESKTOP-4KQ6O58:~/mosip_unraf$ git clone https://github.com/mosip/mimoto.git
+Cloning into 'mimoto'...
+remote: Enumerating objects: 3646, done.
+remote: Counting objects: 100% (1264/1264), done.
+remote: Compressing objects: 100% (496/496), done.
+remote: Total 3646 (delta 857), reused 948 (delta 714), pack-reused 2382
+Receiving objects: 100% (3646/3646), 4.63 MiB | 3.59 MiB/s, done.
+Resolving deltas: 100% (1830/1830), done.
+suvarna@DESKTOP-4KQ6O58:~/mosip_unraf$ ls
+esignet  esignet-mock-services  esignet-signup  k8s-infra  mimoto  mosip-infra
+suvarna@DESKTOP-4KQ6O58:~/mosip_unraf$ cd mimoto/
+suvarna@DESKTOP-4KQ6O58:~/mosip_unraf/mimoto$ ls
+Credits.md  Dockerfile  LICENSE  README.md  apitest  certs  deploy.sh  docs  helm  partner-onboarder  pom.xml  scripts  src
+suvarna@DESKTOP-4KQ6O58:~/mosip_unraf/mimoto$ git branch
+* main
+suvarna@DESKTOP-4KQ6O58:~/mosip_unraf/mimoto$ git checkout tags/v0.11.0 -b unraf-1201    
+Switched to a new branch 'unraf-1201'
+suvarna@DESKTOP-4KQ6O58:~/mosip_unraf/mimoto$ ls
+Credits.md  Dockerfile  LICENSE  README.md  certs  deploy.sh  docs  helm  partner-onboarder  pom.xml  scripts  src
+suvarna@DESKTOP-4KQ6O58:~/mosip_unraf/mimoto$ git branch
+  main
+* unraf-1201
+suvarna@DESKTOP-4KQ6O58:~/mosip_unraf/mimoto$ ls
+Credits.md  Dockerfile  LICENSE  README.md  certs  deploy.sh  docs  helm  partner-onboarder  pom.xml  scripts  src
+suvarna@DESKTOP-4KQ6O58:~/mosip_unraf/mimoto$ cd partner-onboarder/
+suvarna@DESKTOP-4KQ6O58:~/mosip_unraf/mimoto/partner-onboarder$ ls
+README.md  copy_cm.sh  copy_cm_func.sh  copy_secrets.sh  delete.sh  install.sh  values.yaml
+suvarna@DESKTOP-4KQ6O58:~/mosip_unraf/mimoto/partner-onboarder$ nano values.yaml
+suvarna@DESKTOP-4KQ6O58:~/mosip_unraf/mimoto/partner-onboarder$ ./install.sh
+Do you have public domain & valid SSL? (Y/n)
+Y: if you have public domain & valid ssl certificate
+n: if you don't have a public domain and a valid SSL certificate. It will add an ssl certificate in onboarder docker. Only recommended to use in local development environments
+Y
+Create mimoto namespace
+namespace/mimoto created
+Is values.yaml for onboarder chart set correctly as part of Pre-requisites?(Y/n) Y
+Istio label
+namespace/mimoto labeled
+Hang tight while we grab the latest from your chart repositories...
+...Successfully got an update from the "kafka-ui" chart repository
+...Successfully got an update from the "ingress-nginx" chart repository
+...Successfully got an update from the "mosip" chart repository
+...Successfully got an update from the "wiremind" chart repository
+...Successfully got an update from the "rancher-latest" chart repository
+...Successfully got an update from the "stable" chart repository
+...Successfully got an update from the "banzaicloud-stable" chart repository
+...Successfully got an update from the "bitnami" chart repository
+Update Complete. ⎈Happy Helming!⎈
+Copy configmaps
+configmap/global created
+configmap/keycloak-env-vars created
+configmap/keycloak-host created
+Copy secrets
+secret/s3 created
+secret/keycloak created
+secret/keycloak-client-secrets created
+Provide onboarder bucket name : onboarder
+Provide onboarder s3 bucket region :
+Provide S3 URL : http://minio.minio:9000
+Onboarding default partners
+NAME: mimoto-partner-onboarder
+LAST DEPLOYED: Thu May 16 12:42:27 2024
+NAMESPACE: mimoto
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+NOTES:
+
+Updating mimoto-oidc-keystore-password value
+secret/mimoto-oidc-keystore-password created
+secret/mimoto-oidc-keystore-password created
+Updating Mimoto wallet binding partner api key and Mimoto OIDC Partner Client ID
+secret/mimoto-wallet-binding-partner-api-key created
+secret/mimoto-oidc-partner-clientid created
+Warning: key mimoto-wallet-binding-partner-api-key transferred to MIMOTO_WALLET_BINDING_PARTNER_API_KEY
+deployment.apps/config-server env updated
+Warning: key mimoto-oidc-partner-clientid transferred to MIMOTO_OIDC_PARTNER_CLIENTID
+deployment.apps/config-server env updated
+Warning: key mimoto-oidc-keystore-password transferred to MIMOTO_OIDC_KEYSTORE_PASSWORD
+deployment.apps/config-server env updated
+deployment.apps/config-server restarted
+Waiting for deployment "config-server" rollout to finish: 0 out of 1 new replicas have been updated...
+Waiting for deployment "config-server" rollout to finish: 1 old replicas are pending termination...
+Waiting for deployment "config-server" rollout to finish: 1 old replicas are pending termination...
+deployment "config-server" successfully rolled out
+Reports are moved to S3 under onboarder bucket
+suvarna@DESKTOP-4KQ6O58:~/mosip_unraf/mimoto/partner-onboarder$ cd ..
+suvarna@DESKTOP-4KQ6O58:~/mosip_unraf/mimoto$ ls
+Credits.md  Dockerfile  LICENSE  README.md  certs  deploy.sh  docs  helm  partner-onboarder  pom.xml  scripts  src
+suvarna@DESKTOP-4KQ6O58:~/mosip_unraf/mimoto$ cd helm/
+suvarna@DESKTOP-4KQ6O58:~/mosip_unraf/mimoto/helm$ ls
+mimoto
+suvarna@DESKTOP-4KQ6O58:~/mosip_unraf/mimoto/helm$ cd mimoto/
+suvarna@DESKTOP-4KQ6O58:~/mosip_unraf/mimoto/helm/mimoto$ ls
+Chart.yaml  README.md  copy_cm.sh  copy_cm_func.sh  copy_secrets.sh  delete.sh  install.sh  restart.sh  templates  values.yaml
+suvarna@DESKTOP-4KQ6O58:~/mosip_unraf/mimoto/helm/mimoto$ ./install.sh
+Create mimoto namespace
+Error from server (AlreadyExists): namespaces "mimoto" already exists
+Istio label
+namespace/mimoto not labeled
+"mosip" already exists with the same configuration, skipping
+Hang tight while we grab the latest from your chart repositories...
+...Unable to get an update from the "mosip" chart repository (https://mosip.github.io/mosip-helm):
+        Get "https://mosip.github.io/mosip-helm/index.yaml": read tcp 172.23.39.5:51680->185.199.111.153:443: read: connection reset by peer
+...Successfully got an update from the "kafka-ui" chart repository
+...Successfully got an update from the "ingress-nginx" chart repository
+...Successfully got an update from the "wiremind" chart repository
+...Successfully got an update from the "rancher-latest" chart repository
+...Successfully got an update from the "banzaicloud-stable" chart repository
+...Successfully got an update from the "bitnami" chart repository
+...Successfully got an update from the "stable" chart repository
+Update Complete. ⎈Happy Helming!⎈
+Copy configmaps
+configmap "global" deleted
+configmap/global created
+configmap "artifactory-share" deleted
+configmap/artifactory-share created
+configmap "config-server-share" deleted
+configmap/config-server-share created
+Copy secrets
+secret "keycloak-client-secrets" deleted
+secret/keycloak-client-secrets created
+Do you have public domain & valid SSL? (Y/n)
+Y: if you have public domain & valid ssl certificate
+n: If you don't have a public domain and a valid SSL certificate. Note: It is recommended to use this option only in development environments.
+Y
+Copy secrets to config-server namespace
+secret "mimoto-wallet-binding-partner-api-key" deleted
+secret/mimoto-wallet-binding-partner-api-key created
+secret "mimoto-oidc-partner-clientid" deleted
+secret/mimoto-oidc-partner-clientid created
+Updating mimoto-oidc-keystore-password value
+secret "mimoto-oidc-keystore-password" deleted
+secret/mimoto-oidc-keystore-password created
+Warning: key mimoto-wallet-binding-partner-api-key transferred to MIMOTO_WALLET_BINDING_PARTNER_API_KEY
+Warning: key mimoto-oidc-partner-clientid transferred to MIMOTO_OIDC_PARTNER_CLIENTID
+Warning: key mimoto-oidc-keystore-password transferred to MIMOTO_OIDC_KEYSTORE_PASSWORD
+deployment.apps/config-server restarted
+Waiting for deployment "config-server" rollout to finish: 0 out of 1 new replicas have been updated...
+Waiting for deployment "config-server" rollout to finish: 1 old replicas are pending termination...
+Waiting for deployment "config-server" rollout to finish: 1 old replicas are pending termination...
+deployment "config-server" successfully rolled out
+Installing mimoto
+NAME: mimoto
+LAST DEPLOYED: Thu May 16 12:51:17 2024
+NAMESPACE: mimoto
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+NOTES:
+
+kubectl -n mimoto rollout status deployment.apps/mimoto
+Waiting for deployment "mimoto" rollout to finish: 0 of 1 updated replicas are available...
+deployment "mimoto" successfully rolled out
+Installed mimoto
+                                                
+=====================================================================================================================================
+I got the error with Config file of inji ( 		
+
+===============================================================================================================================
+                                warning
+								========
+								
+partner onboarder should not do if we import data mimoto also.
+
+to check whether mimoto partner onboarder is present or not in db -->
+
+go to pg admin --> select mosip_pms table --> select ---> partner ---> select query--> run this query (add some fields as below)
+
+SELECT id, policy_group_id, name, address, contact_no, email_id, certificate_alias, user_id, partner_type_code, approval_status, is_active, cr_by, cr_dtimes, upd_by, upd_dtimes, is_deleted, del_dtimes, lang_code, logo_url, addl_info
+	FROM pms.partner where id like '%mimoto%';	
+
+"mpartner-default-mimotokeybinding"
+
+"mpartner-default-mimotooidc"	
+
+both are present in mecstage.
+
+need to add values in dst-stage rancher mimoto secrets as per mecstage.
+
+====================================================================================================================================
+                                  
+Error 1:
+=======
+
+Requested parameter is missing. please report to site admin
+
+Sol: in esignet ns --> mock-relying-party-ui ---> deployments --> ctrl +F --> CLIENT_ID (only name is there no value) so need to add value (value: cqMp1CXDyFMhi6w7N7Li9G9MPXetptc4gB_QjYWZ--A) we can take this value from two ways (one way --> from minio --> esignet.html file) can take from mosip_ida db also oidc
+second --> go to pms db --> click on OIDC_client --> Check Health service OIDC Client (name) take that client id and update in mock-relying-party-ui deployment file. 
+
+restart esignet ns pods and check (it got solved)
+
+================================================================================================================
+
+Error 2:
+========
+
+Invalid Redirect URL
+
+o to pms db --> click on OIDC_client --> check (logo_uri and redirect_uris) here mecstage.mosip.net so I have changed to dst-stage.mosip.net and restarted pms and esignet services same issue.
+
+go to esignet db --> click on client_detail table --> change url and save.
+
+restart pms and esignet pods and check it's working.
+
+=======================================================================================================================
+
+Error 3: 
+
+Misp key got expired 
+
+goto pms db --> misp_license --> run script --> order by cr_dtimes desc;
+
+latest one change to expired date to 1 year and save.
+
+go to mosip_ida db --> misp_license_data --> run script--> order by cr_dtimes desc; 
+
+latest one change to expired date to 1 year and save. ( misp key --> DOWwzI8SCLaZQ4LPKSHhOzbLTnYasK6EMmTO0QQzzabCbAjGn4)
+
+after this restart pms,ida,esignet pods.
+
+next go to rancher --> secrets --> don't select any ns --> select misp --> will have 2 mosip-esignet-misp-key (one in config-server and another in esignet ) need to update with above license key.
+
+restart config server and esignet . (above 2 errors also interlinked).
+
+================================================================================================================
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

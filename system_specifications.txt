@@ -1,0 +1,54 @@
+C:\Users\User>systeminfo
+
+Host Name:                 DESKTOP-4KQ6O58
+OS Name:                   Microsoft Windows 11 Pro
+OS Version:                10.0.22631 N/A Build 22631
+OS Manufacturer:           Microsoft Corporation
+OS Configuration:          Standalone Workstation
+OS Build Type:             Multiprocessor Free
+Registered Owner:          User
+Registered Organization:
+Product ID:                00330-80000-00000-AA882
+Original Install Date:     02-01-2024, 23:41:52
+System Boot Time:          01-07-2024, 09:01:04
+System Manufacturer:       Dell Inc.
+System Model:              Latitude 3490
+System Type:               x64-based PC
+Processor(s):              1 Processor(s) Installed.
+                           [01]: Intel64 Family 6 Model 142 Stepping 10 GenuineIntel ~1600 Mhz
+BIOS Version:              Dell Inc. 1.26.0, 13-06-2023
+Windows Directory:         C:\Windows
+System Directory:          C:\Windows\system32
+Boot Device:               \Device\HarddiskVolume1
+System Locale:             en-us;English (United States)
+Input Locale:              00004009
+Time Zone:                 (UTC+05:30) Chennai, Kolkata, Mumbai, New Delhi
+Total Physical Memory:     16,258 MB
+Available Physical Memory: 8,152 MB
+Virtual Memory: Max Size:  18,690 MB
+Virtual Memory: Available: 8,998 MB
+Virtual Memory: In Use:    9,692 MB
+Page File Location(s):     C:\pagefile.sys
+Domain:                    WORKGROUP
+Logon Server:              \\DESKTOP-4KQ6O58
+Hotfix(s):                 4 Hotfix(s) Installed.
+                           [01]: KB5037591
+                           [02]: KB5027397
+                           [03]: KB5039212
+                           [04]: KB5037959
+Network Card(s):           2 NIC(s) Installed.
+                           [01]: Qualcomm QCA61x4A 802.11ac Wireless Adapter
+                                 Connection Name: Wi-Fi
+                                 DHCP Enabled:    Yes
+                                 DHCP Server:     192.168.29.1
+                                 IP address(es)
+                                 [01]: 192.168.29.37
+                                 [02]: fe80::6bb3:de63:bbf2:60d
+                                 [03]: 2405:201:d023:a0b4:35d8:dc54:3fec:8382
+                                 [04]: 2405:201:d023:a0b4:5b78:e816:8494:e7ba
+                           [02]: WireGuard Tunnel
+                                 Connection Name: dst-training
+                                 DHCP Enabled:    No
+                                 IP address(es)
+                                 [01]: 10.13.13.58
+Hyper-V Requirements:      A hypervisor has been detected. Features required for Hyper-V will not be displayed.

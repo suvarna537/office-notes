@@ -1,0 +1,209 @@
+==================================================================
+suvarna
+
+peer1
+=====
+[Interface]
+Address = 10.13.13.2/32
+PrivateKey = GIeqoqP56krYFWbj21T1TPwEXRfTj/gUaBkzopy22UI=
+ListenPort = 51820
+
+
+[Peer]
+PublicKey = BZ/l+AQjNUlA38ahwJ+XF3Od2hXQEb/AEmzRCh2lZg4=
+PresharedKey = v7PB9wvDLGUKMJMuJHPkGzyyE9uBhDzQBv7jB+KvT0M=
+Endpoint = 3.111.23.119:51820
+AllowedIPs = 10.0.0.0/16
+=================================================================
+Kishore 
+[Interface]
+Address = 10.13.13.3
+PrivateKey = mE71hwCyz6XwTEC5LnfxiqEX0LB3ab1iuWmC36arl04=
+ListenPort = 51820
+
+[Peer]
+PublicKey = BZ/l+AQjNUlA38ahwJ+XF3Od2hXQEb/AEmzRCh2lZg4=
+PresharedKey = HqdhNEpDOODgThjFpyiy4D5R9GXIIsShetXmRwDWLik=
+Endpoint = 3.111.23.119:51820
+AllowedIPs = 10.0.0.0/16
+
+====================================================================
+Mijjan
+
+[Interface]
+Address = 10.13.13.4
+PrivateKey = 2AIs6dEqSBT4w103Xgy7Q9N/L1WrzLv3/PW7wCx5tUw=
+ListenPort = 51820
+
+[Peer]
+PublicKey = BZ/l+AQjNUlA38ahwJ+XF3Od2hXQEb/AEmzRCh2lZg4=
+PresharedKey = h2+A+Yj0KAbmLMKs48kvIoORhieQeZhpQCmSOaNDbxM=
+Endpoint = 3.111.23.119:51820
+AllowedIPs = 10.0.0.0/16
+
+=============================================================
+
+Nivetha
+
+[Interface]
+Address = 10.13.13.5
+PrivateKey = iC+qpBa8v/yrIPe/lE0RjXKGaDRU4vfAmpaIF8/NXng=
+ListenPort = 51820
+
+[Peer]
+PublicKey = BZ/l+AQjNUlA38ahwJ+XF3Od2hXQEb/AEmzRCh2lZg4=
+PresharedKey = 9YoZQNBzljamassAT8aJ6+z6B0Td21AFcCq6ZnJZRpk=
+Endpoint = 3.111.23.119:51820
+AllowedIPs = 10.0.0.0/16
+
+=========================================================
+Suvarna Mobile
+
+[Interface]
+Address = 10.13.13.6/32
+PrivateKey = OP0TGsrpZSiGbntFDKT0KMJrucd8AAljV+0+8wvv8no=
+ListenPort = 51820
+
+[Peer]
+PublicKey = BZ/l+AQjNUlA38ahwJ+XF3Od2hXQEb/AEmzRCh2lZg4=
+PresharedKey = qPxcgWN/9UV0HVbu5Y8X+AOaj62/vEOaxntvhxn3cfw=
+Endpoint = 3.111.23.119:51820
+AllowedIPs = 10.0.0.0/16
+
+------------------------------
+=====================================================================
+kishore mobile
+
+[Interface]
+Address = 10.13.13.7/32
+PrivateKey = GCDD0BorTWWuHQoglWR6IZPbDzu9oCSHaGBLRpU7XFk=
+ListenPort = 51820
+
+[Peer]
+PublicKey = BZ/l+AQjNUlA38ahwJ+XF3Od2hXQEb/AEmzRCh2lZg4=
+PresharedKey = H4pcx58jH6W3gOIP1PAosTq+Iba0wksewwDuSWRnmO0=
+Endpoint = 3.111.23.119:51820
+AllowedIPs = 10.0.0.0/16
+========================================================================
+peer7: jeevan
+
+[Interface]
+Address = 10.13.13.8/32
+PrivateKey = oGYHoOF9N+dAEUV3pphlJzJmRWjcZQGTqj9gXIttJUc=
+ListenPort = 51820
+
+[Peer]
+PublicKey = BZ/l+AQjNUlA38ahwJ+XF3Od2hXQEb/AEmzRCh2lZg4=
+PresharedKey = VN3W05Oip+y/z2B2WZ/+a8oSNe7Jrd0BTpMNK7+hVco=
+Endpoint = 3.111.23.119:51820
+AllowedIPs = 10.0.0.0/16
+
+==================================================================================
+Peer8: manas
+
+[Interface]
+Address = 10.13.13.9/32
+PrivateKey = 8DxikMkNOAwSUn758cNahr2a/YK3MLJd7Oyovq5ApXg=
+ListenPort = 51820
+
+[Peer]
+PublicKey = BZ/l+AQjNUlA38ahwJ+XF3Od2hXQEb/AEmzRCh2lZg4=
+PresharedKey = ViU474zkbUMiH54xPPxPCV9kB07WetN4fV6ahcKb1jQ=
+Endpoint = 3.111.23.119:51820
+AllowedIPs = 10.0.0.0/16
+
+=============================================================================================
+peer9: Hiwotmobile
+
+[Interface]
+Address = 10.13.13.10/32
+PrivateKey = EBW3dxoWWilLd9k1N9kZvmod6pguHY2iNtD/S4zRP1M=
+ListenPort = 51820
+
+[Peer]
+PublicKey = BZ/l+AQjNUlA38ahwJ+XF3Od2hXQEb/AEmzRCh2lZg4=
+PresharedKey = 4tFS45U3L2QkuAkzRqNwAraCdWutbYAGsc0SUxmZWus=
+Endpoint = 3.111.23.119:51820
+AllowedIPs = 10.0.0.0/16
+
+===========================================================================================
+peer10 : Hiwot (Not working)
+
+[Interface]
+Address = 10.13.13.11/32
+PrivateKey = 4I8HQDR/JHGlNjh5IyQXK7caf8OgwXYygDhF7/ZMdWk=
+ListenPort = 51820
+
+[Peer]
+PublicKey = BZ/l+AQjNUlA38ahwJ+XF3Od2hXQEb/AEmzRCh2lZg4=
+PresharedKey = tG4wu1unnl8+2sYfU3uL1japRSYIphwiP4fEUp5VXmY=
+Endpoint = 3.111.23.119:51820
+AllowedIPs = 10.0.0.0/16
+===========================================================================================
+Peer11: Hiwot1
+
+[Interface]
+Address = 10.13.13.12/32
+PrivateKey = GHSb0MWrtJ5WLTaWcITEcCGduGncd/dAv4RglV/xaU8=
+ListenPort = 51820
+
+
+[Peer]
+PublicKey = BZ/l+AQjNUlA38ahwJ+XF3Od2hXQEb/AEmzRCh2lZg4=
+PresharedKey = 2vNqmsoVVfQpKADFnVx1ELmKVC2wuKWwbIYaRv4Y4+k=
+Endpoint = 3.111.23.119:51820
+AllowedIPs = 10.0.0.0/16
+==============================================================================================
+peer12 : Nambi
+
+[Interface]
+Address = 10.13.13.13/32
+PrivateKey = WFZAHTOOqXa/AdmUi5TkUjgJYa5dyd5e54h7oNADVVs=
+ListenPort = 51820
+
+[Peer]
+PublicKey = BZ/l+AQjNUlA38ahwJ+XF3Od2hXQEb/AEmzRCh2lZg4=
+PresharedKey = IUbNFXTpDLl70T7aavHFEcK2rLdFniotH6RRlPVqjV4=
+Endpoint = 3.111.23.119:51820
+AllowedIPs = 10.0.0.0/16
+
+=======================================================================================
+peer13 : mallesh
+
+[Interface]
+Address = 10.13.13.14/32
+PrivateKey = 6ClIaHqWRWn0UClOmYfnDjoraEwic4w1kM1wEKcLuFo=
+ListenPort = 51820
+
+[Peer]
+PublicKey = BZ/l+AQjNUlA38ahwJ+XF3Od2hXQEb/AEmzRCh2lZg4=
+PresharedKey = +VF2oR+Dj94CwDIQNLahno14cjc5KFPyhL7tl1pVB0o=
+Endpoint = 3.111.23.119:51820
+AllowedIPs = 10.0.0.0/16
+
+=======================================================================================
+peer14 : jeevan1
+
+[Interface]
+Address = 10.13.13.15/32
+PrivateKey = oNFeg9uj+q1mGJbs3tzYhWSJe/18Mx4sGCc/jd2rTE8=
+ListenPort = 51820
+
+[Peer]
+PublicKey = BZ/l+AQjNUlA38ahwJ+XF3Od2hXQEb/AEmzRCh2lZg4=
+PresharedKey = 4GjtT8eKZ5GxPaOO/p0V6dLSxodqelChwJr20bMlb3Y=
+Endpoint = 3.111.23.119:51820
+AllowedIPs = 10.0.0.0/16
+
+===========================================================================================
+
+can we know what capacity they have ?
+         Server type  (Manufacturer and brand) 
+          Number of processors 
+          Hard disk type (SSD or FDD)
+          Hard disk capacity ( in GB or TB)
+          RAM (in GB)
+         
+Once I get an answer, then I can let you know if this is sufficient or not.
+
+========================================================================================================================

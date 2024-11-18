@@ -1,0 +1,76 @@
+             Automatic sidecar Injection on namespace level
+			 ==============================================
+kubectl label ns $NS istio-injection=enabled --overwrite
+here istio-injection=enabled --overwrite  has mentioned So for that clarifaction refer below url.
+https://istio.io/latest/docs/setup/additional-setup/sidecar-injection/
+
+===============================================================================================================================
+
+As per script import and export in postgres module
+--------------------------------------------------
+## DB export
+
+* Export all DB's to a single file via below command:
+  ```
+  pg_dumpall -c --if-exists -h <HOSTNAME> -p <PORT-NUMBER> -U <USERNAME> -f <BACKUP_FILE_NAME>.dump
+  ```
+
+## DB import
+
+* Import DB's from backup file via below command:
+  ```
+  psql -h <HOSTNAME> -p <PORT-NUMBER> -U <USERNAME> -f <BACKUP_FILE_NAME>.dump
+
+======================================================================================================================================
+
+               bitnami helm charts repo in keycloak
+			   --------------------------------------
+			   
+https://github.com/bitnami/charts/tree/main/bitnami/keycloak
+
+=========================================================================================================================================
+
+
+
+
+
+
+diff dst vs unraf
+=================
+1) esignet --> secrets --> esignet-misp-onboarder-key ---> empty
+2) mosip-signup-misp-key --> empty
+3) mosip-esignet-misp-key---> empty
+4) mosip-signup-misp-key----> empty
+
+=======================================================================================================================================
+
+pod status alert mail (need to configure)
+
+Pod has been in a non-ready state for longer than 15 minutes.
+
+ - alert: KubernetesPodNotHealthy
+    expr: min_over_time(sum by (namespace, pod) (kube_pod_status_phase{phase=~"Pending|Unknown|Failed"})[15m:1m]) > 0
+    for: 0m
+    labels:
+      severity: critical
+    annotations:
+      summary: Kubernetes Pod not healthy (instance {{ $labels.instance }})
+      description: "Pod has been in a non-ready state for longer than 15 minutes.\n  V
+	  
+====================================================================================================
+
+ for crash looping:
+ ==================
+  - alert: KubernetesPodCrashLooping
+    expr: increase(kube_pod_container_status_restarts_total[1m]) > 3
+    for: 2m
+    labels:
+      severity: warning
+    annotations:
+      summary: Kubernetes pod crash looping (instance {{ $labels.instance }})
+      description: "Pod {{ $labels.pod }} is crash looping\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+	  
+=====================================================================================================================
+
+
+	  

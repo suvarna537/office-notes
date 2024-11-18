@@ -1,0 +1,30 @@
+RESIDENT
+PUBLISH_CREDENTIAL_STATUS_UPDATE_GENERAL
+SUBSCRIBE_CREDENTIAL_ISSUED_INDIVIDUAL
+
+Euin policy data:
+=================
+{"dataSharePolicies":{"typeOfShare":"direct","validForInMinutes":"30","transactionsAllowed":"2","encryptionType":"Partner Based","shareDomain":"datashare.datashare","source":"ID Repository"},"shareableAttributes":[{"attributeName":"lastName","source":[{"attribute":"lastName","filter":[{"language":"fra"}]}],"encrypted":false},{"attributeName":"firstName","source":[{"attribute":"firstName","filter":[{"language":"fra"}]}],"encrypted":false},{"attributeName":"dateOfBirth","source":[{"attribute":"dateOfBirth"}],"encrypted":false},{"attributeName":"gender","source":[{"attribute":"gender","filter":[{"language":"fra"}]}],"encrypted":false},{"attributeName":"phone","source":[{"attribute":"phone"}],"encrypted":false},{"attributeName":"email","source":[{"attribute":"email"}],"encrypted":false},{"attributeName":"addressLine1","source":[{"attribute":"addressLine1","filter":[{"language":"fra"}]}],"encrypted":false},{"attributeName":"addressLine2","source":[{"attribute":"addressLine2","filter":[{"language":"fra"}]}],"encrypted":false},{"attributeName":"addressLine3","source":[{"attribute":"addressLine3","filter":[{"language":"fra"}]}],"encrypted":false},{"attributeName":"region","source":[{"attribute":"region","filter":[{"language":"fra"}]}],"encrypted":false},{"attributeName":"province","source":[{"attribute":"province","filter":[{"language":"fra"}]}],"encrypted":false},{"attributeName":"district","source":[{"attribute":"district","filter":[{"language":"fra"}]}],"encrypted":false},{"attributeName":"communes","source":[{"attribute":"communes","filter":[{"language":"fra"}]}],"encrypted":false},{"attributeName":"UIN","source":[{"attribute":"UIN"}],"encrypted":false},{"attributeName":"VID","source":[{"attribute":"VID","filter":[{"type":"PERPETUAL"}]}],"format":"RETRIEVE","encrypted":false},{"attributeName":"postalCode","source":[{"attribute":"postalCode"}],"encrypted":false},{"attributeName":"biometrics","group":"CBEFF","source":[{"attribute":"individualBiometrics","filter":[{"type":"Face"},{"type":"Finger","subType":["Left Thumb","Right Thumb"]}]}],"encrypted":true,"format":"extraction"}]}
+Scripts to be executed in this order:
+======================================
+mosip_print_db ---default privileges
+mosip_role_mspprintuser
+mosip_print_grants
+1) Print-aervice merge code
+2) Created print DB
+3) Change mosip-config
+4) Build docker for print
+5) Updated Policy
+6) Template need to add
+7) registration repo merge code
+   print activemq listerner json
+   
+8) id-repository repo merge code
+9) commons -> notification service merge code
+
+----------------
+RPR_UIN_CARD_TEMPLATE
+	- RPR_UIN_CARD_EMAIL
+	- RPR_UIN_CARD_EMAIL_SUB
+	- KER_MAIL_TEMPLATE
+

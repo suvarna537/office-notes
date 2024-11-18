@@ -1,0 +1,195 @@
+utowired dependencies failed; nested exception is java.lang.IllegalArgumentException: Could not resolve placeholder 'mimoto.oidc.keystore.password' in value "${mimoto.oidc.keystore.password}"
+
+
+Error creating bean with name 'googleRecaptchaValidatorService': Injection of autowired dependencies failed; nested exception is java.lang.IllegalArgumentException: Could not resolve placeholder 'signup.captcha.secret.key' in value \"${signup.captcha.secret.key}\"\n\tat 
+
+
+85 common frames omitted\nCaused by: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'keyStoreImpl': Injection of autowired dependencies failed; nested exception is java.lang.IllegalArgumentException: Could not resolve placeholder 'softhsm.esignet.security.pin' in value \"${softhsm.esignet.security.pin}\"\n\tat
+
+
+I faced above issues in esignet pod,signup pod, mimoto pod.. 
+
+for that I have added below values in config server deployment.yaml.. values are below (edit yaml)
+
+- name: >-
+                SPRING_CLOUD_CONFIG_SERVER_OVERRIDES_SOFTHSM_ESIGNET_SECURITY_PIN
+              valueFrom:
+                secretKeyRef:
+                  key: security-pin
+                  name: softhsm-esignet
+				  
+ - name: >-
+                SPRING_CLOUD_CONFIG_SERVER_OVERRIDES_MIMOTO_OIDC_PARTNER_CLIENTID
+              valueFrom:
+                secretKeyRef:
+                  key: mimoto-oidc-partner-clientid
+                  name: mimoto-oidc-partner-clientid
+- name: >-
+                SPRING_CLOUD_CONFIG_SERVER_OVERRIDES_MIMOTO_OIDC_KEYSTORE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: mimoto-oidc-keystore-password
+                  name: mimoto-oidc-keystore-password
+ - name: SPRING_CLOUD_CONFIG_SERVER_OVERRIDES_SOFTHSM_SIGNUP_SECURITY_PIN
+              valueFrom:
+                secretKeyRef:
+                  key: security-pin
+                  name: softhsm-signup
+ - name: SPRING_CLOUD_CONFIG_SERVER_OVERRIDES_MOSIP_SIGNUP_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  key: mosip_signup_client_secret
+                  name: keycloak-client-secrets
+ - name: SPRING_CLOUD_CONFIG_SERVER_OVERRIDES_SIGNUP_CAPTCHA_SITE_KEY
+              valueFrom:
+                secretKeyRef:
+                  key: signup-captcha-site-key
+                  name: signup-captcha
+ - name: SPRING_CLOUD_CONFIG_SERVER_OVERRIDES_SIGNUP_CAPTCHA_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  key: signup-captcha-secret-key
+                  name: signup-captcha
+ - name: SPRING_CLOUD_CONFIG_SERVER_OVERRIDES_MOSIP_SIGNUP_MISP_KEY
+              valueFrom:
+                secretKeyRef:
+                  key: mosip-signup-misp-key
+                  name: signup-misp-onboarder-key
+- name: SPRING_CLOUD_CONFIG_SERVER_OVERRIDES_ESIGNET_CAPTCHA_SITE_KEY
+              valueFrom:
+                secretKeyRef:
+                  key: esignet-captcha-site-key
+                  name: esignet-captcha
+            - name: SPRING_CLOUD_CONFIG_SERVER_OVERRIDES_ESIGNET_CAPTCHA_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  key: esignet-captcha-secret-key
+                  name: esignet-captcha
+            - name: SPRING_CLOUD_CONFIG_SERVER_OVERRIDES_MOSIP_ESIGNET_MISP_KEY
+              valueFrom:
+                secretKeyRef:
+                  key: mosip-esignet-misp-key
+                  name: esignet-misp-onboarder-key
+				  
+				  
+then restart config-server and after up --> restart esignet,mimoto,signup(no order)
+
+===================================================================================================================================
+
+Second error
+==========
+Couldn't able to login regclient (showing sync configuration failed)
+
+for that we checked master data logs, sync data logs, reg-client logs(from folder)
+
+error in Master data
+
+There is an error in id schema...
+
+"Given jsonSpec is not a valid json object ","logger_name":"io.mosip.kernel.masterdata.service.impl.UISpecServiceImpl","thread_name":"http-nio-8086-exec-9","level":"ERROR","level_value":40000,"stack_trace":"com.fasterxml.jackson.core.JsonParseException: Unrecognized character escape 'd' (code 100)\n at [Source: (StringReader); line: 975, column: 25]\n\tat com.fasterxml.jackson.core.JsonParser._constructError(JsonParser.java:1922)\n\tat
+
+Avanish has done some changes in uispec..where he uploaded in wrong format (so he reverted changes )
+
+and restarted master data and sync data pods in kernel ---> then in reg-client folder (removed db,logs,.mosip keys ) and run 
+
+then it works.
+=================================================================================================================================
+
+Config server changes
+======================
+
+ano values.yaml (I changed the version   mec-stage-1.2.0.1 to dst-stage-1.2.0.1)
+
+gitRepo:
+  uri: https://github.com/iiitb-pilot/mosip-config/
+  version: dst-stage-1.2.0.1
+  ## Folders within the base repo where properties may be found.
+  searchFolders: ""
+  private: true
+  ## User name of user who has access to the private repo. Ignore for public repo
+  username: "TXVyYWxpdGhhcmFuSw=="
+  token: "Z2hwX2lDd1NjdnZxREN6VEVRWkMwUnpXUHpvcnIxd2haRDNiY0g4VA=="
+
+suvarna@DESKTOP-4KQ6O58:~/mosip_dst/mosip-infra/deployment/v3/mosip/config-server$ ./delete.sh
+
+kubectl delete ns config-server
+
+./install.sh (here I got db-common-secrets not found error) need to add.
+
+./delete.sh (again deleted but namespace not deleted)
+
+./install.sh
+
+From here goto https://docs.mosip.io/1.2.0/deploymentnew/v3-installation/mosip-modules-deployment
+
+
+Artifactory
+
+Key Manager
+
+WebSub
+
+Mock SMTP
+
+Kernel
+
+Masterdata-loader
+
+Biosdk server
+
+Packet Manager
+
+Datashare
+
+Pre-registration
+
+ID Repository
+
+Partner Management
+
+Mock ABIS
+
+Mock MV
+
+Registration Processor
+
+Admin
+
+ID Authentication
+
+Print
+
+Partner Onboarder (should not do) 
+
+MOSIP File Server
+
+Registration Client
+
+Resident Services
+
+from above go to each module ---> and check whether copy_cm.sh 
+
+[Oin rancher --> go to particular ns --> storage--> configmaps--> config-server-share --> all changed as per config-server values.yaml file. for that reason I need to copy configmaps in each module and restart.
+
+active_profile_env
+default
+cache_config_url_env
+http://config-server.config-server/config/*/default/mec-stage-1.2.0.1/hazelcast_cache.xml
+consolidator_config_file_url_env
+http://config-server.config-server/config/*/default/mec-stage-1.2.0.1/websub-consolidator.toml
+hub_config_file_url_env
+http://config-server.config-server/config/*/default/mec-stage-1.2.0.1/websub-service.toml
+spring_config_label_env
+mec-stage-1.2.0.1
+spring_config_url_env
+http://config-server.config-server/config
+
+
+After that go to workloads --> go to pods (in particular ns) --> delete that pods (for restart)--> like that each module need to do.
+
+process like --> go to module --> ls --> ./copy_cm.sh ---> go to rancher --> delete pods (for restart)  in specific module.
+
+==================================================================================================================================
+
+
+
