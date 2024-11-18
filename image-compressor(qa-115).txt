@@ -1,0 +1,151 @@
+Tasks
+=======
+need to deploy this thing on qa115 enviroment.
+Requirements:
+1. Deploy image-compressor image
+2. Deploy artifactory image for the image-compressor
+3. Deploy CTK tool
+4. Image compressor related properties need to be added to mosip-config: https://github.com/mosip/mosip-config/blob/develop/image-compressor-default.properties
+
+
+Need:
+=====
+auth-impl wireguard required for qa-115 enviroment access.
+
+qa-115 base url -> https://qa-115.mosip.net/
+
+Connect to sandbox through wsl:
+==============================
+Click on New SSH Session ---> hostname : qa-115.mosip.net, user: root, port: 22, privatekey : path of pem key.
+=====================================================================================
+pemkey : 
+
+-----BEGIN OPENSSH PRIVATE KEY-----
+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
+-----END OPENSSH PRIVATE KEY-----
+=======================================================================================================================================================
+====================================================================================================================================================================
+mz Token for access k8s Dashboard-MZ --> 
+
+eyJhbGciOiJSUzI1NiIsImtpZCI6IkxSU2I4OXhKY0d1WExiLXA5MFVtRC1hMEZYSlZjQm5sM3RsSzE1d2hkN3MifQ.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJrdWJlcm5ldGVzLWRhc2hib2FyZCIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VjcmV0Lm5hbWUiOiJhZG1pbi11c2VyLXRva2VuLW1wOWhjIiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZXJ2aWNlLWFjY291bnQubmFtZSI6ImFkbWluLXVzZXIiLCJrdWJlcm5ldGVzLmlvL3NlcnZpY2VhY2NvdW50L3NlcnZpY2UtYWNjb3VudC51aWQiOiIwMDhiZmQ2Yi0yYzFjLTQ4MmItYTdmNi00Nzg3MzFkNDYwNTciLCJzdWIiOiJzeXN0ZW06c2VydmljZWFjY291bnQ6a3ViZXJuZXRlcy1kYXNoYm9hcmQ6YWRtaW4tdXNlciJ9.JRqV1zOtHzi94olBCa9Mh_HWAhaqVUVDbyD95BX3E3UCvI6EnTqsXxa1UmK9FyAw_-if1qRjEG9scEyCTWMcPJ_LzzPzAzjzROuhQ_fDKHFKJMnu-AUxPHViAv8B-xuTTJ9UGx84EYv3T7tsydD8oqkWLNXyq8A6_c5B2TLl0yqyyIKKnC0DvfhJejKZj8oj-3cF7iGWpfvv4_d-bI7Spn8lzRR2IhTPLGGAaWiWZbkpwTJ23yYw54fy1ks3CAkvY4JOv6a4P_R8DhOr325tQ1A3-G75cyZEyzw-s8IxZAjWzzhcAB4-9rrIB-bocbmaUpm-DvTRUSGfGoojbsEajQ
+============================================================================================================================================================================
+dmz Token for access k8s Dashboard-DMZ --->
+
+eyJhbGciOiJSUzI1NiIsImtpZCI6InJ6eWxidDZqOVF2QXdLQlZyWVUyendSWS1LQUpOSUlWS0hLSWJtdXdaTVEifQ.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJrdWJlcm5ldGVzLWRhc2hib2FyZCIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VjcmV0Lm5hbWUiOiJhZG1pbi11c2VyLXRva2VuLWJwOTdjIiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZXJ2aWNlLWFjY291bnQubmFtZSI6ImFkbWluLXVzZXIiLCJrdWJlcm5ldGVzLmlvL3NlcnZpY2VhY2NvdW50L3NlcnZpY2UtYWNjb3VudC51aWQiOiI2YWY2Mjk5MS0yYmY0LTQ2ZmItYmNmMS02NWIxM2ZkZjIyMjIiLCJzdWIiOiJzeXN0ZW06c2VydmljZWFjY291bnQ6a3ViZXJuZXRlcy1kYXNoYm9hcmQ6YWRtaW4tdXNlciJ9.M9K7bkr7R9iR1Zb0EMgfhz_ltxxo7IQPuBx7c_m4dwsngMJ4Lwxjap3VWKMqS9wwWzyJcHUukBeVFjOVOw6rvM3JOH1ygP2RSp-vrUjcBqz2nO02QSZ0tzRkB-tC_J0EQtaFX_Ip38guWue1NvGAbchik_FZaWADNsICilT7-cf41JRFYZvEMIm3__vIfgWhGTukm_HYFStek5sbXlSu6UHgLJCEgIAEiRMZavE_RQ7p7q4rMEwn0-GYDSB4-OC_CoPcVnEedeItHhCwfpaWVzcwc8Jh-5cvsSIJp89RgQYjLNHpSUCF5rYHpPKu9uZIsn0unoLw0wUtavcuyumxvg
+
+============================================================================================================================================================================
+
+Config-branch :
+==============
+https://github.com/mosip/mosip-config/tree/qa-115/sandbox
+
+==========================================================================================================================================================
+
+To Copy the charts from one folder to another (including files)
+================================================================ 
+To create the helm charts from the existing helm chart (here from mock-biosdk created image-compressor) in the qa-115 env. refer mock-abis and image-compressor charts in helm for the changes.
+=====================================================================
+pwd
+mkdir image-compressor
+cp -r /home/mosipuser/mosip-infra/deployment/sandbox-v2/helm/charts/mock-biosdk/* /home/mosipuser/mosip-infra/deployment/sandbox-v2/helm/charts/image-compressor/
+===============================================================================
+checking nginx server issue
+===========================
+cd /etc/nginx/
+vi nginx.conf
+sudo systemctl restart nginx
+kc1 get pods
+kc1 get nodes
+ping mzworker0.sb
+===============================================================================================================================================
+checking accessbility in qa-115
+===============================
+ssh in to the vm:
+===============
+ssh root@mzworker0.sb
+
+sudo systemctl restart nginx
+
+sudo vim /etc/nginx/nginx.conf 
+
+cd /var/log/nginx  
+
+permission denied.
+
+sudo -i
+
+root 
+
+sudo nginx -t  (to verify the configuration changes)
+
+Find the location of the file:
+=============================
+sudo find / -name "favicon.ico" 2>/dev/null
+/home/mosipuser/esignet/oidc-ui/public/favicon.ico
+
+cp -r /home/mosipuser/esignet/oidc-ui/public/favicon.ico/  /root/usr/share/nginx/html
+
+
+To deploy the service in V2 (qa-115 env)
+========================================
+an playbooks/mock-abis.yaml
+for deploy the service (edited) 
+
+To view the secrets 
+====================
+av view secrets.yaml
+to view the secrets of services 
+
+issue (unable to open landingpage and kubernetes dashboad (in qa-115 env)
+========================================================
+debug : all are fine. need to run the coredns.yml playbook using below cmd.
+
+an playbooks/coredns.yml
+
+process of debugging cmds:(in qa-115 env)
+==========================
+nslookup mzworker0.sb
+grep -R “dmzworker0.sb” /etc/nginx/
+grep -R “dmzworker0.sb” /
+grep -R “ssl_certificate” /etc/nginx/
+curl http://qa-115.mosip.net/
+curl -v https://qa-115.mosip.net/pre-registration-ui
+openssl s_client -connect qa-115.mosip.net:443
+sudo netstat -tuln | grep 443
+
+
